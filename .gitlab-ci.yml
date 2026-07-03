@@ -1,10 +1,8 @@
 stages:
   - install
-  - lint
-  - build
+  - test
 
 variables:
-  NODE_VERSION: "20"
   NEXT_PUBLIC_API_URL: "http://localhost:8081"
 
 cache:
@@ -25,15 +23,8 @@ install:
       - node_modules/
     expire_in: 1 hour
 
-lint:
-  stage: lint
-  image: node:20-alpine
-  needs: [install]
-  script:
-    - npm run lint
-
-build:
-  stage: build
+build-check:
+  stage: test
   image: node:20-alpine
   needs: [install]
   script:
@@ -42,3 +33,24 @@ build:
     paths:
       - .next/
     expire_in: 1 hour
+
+lint:
+  stage: test
+  image: node:20-alpine
+  needs: [install]
+  script:
+    - npm run lint
+
+typecheck:
+  stage: test
+  image: node:20-alpine
+  needs: [install]
+  script:
+    - npx tsc --noEmit
+
+unit-tests:
+  stage: test
+  image: node:20-alpine
+  needs: [install]
+  script:
+    - npx jest --passWithNoTests
