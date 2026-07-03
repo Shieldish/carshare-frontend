@@ -1,0 +1,44 @@
+stages:
+  - install
+  - lint
+  - build
+
+variables:
+  NODE_VERSION: "20"
+  NEXT_PUBLIC_API_URL: "http://localhost:8081"
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+  policy: pull-push
+
+install:
+  stage: install
+  image: node:20-alpine
+  script:
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 hour
+
+lint:
+  stage: lint
+  image: node:20-alpine
+  needs: [install]
+  script:
+    - npm run lint
+
+build:
+  stage: build
+  image: node:20-alpine
+  needs: [install]
+  script:
+    - npm run build
+  artifacts:
+    paths:
+      - .next/
+    expire_in: 1 hour
