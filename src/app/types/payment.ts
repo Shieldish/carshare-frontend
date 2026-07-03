@@ -1,0 +1,27 @@
+// src/types/payment.ts
+
+export enum PaymentMethod {
+  CREDIT_CARD = 'CREDIT_CARD',
+  DEBIT_CARD = 'DEBIT_CARD',
+  MOBILE_MONEY = 'MOBILE_MONEY',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  CASH = 'CASH',
+}
+
+export enum PaymentPurpose {
+  BOOKING_PAYMENT = 'BOOKING_PAYMENT',
+  COMPANY_REGISTRATION_FEE = 'COMPANY_REGISTRATION_FEE',
+  DAMAGE_DEPOSIT = 'DAMAGE_DEPOSIT',
+  ADDITIONAL_CHARGES = 'ADDITIONAL_CHARGES',
+}
+
+// ✅ MISE À JOUR : Ajout du statut PROCESSING
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',  // ✅ NOUVEAU : En cours de vérification admin
+  AUTHORIZED = 'AUTHORIZED',
+  CAPTURED = 'CAPTURED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  CANCELLED = 'CANCELLED',
+}

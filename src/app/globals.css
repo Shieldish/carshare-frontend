@@ -1,0 +1,187 @@
+@import 'react-calendar/dist/Calendar.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root {
+  --background: 249 250 251; /* bg-gray-50 */
+  --foreground: 31 41 55;   /* text-gray-800 */
+
+  --card: 255 255 255; /* bg-white */
+  --card-foreground: 17 24 39; /* text-gray-900 */
+
+  --muted: 243 244 246; /* bg-gray-100 */
+  --muted-foreground: 107 114 128; /* text-gray-500 */
+
+  --primary: 37 99 235; /* bg-blue-600 */
+  --primary-foreground: 255 255 255; /* text-white */
+
+  --secondary: 156 163 175; /* bg-gray-400 */
+  --secondary-foreground: 17 24 39; /* text-gray-900 */
+
+  --accent: 243 244 246; /* bg-gray-100 */
+  --accent-foreground: 15 20 25; /* text-gray-900 */
+
+  --destructive: 220 38 38; /* bg-red-600 */
+  --destructive-foreground: 255 255 255; /* text-white */
+
+  --border: 229 231 235; /* border-gray-200 */
+  --input: 229 231 235; /* border-gray-200 */
+  --ring: 37 99 235; /* ring-blue-600 */
+}
+
+.dark {
+  --background: 17 24 39;   /* bg-gray-900 */
+  --foreground: 229 231 235; /* text-gray-200 */
+  
+  --card: 31 41 55; /* bg-gray-800 */
+  --card-foreground: 249 250 251; /* text-gray-50 */
+
+  --muted: 55 65 81; /* bg-gray-700 */
+  --muted-foreground: 156 163 175; /* text-gray-400 */
+
+  --primary: 59 130 246; /* bg-blue-500 - plus clair en dark mode */
+  --primary-foreground: 17 24 39; /* text-gray-900 */
+
+  --secondary: 75 85 99; /* bg-gray-600 */
+  --secondary-foreground: 249 250 251; /* text-gray-50 */
+
+  --accent: 55 65 81; /* bg-gray-700 */
+  --accent-foreground: 249 250 251; /* text-gray-50 */
+
+  --destructive: 239 68 68; /* bg-red-500 - plus clair en dark mode */
+  --destructive-foreground: 249 250 251; /* text-gray-50 */
+
+  --border: 55 65 81; /* border-gray-700 */
+  --input: 55 65 81; /* border-gray-700 */
+  --ring: 59 130 246; /* ring-blue-500 */
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Animations */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  /* Scrollbars pour le mode sombre */
+  .dark ::-webkit-scrollbar { 
+    width: 8px; 
+  }
+  .dark ::-webkit-scrollbar-track { 
+    background: #1f2937; 
+  }
+  .dark ::-webkit-scrollbar-thumb { 
+    background: #4b5563; 
+    border-radius: 4px; 
+  }
+  .dark ::-webkit-scrollbar-thumb:hover { 
+    background: #6b7280; 
+  }
+
+  /* Styles pour les éléments <select> et <option> en mode sombre */
+  .dark select {
+    background-color: rgb(var(--input));
+    color: rgb(var(--foreground));
+    border-color: rgb(var(--border));
+  }
+
+  .dark select option {
+    background-color: rgb(var(--card));
+    color: rgb(var(--card-foreground));
+  }
+}
+
+/* Animation keyframes */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom styles for react-calendar */
+.react-calendar {
+  @apply bg-card border border-border rounded-lg p-4 shadow-md;
+  width: 100%;
+}
+
+.react-calendar__navigation button {
+  @apply text-foreground hover:bg-muted rounded;
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  @apply text-muted-foreground font-semibold;
+  text-decoration: none;
+}
+
+.react-calendar__tile {
+  @apply text-foreground rounded hover:bg-muted;
+  padding: 10px 6px;
+}
+
+.react-calendar__tile--now {
+  @apply bg-primary/10 text-primary font-bold;
+}
+
+.react-calendar__tile--active {
+  @apply bg-primary text-primary-foreground font-bold;
+}
+
+.react-calendar__tile--hasActive {
+  @apply bg-primary text-primary-foreground font-bold;
+}
+
+.react-calendar__tile abbr {
+  pointer-events: none;
+}
+
+/* Style for booked days */
+.booked-day {
+  @apply bg-red-200 dark:bg-red-800/50 rounded;
+  position: relative;
+}
+
+.booked-day::after {
+  content: 'Réservé';
+  @apply absolute bottom-0.5 left-0 right-0 text-[8px] text-red-700 dark:text-red-300 font-semibold text-center;
+}
+
+/* Style for blocked days */
+.blocked-day {
+  @apply bg-gray-300 dark:bg-gray-700/50 rounded;
+  position: relative;
+}
+
+.blocked-day::after {
+  content: 'Bloqué';
+  @apply absolute bottom-0.5 left-0 right-0 text-[8px] text-gray-600 dark:text-gray-400 font-semibold text-center;
+}
+
+/* Style for selected range */
+.react-calendar__tile--range,
+.react-calendar__tile--rangeStart,
+.react-calendar__tile--rangeEnd {
+  @apply bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200;
+}
+
+.react-calendar__tile--rangeStart,
+.react-calendar__tile--rangeEnd {
+  @apply bg-primary text-primary-foreground;
+}
