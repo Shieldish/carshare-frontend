@@ -97,6 +97,7 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                   {details.photoUrlsStart.map((url, index) => (
                     <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="aspect-square block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt={`Check-in ${index + 1}`} className="w-full h-full object-cover rounded-md border border-border hover:opacity-80 transition-opacity" />
                     </a>
                   ))}
@@ -197,6 +198,7 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                   {details.photoUrlsEnd.map((url, index) => (
                     <a key={index} href={url} target="_blank" rel="noopener noreferrer" className="aspect-square block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt={`Check-out ${index + 1}`} className="w-full h-full object-cover rounded-md border border-border hover:opacity-80 transition-opacity" />
                     </a>
                   ))}

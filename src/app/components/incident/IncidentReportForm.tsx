@@ -9,7 +9,7 @@ import type { CreateIncidentData } from '@/app/types/incident';
 
 interface IncidentReportFormProps {
   bookingId: number;
-  onReportSuccess: (report: any) => void;
+  onReportSuccess: (report: unknown) => void;
 }
 
 const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onReportSuccess }) => {
@@ -56,9 +56,9 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
     try {
       const result = await apiClient.createIncidentReport(bookingId, reportData);
       onReportSuccess(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Incident report error:", err);
-      setError(err.message || "Une erreur est survenue lors du signalement.");
+      setError(err instanceof Error ? err.message : "Une erreur est survenue lors du signalement.");
     } finally {
       setIsLoading(false);
     }

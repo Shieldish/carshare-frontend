@@ -1,4 +1,5 @@
 'use client';
+/* eslint-disable react/no-unescaped-entities */
 
 import React from 'react';
 import { Shield, Users, Car, CreditCard, AlertTriangle, FileText, Phone, Mail } from 'lucide-react';

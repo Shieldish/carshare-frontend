@@ -156,7 +156,7 @@ const FAQPage = () => {
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg">
-                  Aucune question trouvée pour "{searchTerm}"
+                  Aucune question trouvée pour &quot;{searchTerm}&quot;
                 </p>
               </div>
             )}

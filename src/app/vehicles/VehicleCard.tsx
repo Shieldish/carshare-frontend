@@ -151,12 +151,13 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
     <>
       <div className="bg-card rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 border border-border">
         <div className="relative overflow-hidden bg-muted">
-          <div 
+          <div
             className="cursor-pointer"
             onClick={handleViewDetails}
           >
-            <img 
-              src={imageUrl} 
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={imageUrl}
               alt={`${vehicle.make} ${vehicle.model}`} 
               className="w-full h-auto hover:scale-105 transition-transform duration-300"
               style={{ aspectRatio: 'auto' }}

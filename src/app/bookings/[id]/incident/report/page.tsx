@@ -34,7 +34,7 @@ function IncidentReportPageContent() {
                 if (foundOwnerId !== null && user?.id !== undefined) {
                     setIsOwner(Number(user.id) === Number(foundOwnerId));
                 }
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error("Error checking user role:", err);
             } finally {
                 setIsCheckingRole(false);

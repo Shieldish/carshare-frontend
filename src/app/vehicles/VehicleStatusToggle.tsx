@@ -35,8 +35,9 @@ export default function VehicleStatusToggle({ vehicleId, initialIsActive, adminS
       await apiClient.put(`/api/vehicles/${vehicleId}/active`, { isActive: newIsActive });
       setIsActive(newIsActive);
       onActiveChange(newIsActive); // Notifie le composant parent
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erreur lors de la mise à jour.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erreur lors de la mise à jour.';
+      setError(msg);
       console.error(err);
     } finally {
       setIsUpdating(false);
@@ -51,6 +52,7 @@ export default function VehicleStatusToggle({ vehicleId, initialIsActive, adminS
       <div className="flex items-center space-x-3">
           <button
               type="button"
+              role="switch"
               onClick={handleToggle}
               disabled={isDisabled}
               className={`${isActive ? 'bg-green-600' : 'bg-gray-400'} ${buttonClasses}`}
@@ -69,7 +71,7 @@ export default function VehicleStatusToggle({ vehicleId, initialIsActive, adminS
       
       {/* Messages d'état pour guider l'utilisateur */}
       {adminStatus === 'PENDING_APPROVAL' && (
-        <p className="text-xs text-orange-500 mt-1 font-semibold">En attente d'approbation</p>
+        <p className="text-xs text-orange-500 mt-1 font-semibold">En attente d&apos;approbation</p>
       )}
       {adminStatus === 'REJECTED' && (
         <p className="text-xs text-red-500 mt-1 font-semibold">Documents refusés</p>

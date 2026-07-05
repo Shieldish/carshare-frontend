@@ -68,9 +68,9 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
         pageSize
       );
       setExpensesPage(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching expenses:", err);
-      setError(err.message || "Impossible de charger les dépenses.");
+      setError(err instanceof Error ? err.message : "Impossible de charger les dépenses.");
       setExpensesPage(null);
     } finally {
       setIsLoading(false);
@@ -93,8 +93,8 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
     try {
       await apiClient.deleteExpense(expenseId);
       loadExpenses(expensesPage?.number ?? 0);
-    } catch (err: any) {
-      setError(err.message || "Erreur lors de la suppression.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Erreur lors de la suppression.");
     }
   };
 

@@ -172,6 +172,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
         <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
           {imagePreviews.map((img) => (
             <div key={img.id} className="relative group aspect-square">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={img.url}
                 alt="Aperçu"

@@ -98,9 +98,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       const result = await apiClient.uploadToCloudinary(receiptFile);
       setIsUploadingReceipt(false);
       return result.secure_url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Erreur upload reçu:", err);
-      setError(`Erreur upload reçu: ${err.message}`);
+      setError(`Erreur upload reçu: ${err instanceof Error ? err.message : String(err)}`);
       setIsUploadingReceipt(false);
       throw err;
     }
@@ -128,9 +128,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
         result = await apiClient.addExpense(dataToSend as CreateExpenseData);
       }
       onSuccess(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (!error) {
-        setError(err.message || `Échec de ${isEditMode ? 'la mise à jour' : 'l\'ajout'}.`);
+        setError(err instanceof Error ? err.message : `Échec de ${isEditMode ? 'la mise à jour' : 'l\'ajout'}.`);
       }
     } finally {
       setIsLoading(false);

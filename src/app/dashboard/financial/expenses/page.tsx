@@ -28,7 +28,7 @@ export default function ExpensesPage() {
         <div>
           <p className="font-medium mb-2">Accès restreint</p>
           <p className="text-sm">
-            Cette section est réservée aux propriétaires de véhicules. Pour enregistrer des dépenses, vous devez d'abord ajouter un véhicule à louer.
+            Cette section est réservée aux propriétaires de véhicules. Pour enregistrer des dépenses, vous devez d&apos;abord ajouter un véhicule à louer.
           </p>
           <button
             onClick={() => router.push('/dashboard/vehicles/add')}

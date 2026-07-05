@@ -33,9 +33,9 @@ export default function FinancialDashboardPage() {
     try {
       const data = await apiClient.getOwnerFinancialSummary(start, end);
       setSummary(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching summary:", err);
-      setSummaryError(err.message || "Impossible de charger le résumé.");
+      setSummaryError(err instanceof Error ? err.message : "Impossible de charger le résumé.");
     } finally {
       setIsLoadingSummary(false);
     }
@@ -197,7 +197,7 @@ export default function FinancialDashboardPage() {
             <div>
               <h3 className="text-lg font-semibold text-foreground mb-2">Gérer les Revenus</h3>
               <p className="text-sm text-muted-foreground">
-                Consultez l'historique complet de vos transactions et paiements
+                Consultez l&apos;historique complet de vos transactions et paiements
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
@@ -224,7 +224,7 @@ export default function FinancialDashboardPage() {
       {!isOwner && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-md">
           <p className="text-sm">
-            Accédez à vos transactions dans l'onglet <strong>Revenus</strong>.
+            Accédez à vos transactions dans l&apos;onglet <strong>Revenus</strong>.
           </p>
         </div>
       )}

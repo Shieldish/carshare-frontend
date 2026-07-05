@@ -67,12 +67,12 @@ function AvailabilityPageContent() {
             setBookings(bookingsData || []);
             console.log("Fetched blocks:", blocksData);
             console.log("Fetched bookings:", bookingsData);
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error fetching availability data:", err);
             if (err instanceof ApiError && err.status === 403) {
                 setError("Accès refusé. Vérifiez que vous êtes le propriétaire ou que l'endpoint est accessible.");
             } else {
-                setError(err.message || "Impossible de charger les données de disponibilité.");
+                setError(err instanceof Error ? err.message : "Impossible de charger les données de disponibilité.");
             }
         } finally {
             setIsLoading(false);
@@ -115,9 +115,9 @@ function AvailabilityPageContent() {
             fetchData();
             setSelectedDates(null);
             setReason('');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error adding blocked period:", err);
-            setAddBlockError(err.message || "Impossible d'ajouter la période bloquée.");
+            setAddBlockError(err instanceof Error ? err.message : "Impossible d'ajouter la période bloquée.");
         } finally {
             setIsAddingBlock(false);
         }
@@ -129,7 +129,7 @@ function AvailabilityPageContent() {
         try {
             await apiClient.deleteBlockedPeriod(vehicleIdNum, periodId);
             fetchData();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error deleting blocked period:", err);
             setError("Impossible de supprimer la période bloquée.");
         }

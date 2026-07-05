@@ -36,8 +36,8 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
         const data = await getVehicleDetails(resolvedParams.id);
         setVehicle(data);
         setCurrentImageIndex(0);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
       } finally {
         setIsLoading(false);
       }
@@ -175,8 +175,9 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
           {/* Image Gallery */}
           <div className="lg:col-span-2">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl group bg-muted">
-              <img 
-                src={currentImage.url} 
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={currentImage.url}
                 alt={`${vehicle.make} ${vehicle.model}`}
                 className="w-full h-auto transition-transform duration-300"
                 style={{ aspectRatio: 'auto' }}
@@ -250,8 +251,9 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                       }`}
                     >
                       <div className="relative h-16 w-full bg-muted">
-                        <img 
-                          src={image.url} 
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={image.url}
                           alt={`Photo ${index + 1}`} 
                           className="h-full w-full object-cover"
                         />

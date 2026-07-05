@@ -65,7 +65,7 @@ function IncidentViewPageContent() {
                     }, 300);
                 }
 
-            } catch (err: any) {
+            } catch (err: unknown) {
                  if (err instanceof ApiError && err.status === 403) {
                      setError("Accès refusé. Vous n'êtes pas autorisé à voir ces rapports.");
                  } else if (err instanceof ApiError && err.status === 404) {

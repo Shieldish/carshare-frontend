@@ -33,7 +33,7 @@ function LoginContent() {
       <LoginForm redirectTo={redirectTo} />
 
       <p className="text-center text-sm text-muted-foreground dark:text-muted-foreground mt-8">
-        Vous n'avez pas de compte ?{' '}
+        Vous n&apos;avez pas de compte ?{' '}
         <Link
           href={`/register${redirectTo !== '/' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
           className="font-medium text-primary dark:text-primary hover:underline"

@@ -173,8 +173,8 @@ function BookingCard({
       } else {
         throw new Error("Impossible d'obtenir l'URL de paiement.");
       }
-    } catch (err: any) {
-      setError(err.message || 'Le lancement du paiement a échoué.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Le lancement du paiement a échoué.');
       setIsLoading(false);
     }
   };
@@ -199,8 +199,8 @@ function BookingCard({
 
       setShowDeleteModal(false);
       onDelete(booking.id);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
     } finally {
       setIsDeleting(false);
     }
@@ -220,6 +220,7 @@ function BookingCard({
       >
         <div className="flex flex-col lg:flex-row">
           <div className="relative lg:w-1/3 overflow-hidden bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageUrl}
               alt={`${vehicle.make} ${vehicle.model}`}
@@ -653,8 +654,8 @@ function MyBookingsContent() {
       const data = await apiClient.get('/api/bookings/my-bookings');
       setBookings(data);
       applyFilter(data, activeFilter);
-    } catch (err: any) {
-      setError(err.message || 'Impossible de récupérer vos réservations.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Impossible de récupérer vos réservations.');
     } finally {
       setIsLoading(false);
     }
