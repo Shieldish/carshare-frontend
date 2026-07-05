@@ -481,6 +481,7 @@ function BookingCard({
         onClose={() => setShowPaymentModal(false)}
         onSubmit={() => {}}
         isLoading={isLoading}
+        amount={totalPrice}
       />
 
       <ConfirmDeleteModal

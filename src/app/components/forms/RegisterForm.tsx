@@ -6,7 +6,11 @@ import Link from 'next/link';
 import { apiClient } from '@/lib/apiClient';
 import { Eye, EyeOff } from 'lucide-react';
 
-export default function RegisterForm() {
+interface RegisterFormProps {
+  redirectTo?: string;
+}
+
+export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
   const router = useRouter();
 
   // --- ÉTATS DU COMPOSANT ---
@@ -56,7 +60,8 @@ export default function RegisterForm() {
 
       await apiClient.post('/api/auth/register', dataToSend);
 
-      router.push('/login?registration=success');
+      const loginRedirect = redirectTo !== '/' ? `?registration=success&redirect=${encodeURIComponent(redirectTo)}` : '?registration=success';
+      router.push(`/login${loginRedirect}`);
 
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'La création du compte a échoué.';
