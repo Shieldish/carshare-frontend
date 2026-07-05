@@ -72,7 +72,7 @@ function IncidentViewPageContent() {
                      setError("Réservation non trouvée.");
                  } else {
                     console.error("Error fetching incident reports:", err);
-                    setError(err.message || "Impossible de charger les rapports d'incidents.");
+                    setError(err instanceof Error ? err.message : "Impossible de charger les rapports d'incidents.");
                  }
             } finally {
                 setIsLoading(false);
