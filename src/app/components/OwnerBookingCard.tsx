@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { Booking } from '@/app/types/booking';
+import type { Booking } from '@/types/booking';
 import { apiClient } from '@/lib/apiClient';
 import { 
   Check, 

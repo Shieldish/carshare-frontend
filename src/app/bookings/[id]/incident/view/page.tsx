@@ -6,7 +6,7 @@ import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import IncidentDetailsDisplay from '@/app/components/incident/IncidentDetailsDisplay';
-import { IncidentReportDetails } from '@/app/types/incident';
+import { IncidentReportDetails } from '@/types/incident';
 import { Loader2, AlertCircle, ArrowLeft, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 

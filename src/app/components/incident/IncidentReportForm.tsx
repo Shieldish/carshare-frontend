@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, FileText, MapPin, Image as ImageIcon, Send, Loader2 } from 'lucide-react';
 import ImageUploader from '@/app/components/inspection/ImageUploader';
 import { apiClient } from '@/lib/apiClient';
-import type { CreateIncidentData, IncidentReportDetails } from '@/app/types/incident';
+import type { CreateIncidentData, IncidentReportDetails } from '@/types/incident';
 
 interface IncidentReportFormProps {
   bookingId: number;

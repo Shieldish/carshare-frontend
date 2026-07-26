@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { TransactionDetail } from '@/app/types/financial';
+import type { TransactionDetail } from '@/types/financial';
 import type { PaginatedResponse } from '@/lib/apiClient';
 import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle, RefreshCcw, ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';

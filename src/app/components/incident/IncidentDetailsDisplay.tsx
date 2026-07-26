@@ -1,6 +1,6 @@
 // src/app/components/incident/IncidentDetailsDisplay.tsx
 import React from 'react';
-import type { IncidentReportDetails, IncidentStatus } from '@/app/types/incident';
+import type { IncidentReportDetails, IncidentStatus } from '@/types/incident';
 import { Calendar, User, MapPin, FileText, Image as ImageIcon, Clock, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface Props {

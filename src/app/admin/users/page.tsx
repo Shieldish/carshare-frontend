@@ -23,7 +23,7 @@ import {
   X,
   FileX
 } from 'lucide-react';
-import type { UpdateVerificationStatusDto } from '@/app/types/admin';
+import type { UpdateVerificationStatusDto } from '@/types/admin';
 
 // ✅ TYPE USER COMPLET
 type User = {

@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import type { OwnerFinancialSummary } from '@/app/types/financial';
+import type { OwnerFinancialSummary } from '@/types/financial';
 import { DollarSign, CheckSquare, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 
 interface Props {

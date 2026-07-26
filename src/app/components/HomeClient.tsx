@@ -99,11 +99,21 @@ const NotificationContainer: React.FC<{ notifications: Notification[]; onDismiss
   );
 };
 
+// Normalise une réponse API en tableau (gère à la fois array et réponse paginée)
+const toArray = (data: unknown): Vehicle[] => {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === 'object' && Array.isArray((data as { content?: unknown }).content)) {
+    return (data as { content: Vehicle[] }).content;
+  }
+  return [];
+};
+
 const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, featuredPromotions }) => {
   const router = useRouter();
-  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(initialVehicles);
+  const safeInitial = toArray(initialVehicles);
+  const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(safeInitial);
   const [isSearching, setIsSearching] = useState(false);
-  const [allVehicles] = useState<Vehicle[]>(initialVehicles);
+  const [allVehicles] = useState<Vehicle[]>(safeInitial);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
@@ -164,7 +174,8 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     try {
       const response = await fetch(`http://localhost:8081/api/vehicles/search?${params.toString()}`);
       if (!response.ok) throw new Error(`Erreur: ${response.statusText}`);
-      const searchResults: Vehicle[] = await response.json();
+      const rawResults: unknown = await response.json();
+      const searchResults = toArray(rawResults);
       setFilteredVehicles(searchResults);
       if (searchResults.length === 0) addNotification('info', 'Aucun résultat', 'Aucun véhicule ne correspond.');
     } catch (error) {

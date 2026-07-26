@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/apiClient';
-import type { CreateExpenseData, UpdateExpenseData, Expense, ExpenseCategory } from '@/app/types/financial';
+import type { CreateExpenseData, UpdateExpenseData, Expense, ExpenseCategory } from '@/types/financial';
 import { DollarSign, Calendar, Tag, FileText, Paperclip, Loader2, Send, X, Car, AlertCircle } from 'lucide-react';
 
 interface Vehicle {

@@ -1,6 +1,6 @@
 // src/app/components/inspection/InspectionDetailsDisplay.tsx
 import React from 'react';
-import { InspectionDetails } from '@/app/types/inspection';
+import { InspectionDetails } from '@/types/inspection';
 import { Calendar, Gauge, Fuel, Image as ImageIcon, FileText, CheckCircle, Clock, MapPin, ExternalLink } from 'lucide-react';
 
 interface Props {

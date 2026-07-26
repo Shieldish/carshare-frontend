@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Vehicle } from '@/app/types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import { Loader2, CheckCircle, Zap, TrendingUp, Crown, Calendar, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';

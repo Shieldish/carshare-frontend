@@ -3,7 +3,7 @@
 import { useState, useEffect, use, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Calendar, MapPin, Fuel, Settings, Users, Car, Building2, CheckCircle, XCircle, User, ShieldAlert } from 'lucide-react';
-import { Vehicle } from '@/app/types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import { useAuth } from '@/context/AuthContext';
 
 type VehicleDetailPageProps = {

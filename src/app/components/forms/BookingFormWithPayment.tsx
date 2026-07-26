@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
-import { Vehicle } from '@/app/types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 
 interface BookingFormWithPaymentProps {

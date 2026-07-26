@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
-import { Vehicle } from '@/app/types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 

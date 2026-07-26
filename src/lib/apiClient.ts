@@ -1,12 +1,12 @@
 // lib/apiClient.ts
 
-import type { CheckInData, CheckOutData, InspectionDetails } from '@/app/types/inspection';
-import type { CreateIncidentData, IncidentReportDetails } from '@/app/types/incident';
-import type { BlockedPeriod, CreateBlockedPeriodData } from '@/app/types/availability';
-import type { Booking } from '@/app/types/booking';
-import type { OwnerFinancialSummary, TransactionDetail, Expense, CreateExpenseData, UpdateExpenseData } from '@/app/types/financial';
-import type { UpdateVerificationStatusDto } from '@/app/types/admin';
-import type { Page } from '@/app/types/page';
+import type { CheckInData, CheckOutData, InspectionDetails } from '@/types/inspection';
+import type { CreateIncidentData, IncidentReportDetails } from '@/types/incident';
+import type { BlockedPeriod, CreateBlockedPeriodData } from '@/types/availability';
+import type { Booking } from '@/types/booking';
+import type { OwnerFinancialSummary, TransactionDetail, Expense, CreateExpenseData, UpdateExpenseData } from '@/types/financial';
+import type { UpdateVerificationStatusDto } from '@/types/admin';
+import type { Page } from '@/types/page';
 
 export class ApiError extends Error {
   status: number;
@@ -30,8 +30,8 @@ export interface PaginatedResponse<T> {
 }
 
 const API_BASE_URL = typeof window === 'undefined'
-  ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081')
-  : (process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081');
+  ? (process.env.INTERNAL_API_URL ?? 'http://localhost:8082')
+  : '/backend';
 
 const formatDateForApi = (date: Date | null | undefined): string | undefined => {
   if (!date) return undefined;

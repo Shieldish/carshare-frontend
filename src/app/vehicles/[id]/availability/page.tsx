@@ -5,8 +5,8 @@ import React, { useState, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Calendar from 'react-calendar';
 import { apiClient, ApiError } from '@/lib/apiClient';
-import { BlockedPeriod, CreateBlockedPeriodData } from '@/app/types/availability';
-import { Booking } from '@/app/types/booking';
+import { BlockedPeriod, CreateBlockedPeriodData } from '@/types/availability';
+import { Booking } from '@/types/booking';
 import { Loader2, AlertCircle, ArrowLeft, CalendarPlus, Trash2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 

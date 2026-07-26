@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
-import type { Booking } from '@/app/types/booking';
+import type { Booking } from '@/types/booking';
 import OwnerBookingCard from '@/app/components/OwnerBookingCard';
 import { ArrowLeft, Car, Calendar, DollarSign, Bell } from 'lucide-react';
 

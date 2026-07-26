@@ -9,7 +9,7 @@ import { Fuel, Gauge, Image as ImageIcon, FileText, Send, Loader2, AlertCircle, 
 import ImageUploader from './ImageUploader';
 import Toast from '@/app/components/common/Toast';
 import { apiClient } from '@/lib/apiClient';
-import type { CheckInData, FuelLevel } from '@/app/types/inspection';
+import type { CheckInData, FuelLevel } from '@/types/inspection';
 
 interface CheckInFormProps {
   bookingId: number;

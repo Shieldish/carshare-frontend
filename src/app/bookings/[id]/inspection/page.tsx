@@ -7,7 +7,7 @@ import { apiClient, ApiError } from '@/lib/apiClient';
 import CheckInForm from '@/app/components/inspection/CheckInForm';
 import CheckOutForm from '@/app/components/inspection/CheckOutForm';
 import InspectionDetailsDisplay from '@/app/components/inspection/InspectionDetailsDisplay';
-import { InspectionDetails } from '@/app/types/inspection';
+import { InspectionDetails } from '@/types/inspection';
 import { Loader2, AlertCircle, ArrowLeft, Lock, CheckCircle, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 

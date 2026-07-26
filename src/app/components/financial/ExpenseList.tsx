@@ -2,8 +2,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Expense, ExpenseCategory } from '@/app/types/financial';
-import type { Page } from '@/app/types/page';
+import type { Expense, ExpenseCategory } from '@/types/financial';
+import type { Page } from '@/types/page';
 import { apiClient } from '@/lib/apiClient';
 import { Loader2, Trash2, Edit2, ChevronLeft, ChevronRight, Filter, Calendar, Paperclip, CalendarPlus } from 'lucide-react';
 import ExpenseForm from './ExpenseForm';

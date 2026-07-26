@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
 import FinancialSummaryCard from '@/app/components/financial/FinancialSummaryCard';
-import type { OwnerFinancialSummary, TransactionDetail } from '@/app/types/financial';
+import type { OwnerFinancialSummary, TransactionDetail } from '@/types/financial';
 import { Calendar as CalendarIcon, FilterX, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function FinancialDashboardPage() {
