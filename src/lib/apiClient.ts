@@ -31,7 +31,7 @@ export interface PaginatedResponse<T> {
 
 const API_BASE_URL = typeof window === 'undefined'
   ? (process.env.INTERNAL_API_URL ?? 'http://localhost:8082')
-  : '/backend';
+  : (process.env.NEXT_PUBLIC_API_URL ?? '/backend');
 
 const formatDateForApi = (date: Date | null | undefined): string | undefined => {
   if (!date) return undefined;
