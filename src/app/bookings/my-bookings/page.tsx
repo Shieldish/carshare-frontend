@@ -186,7 +186,7 @@ function BookingCard({
       const token = localStorage.getItem('jwt_token');
       if (!token) throw new Error('Authentification requise');
 
-      const response = await fetch(`http://localhost:8081/api/bookings/${booking.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/bookings/${booking.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

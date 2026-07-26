@@ -172,7 +172,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     if (filters.companyName && filters.companyName !== 'all') params.append('companyName', filters.companyName);
 
     try {
-      const response = await fetch(`http://localhost:8081/api/vehicles/search?${params.toString()}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/search?${params.toString()}`);
       if (!response.ok) throw new Error(`Erreur: ${response.statusText}`);
       const rawResults: unknown = await response.json();
       const searchResults = toArray(rawResults);

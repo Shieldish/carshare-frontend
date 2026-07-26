@@ -155,7 +155,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
 
     try {
       const response = await fetch(
-        `http://localhost:8081/api/payments/booking/${createdBooking.id}/initiate-online-payment`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/payments/booking/${createdBooking.id}/initiate-online-payment`,
         {
           method: 'POST',
           headers: {

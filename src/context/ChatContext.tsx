@@ -65,7 +65,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     isConnectingRef.current = true;
 
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8081/ws'),
+      webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/ws`),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },

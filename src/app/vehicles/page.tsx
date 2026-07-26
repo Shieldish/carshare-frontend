@@ -31,7 +31,7 @@ function MyVehiclesContent() {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/api/users/me/vehicles', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/users/me/vehicles`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 

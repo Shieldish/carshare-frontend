@@ -50,7 +50,7 @@ function SearchContent() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch('http://localhost:8081/api/vehicles');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles`);
         if (response.ok) {
           const data = await response.json();
           const cityVehicles = city ? data.filter((v: Vehicle) => {

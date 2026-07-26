@@ -107,7 +107,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
     }
 
     try {
-      const response = await fetch(`http://localhost:8081/api/vehicles/${vehicle.id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${vehicle.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

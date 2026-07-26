@@ -28,7 +28,7 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
         if (!token) throw new Error("Non authentifié");
 
         // Appel au Proxy Backend pour récupérer l'image en toute sécurité
-        const response = await fetch(`http://localhost:8081/api/admin/users/${userId}/document/${docType}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/admin/users/${userId}/document/${docType}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -143,7 +143,7 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
 export const openProtectedDocument = async (userId: number, docType: 'identity' | 'license' | 'selfie') => {
   try {
     const token = localStorage.getItem('jwt_token');
-    const response = await fetch(`http://localhost:8081/api/admin/users/${userId}/document/${docType}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/admin/users/${userId}/document/${docType}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 

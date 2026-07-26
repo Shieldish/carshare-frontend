@@ -11,7 +11,7 @@ type VehicleDetailPageProps = {
 };
 
 async function getVehicleDetails(id: string): Promise<Vehicle> {
-  const response = await fetch(`http://localhost:8081/api/vehicles/${id}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${id}`, {
     cache: 'no-store',
   });
   if (!response.ok) throw new Error('Véhicule non trouvé');

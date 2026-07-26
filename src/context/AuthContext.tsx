@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const decodedToken: DecodedToken = jwtDecode(authToken);
 
-      const response = await fetch('http://localhost:8081/api/users/me', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/users/me`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/api/payments/check-pending-onboarding', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/payments/check-pending-onboarding`, {
         headers: { 'Authorization': `Bearer ${authToken}` },
       });
       if (response.ok) {

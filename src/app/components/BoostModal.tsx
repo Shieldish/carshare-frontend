@@ -57,7 +57,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
     }
 
     try {
-      const response = await fetch('http://localhost:8081/api/promotions/boost', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/promotions/boost`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +104,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
     try {
       const response = await fetch(
-        `http://localhost:8081/api/payments/${paymentData.paymentId}/initiate-online-payment`,
+        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/payments/${paymentData.paymentId}/initiate-online-payment`,
         {
           method: 'POST',
           headers: {
@@ -138,7 +138,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
     if (!token) return;
 
     try {
-      const response = await fetch('http://localhost:8081/api/payments/pay/mobile-money', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/payments/pay/mobile-money`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
