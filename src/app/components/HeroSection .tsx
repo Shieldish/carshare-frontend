@@ -14,9 +14,19 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
   const defaultSlides: HeroSliderData[] = [
     {
       vehicleId: 0,
-      title: 'Louez la voiture idéale pour votre prochain voyage',
-      imageUrl: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=1920&auto=format&fit=crop',
-    }
+      title: 'Tesla Model X 90D — L\'électrique haute performance',
+      imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142825/budaxdrive/banners/nf0lwyvgxxzwykaxtn6o.png',
+    },
+    {
+      vehicleId: 0,
+      title: 'Aston Martin DBS — L\'excellence britannique à l\'état pur',
+      imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142827/budaxdrive/banners/d9rrxqkduw92y5hea9os.png',
+    },
+    {
+      vehicleId: 0,
+      title: 'Chevrolet Suburban — L\'ultime véhicule de survie',
+      imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142823/budaxdrive/banners/icsixryqh3zhqpxpuykz.jpg',
+    },
   ];
 
   const originalSlides = featuredPromotions && featuredPromotions.length > 0 ? featuredPromotions : defaultSlides;
