@@ -5,6 +5,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Fuel, Gauge, Image as ImageIcon, FileText, Send, Loader2, AlertCircle, MapPin, Lock } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Toast from '@/app/components/common/Toast';
@@ -19,6 +20,7 @@ interface CheckInFormProps {
 const fuelLevels: FuelLevel[] = ["FULL", "3/4", "1/2", "1/4", "EMPTY"];
 
 const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }) => {
+  const t = useTranslations('inspection.checkIn');
   const [mileageStart, setMileageStart] = useState<number | null>(null);
   const [fuelLevelStart, setFuelLevelStart] = useState<FuelLevel>("");
   const [photoUrlsStart, setPhotoUrlsStart] = useState<string[]>([]);
@@ -53,13 +55,13 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         },
         (err) => {
           console.error("GPS Error:", err);
-          setLocationError("Impossible d'obtenir votre position GPS. Veuillez autoriser la localisation dans votre navigateur.");
+          setLocationError(t('gpsError'));
           setIsLocating(false);
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
     } else {
-      setLocationError("La géolocalisation n'est pas supportée par votre appareil.");
+      setLocationError(t('gpsUnsupported'));
       setIsLocating(false);
     }
   }, []);
@@ -75,7 +77,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) {
-      setError("Veuillez remplir tous les champs obligatoires, ajouter une photo, autoriser le GPS et saisir le code communiqué par le locataire.");
+      setError(t('formIncomplete'));
       return;
     }
     setError(null);
@@ -98,7 +100,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
       onCheckInSuccess(result);
     } catch (err: unknown) {
       console.error("Check-in error:", err);
-      const message = err instanceof Error ? err.message : "Une erreur est survenue lors du check-in.";
+      const message = err instanceof Error ? err.message : t('genericError');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -120,13 +122,13 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         <div className={`p-4 rounded-lg border flex items-start ${latitudeStart ? 'bg-green-50 border-green-200 text-green-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
           <MapPin className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${latitudeStart ? 'text-green-600' : 'text-amber-600'}`} />
           <div>
-            <h4 className="font-semibold text-sm">Preuve de localisation (Assurance)</h4>
+            <h4 className="font-semibold text-sm">{t('locationProofTitle')}</h4>
             {isLocating ? (
-              <p className="text-sm flex items-center mt-1"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Recherche du signal GPS...</p>
+              <p className="text-sm flex items-center mt-1"><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('locatingGps')}</p>
             ) : locationError ? (
               <p className="text-sm text-red-600 mt-1">{locationError}</p>
             ) : (
-              <p className="text-sm mt-1">Coordonnées sécurisées : {latitudeStart?.toFixed(4)}, {longitudeStart?.toFixed(4)}</p>
+              <p className="text-sm mt-1">{t('coordinatesSecured', { lat: latitudeStart?.toFixed(4) ?? '', lng: longitudeStart?.toFixed(4) ?? '' })}</p>
             )}
           </div>
         </div>
@@ -135,14 +137,14 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         <div>
           <label htmlFor="mileageStart" className="block text-sm font-medium text-foreground mb-1">
             <Gauge className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Kilométrage au départ *
+            {t('mileageLabel')}
           </label>
           <input
             id="mileageStart"
             type="number"
             value={mileageStart ?? ''}
             onChange={(e) => setMileageStart(e.target.value === '' ? null : parseInt(e.target.value, 10))}
-            placeholder="Ex: 50000"
+            placeholder={t('mileagePlaceholder')}
             min="0"
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
@@ -153,7 +155,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         <div>
           <label htmlFor="fuelLevelStart" className="block text-sm font-medium text-foreground mb-1">
             <Fuel className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Niveau de carburant au départ *
+            {t('fuelLabel')}
           </label>
           <select
             id="fuelLevelStart"
@@ -162,7 +164,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
           >
-            <option value="" disabled>-- Sélectionnez --</option>
+            <option value="" disabled>{t('fuelPlaceholder')}</option>
             {fuelLevels.map(level => (
               <option key={level} value={level}>{level}</option>
             ))}
@@ -173,27 +175,27 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             <ImageIcon className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Photos du véhicule au départ *
+            {t('photosLabel')}
           </label>
           <ImageUploader
             maxImages={6}
             onImageUrlsChange={setPhotoUrlsStart}
           />
-          {photoUrlsStart.length === 0 && <p className="text-xs text-red-500 mt-1">Au moins une photo est requise.</p>}
+          {photoUrlsStart.length === 0 && <p className="text-xs text-red-500 mt-1">{t('photosRequired')}</p>}
         </div>
 
         {/* Notes */}
         <div>
           <label htmlFor="notesStart" className="block text-sm font-medium text-foreground mb-1">
             <FileText className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Notes sur l&apos;état du véhicule (optionnel)
+            {t('notesLabel')}
           </label>
           <textarea
             id="notesStart"
             rows={3}
             value={notesStart}
             onChange={(e) => setNotesStart(e.target.value)}
-            placeholder="Ex: Rayure sur l'aile avant gauche, intérieur propre..."
+            placeholder={t('notesPlaceholder')}
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
         </div>
@@ -202,10 +204,10 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         <div className="bg-primary/5 border border-primary/20 p-5 rounded-xl">
           <label htmlFor="validationCode" className="block text-sm font-bold text-primary mb-2">
             <Lock className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Signature Numérique (Code Locataire) *
+            {t('validationCodeTitle')}
           </label>
           <p className="text-xs text-muted-foreground mb-3">
-            Demandez au locataire de vous communiquer oralement son code secret à 4 chiffres affiché sur son écran, puis saisissez-le ici pour valider la remise des clés.
+            {t('validationCodeDesc')}
           </p>
           <input
             id="validationCode"
@@ -231,7 +233,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
           ) : (
             <Send className="w-6 h-6 mr-2" />
           )}
-          Confirmer et Signer le Check-in
+          {t('submitButton')}
         </button>
       </form>
 
@@ -239,7 +241,7 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
       {error && (
         <Toast
           type="error"
-          title="Erreur de validation"
+          title={t('validationErrorTitle')}
           message={error}
           duration={5000}
           onClose={() => setError(null)}

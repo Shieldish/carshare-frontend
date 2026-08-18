@@ -1,14 +1,15 @@
 'use client';
 /* eslint-disable react/no-unescaped-entities */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { 
-  Car, 
-  UserCheck, 
-  CreditCard, 
-  Shield, 
-  MapPin, 
+import { useTranslations } from 'next-intl';
+import {
+  Car,
+  UserCheck,
+  CreditCard,
+  Shield,
+  MapPin,
   Calendar,
   Clock,
   Star,
@@ -23,117 +24,35 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
+const STEP_ICONS = [Car, Calendar, CheckCircle];
+const OWNER_STEP_ICONS = [Camera, MessageSquare, TrendingUp];
+const BENEFIT_ICONS = [Users, DollarSign];
+const BENEFIT_COLORS = ['blue', 'green'];
+const SAFETY_ICONS = [UserCheck, Shield, CreditCard, Clock];
+
 const HowItWorksPage = () => {
+  const t = useTranslations('howItWorks');
   const { user, isLoading } = useAuth();
 
-  const steps = [
-    {
-      id: 1,
-      title: "Trouvez la voiture parfaite",
-      description: "Parcourez des centaines de voitures disponibles près de chez vous",
-      icon: Car,
-      details: [
-        "Recherche par localisation et dates",
-        "Filtres avancés par prix, type, équipements",
-        "Photos détaillées et descriptions complètes",
-        "Avis et notes des précédents locataires"
-      ]
-    },
-    {
-      id: 2,
-      title: "Réservez en quelques clics",
-      description: "Processus de réservation simple et sécurisé",
-      icon: Calendar,
-      details: [
-        "Vérification instantanée de disponibilité",
-        "Paiement sécurisé par Orange Money ou carte",
-        "Confirmation immédiate par SMS/Email",
-        "Communication directe avec le propriétaire"
-      ]
-    },
-    {
-      id: 3,
-      title: "Récupérez et profitez",
-      description: "Check-in facile et conduite en toute tranquillité",
-      icon: CheckCircle,
-      details: [
-        "Rencontre avec le propriétaire au lieu convenu",
-        "État des lieux photographique via l'app",
-        "Assurance incluse pour votre protection",
-        "Support 24h/7j en cas de besoin"
-      ]
-    }
-  ];
+  const steps = useMemo(() => {
+    const raw = t.raw('steps') as { title: string; description: string; details: string[] }[];
+    return raw.map((step, i) => ({ id: i + 1, ...step, icon: STEP_ICONS[i] }));
+  }, [t]);
 
-  const ownerSteps = [
-    {
-      title: "Listez votre voiture",
-      description: "Créez une annonce attractive en quelques minutes",
-      icon: Camera
-    },
-    {
-      title: "Recevez des demandes",
-      description: "Acceptez ou refusez les réservations selon vos disponibilités",
-      icon: MessageSquare
-    },
-    {
-      title: "Gagnez de l'argent",
-      description: "Recevez vos paiements automatiquement après chaque location",
-      icon: TrendingUp
-    }
-  ];
+  const ownerSteps = useMemo(() => {
+    const raw = t.raw('ownerSteps') as { title: string; description: string }[];
+    return raw.map((step, i) => ({ ...step, icon: OWNER_STEP_ICONS[i] }));
+  }, [t]);
 
-  const benefits = [
-    {
-      title: "Pour les locataires",
-      subtitle: "Une alternative flexible et économique",
-      points: [
-        "Prix jusqu'à 40% moins chers que les agences traditionnelles",
-        "Large choix de véhicules (économiques, SUV, pickup, etc.)",
-        "Location par heure, jour ou semaine",
-        "Assurance comprise dans le prix",
-        "Réservation 100% mobile"
-      ],
-      icon: Users,
-      color: "blue"
-    },
-    {
-      title: "Pour les propriétaires",
-      subtitle: "Monétisez votre voiture facilement",
-      points: [
-        "Revenus de 300 à 800$/mois selon utilisation",
-        "85% des revenus vous reviennent",
-        "Vos véhicules sont assurés pendant les locations",
-        "Gestion totalement digitalisée",
-        "Vous gardez le contrôle de vos disponibilités"
-      ],
-      icon: DollarSign,
-      color: "green"
-    }
-  ];
+  const benefits = useMemo(() => {
+    const raw = t.raw('benefits') as { title: string; subtitle: string; points: string[] }[];
+    return raw.map((b, i) => ({ ...b, icon: BENEFIT_ICONS[i], color: BENEFIT_COLORS[i] }));
+  }, [t]);
 
-  const safetyFeatures = [
-    {
-      title: "Vérification des conducteurs",
-      description: "Permis de conduire vérifié et contrôle d'antécédents",
-      icon: UserCheck
-    },
-    {
-      title: "Assurance complète",
-      description: "Protection responsabilité civile et dommages véhicule incluse",
-      icon: Shield
-    },
-    {
-      title: "Paiements sécurisés",
-      description: "Transactions protégées avec Orange Money et cartes bancaires",
-      icon: CreditCard
-    },
-    {
-      title: "Support 24h/7j",
-      description: "Équipe dédiée disponible à tout moment pour vous aider",
-      icon: Clock
-    }
-  ];
+  const safetyFeatures = useMemo(() => {
+    const raw = t.raw('safetyFeatures') as { title: string; description: string }[];
+    return raw.map((f, i) => ({ ...f, icon: SAFETY_ICONS[i] }));
+  }, [t]);
 
   // Fonction pour déterminer le lien du bouton "Gagner avec ma voiture"
   const getEarnMoneyLink = () => {
@@ -143,8 +62,8 @@ const HowItWorksPage = () => {
 
   // Fonction pour déterminer le texte du bouton
   const getEarnMoneyButtonText = () => {
-    if (isLoading) return 'Gagner avec ma voiture';
-    return user ? 'Mes véhicules' : 'Gagner avec ma voiture';
+    if (isLoading) return t('ctaEarnLoading');
+    return user ? t('ctaEarnLoggedIn') : t('ctaEarnLoggedOut');
   };
 
   return (
@@ -154,11 +73,10 @@ const HowItWorksPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Comment fonctionne CarShare Burundi
+              {t('heroTitle')}
             </h1>
             <p className="text-xl md:text-2xl opacity-90 max-w-3xl mx-auto">
-              La première plateforme de partage de voitures entre particuliers au Burundi. 
-              Simple, sécurisé et économique.
+              {t('heroSubtitle')}
             </p>
           </div>
         </div>
@@ -168,10 +86,10 @@ const HowItWorksPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Louer une voiture n'a jamais été aussi simple
+            {t('rentersTitle')}
           </h2>
           <p className="text-xl text-muted-foreground">
-            En 3 étapes, accédez à des centaines de voitures près de chez vous
+            {t('rentersSubtitle')}
           </p>
         </div>
 
@@ -240,11 +158,10 @@ const HowItWorksPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Gagnez de l'argent avec votre voiture
+            {t('ownersTitle')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Votre voiture dort 70% du temps ? Transformez-la en source de revenus 
-            avec CarShare Burundi
+            {t('ownersSubtitle')}
           </p>
         </div>
 
@@ -268,22 +185,22 @@ const HowItWorksPage = () => {
 
         {/* Revenue Calculator */}
         <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-4">Calculateur de revenus</h3>
+          <h3 className="text-2xl font-bold mb-4">{t('calculatorTitle')}</h3>
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <div className="text-3xl font-bold">300$</div>
-              <div className="opacity-90">Revenus minimum/mois</div>
-              <div className="text-sm opacity-75">5-10 locations/mois</div>
+              <div className="opacity-90">{t('calcMinLabel')}</div>
+              <div className="text-sm opacity-75">{t('calcMinSub')}</div>
             </div>
             <div>
               <div className="text-3xl font-bold">550$</div>
-              <div className="opacity-90">Revenus moyens/mois</div>
-              <div className="text-sm opacity-75">15-20 locations/mois</div>
+              <div className="opacity-90">{t('calcAvgLabel')}</div>
+              <div className="text-sm opacity-75">{t('calcAvgSub')}</div>
             </div>
             <div>
               <div className="text-3xl font-bold">800$</div>
-              <div className="opacity-90">Revenus optimaux/mois</div>
-              <div className="text-sm opacity-75">25+ locations/mois</div>
+              <div className="opacity-90">{t('calcMaxLabel')}</div>
+              <div className="text-sm opacity-75">{t('calcMaxSub')}</div>
             </div>
           </div>
         </div>
@@ -294,10 +211,10 @@ const HowItWorksPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Votre sécurité est notre priorité
+              {t('safetyTitle')}
             </h2>
             <p className="text-xl text-muted-foreground">
-              Technologies et partenariats pour des locations en toute confiance
+              {t('safetySubtitle')}
             </p>
           </div>
 
@@ -326,61 +243,61 @@ const HowItWorksPage = () => {
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-6">
-              Une technologie 100% burundaise
+              {t('techTitle')}
             </h2>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <Smartphone className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-foreground">Application mobile native</h3>
-                  <p className="text-muted-foreground">iOS et Android optimisées pour le marché local</p>
+                  <h3 className="font-semibold text-foreground">{t('techMobileTitle')}</h3>
+                  <p className="text-muted-foreground">{t('techMobileDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <CreditCard className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-foreground">Paiements locaux intégrés</h3>
-                  <p className="text-muted-foreground">Orange Money, Airtel Money et cartes bancaires</p>
+                  <h3 className="font-semibold text-foreground">{t('techPaymentTitle')}</h3>
+                  <p className="text-muted-foreground">{t('techPaymentDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-foreground">Géolocalisation précise</h3>
-                  <p className="text-muted-foreground">Trouvez des voitures près de chez vous à Bujumbura</p>
+                  <h3 className="font-semibold text-foreground">{t('techGeoTitle')}</h3>
+                  <p className="text-muted-foreground">{t('techGeoDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
                 <Camera className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-semibold text-foreground">État des lieux digital</h3>
-                  <p className="text-muted-foreground">Photos automatiques avant/après chaque location</p>
+                  <h3 className="font-semibold text-foreground">{t('techPhotoTitle')}</h3>
+                  <p className="text-muted-foreground">{t('techPhotoDesc')}</p>
                 </div>
               </div>
             </div>
           </div>
           <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-6">Pourquoi choisir CarShare Burundi ?</h3>
+            <h3 className="text-2xl font-bold mb-6">{t('whyChooseTitle')}</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <Star className="h-5 w-5 text-yellow-400" />
-                <span>Première plateforme locale de confiance</span>
+                <span>{t('whyPoint1')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <DollarSign className="h-5 w-5 text-green-400" />
-                <span>Prix jusqu'à 40% moins chers</span>
+                <span>{t('whyPoint2')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Shield className="h-5 w-5 text-blue-400" />
-                <span>Assurance et protection incluses</span>
+                <span>{t('whyPoint3')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Users className="h-5 w-5 text-purple-400" />
-                <span>Communauté vérifiée et bienveillante</span>
+                <span>{t('whyPoint4')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Clock className="h-5 w-5 text-orange-400" />
-                <span>Support client 24h/7j en français et kirundi</span>
+                <span>{t('whyPoint5')}</span>
               </div>
             </div>
           </div>
@@ -391,11 +308,10 @@ const HowItWorksPage = () => {
       <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Prêt à rejoindre la révolution du transport au Burundi ?
+            {t('ctaTitle')}
           </h2>
           <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-            Que vous souhaitiez louer une voiture ou gagner de l'argent avec la vôtre, 
-            CarShare Burundi est fait pour vous.
+            {t('ctaDescription')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -403,7 +319,7 @@ const HowItWorksPage = () => {
               className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center space-x-2 group"
             >
               <Car className="h-5 w-5" />
-              <span>Trouver une voiture</span>
+              <span>{t('ctaFindCar')}</span>
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
@@ -418,7 +334,7 @@ const HowItWorksPage = () => {
             </Link>
           </div>
           <p className="text-sm opacity-75 mt-6">
-            Inscription gratuite • Sans engagement • Support en français
+            {t('ctaFooter')}
           </p>
         </div>
       </div>

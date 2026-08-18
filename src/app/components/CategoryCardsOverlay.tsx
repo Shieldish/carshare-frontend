@@ -2,26 +2,29 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Car, Key } from 'lucide-react';
 
-const overlayData = [
-  {
-    icon: Car,
-    title: 'Trouver une Voiture',
-    description: 'Explorez notre flotte variée pour tous vos besoins au Burundi.',
-    linkText: 'Voir les Voitures',
-    linkHref: '#vehicles-section',
-  },
-  {
-    icon: Key,
-    title: 'Devenir Propriétaire',
-    description: "Enregistrez votre véhicule et commencez à gagner de l'argent.",
-    linkText: 'Inscrire un Véhicule',
-    linkHref: '/vehicles/add',
-  }
-];
-
 const CategoryCardsOverlay: React.FC = () => {
+  const t = useTranslations('home');
+
+  const overlayData = [
+    {
+      icon: Car,
+      title: t('categoryFindCar.title'),
+      description: t('categoryFindCar.description'),
+      linkText: t('categoryFindCar.linkText'),
+      linkHref: '#vehicles-section',
+    },
+    {
+      icon: Key,
+      title: t('categoryBecomeOwner.title'),
+      description: t('categoryBecomeOwner.description'),
+      linkText: t('categoryBecomeOwner.linkText'),
+      linkHref: '/vehicles/add',
+    }
+  ];
+
   return (
     <section className="relative z-10 -mt-52 md:-mt-60 lg:-mt-72 px-4 md:px-8 pb-12">
       {/* Ajustement de la largeur maximale pour 2 cartes */}

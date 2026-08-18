@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Calendar, MapPin, Fuel, Settings, Users, Car, Building2, CheckCircle, XCircle, User, ShieldAlert } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
+import { apiClient } from '@/lib/apiClient';
+import type { VehicleRatingSummary } from '@/types/review';
+import VehicleReviews, { StarRating } from '@/app/components/reviews/VehicleReviews';
 
 type VehicleDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -14,11 +18,13 @@ async function getVehicleDetails(id: string): Promise<Vehicle> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${id}`, {
     cache: 'no-store',
   });
-  if (!response.ok) throw new Error('Véhicule non trouvé');
+  if (!response.ok) throw new Error('NOT_FOUND');
   return await response.json();
 }
 
 export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
+  const t = useTranslations('vehicles.detail');
+  const tReviews = useTranslations('vehicles.reviews');
   const router = useRouter();
   const resolvedParams = use(params);
   const { user } = useAuth();
@@ -30,14 +36,24 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
   // 🛡️ NOUVEL ÉTAT POUR L'ALERTE PERMIS DE CONDUIRE
   const [showVerificationAlert, setShowVerificationAlert] = useState(false);
 
+  const [ratingSummary, setRatingSummary] = useState<VehicleRatingSummary | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getVehicleDetails(resolvedParams.id);
         setVehicle(data);
         setCurrentImageIndex(0);
+
+        apiClient.get(`/api/vehicles/${resolvedParams.id}/reviews/summary`)
+          .then(setRatingSummary)
+          .catch(() => {});
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+        if (err instanceof Error && err.message === 'NOT_FOUND') {
+          setError(t('notFoundError'));
+        } else {
+          setError(err instanceof Error ? err.message : t('genericError'));
+        }
       } finally {
         setIsLoading(false);
       }
@@ -113,7 +129,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
       return uniqueParts.join(', ');
     }
 
-    return 'Localisation non disponible';
+    return t('locationUnavailable');
   };
 
   if (isLoading) {
@@ -121,7 +137,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground font-medium">Chargement...</p>
+          <p className="text-muted-foreground font-medium">{t('loading')}</p>
         </div>
       </div>
     );
@@ -136,7 +152,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">Erreur</h3>
+          <h3 className="text-lg font-medium text-red-800 dark:text-red-200 mb-2">{t('errorTitle')}</h3>
           <p className="text-red-600 dark:text-red-400">{error}</p>
         </div>
       </div>
@@ -164,7 +180,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
             className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
           >
             <ChevronLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Retour
+            {t('back')}
           </button>
         </div>
       </div>
@@ -193,7 +209,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                   <button
                     onClick={goToPreviousImage}
                     className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
-                    aria-label="Image précédente"
+                    aria-label={t('prevImageAria')}
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
@@ -201,7 +217,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                   <button
                     onClick={goToNextImage}
                     className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
-                    aria-label="Image suivante"
+                    aria-label={t('nextImageAria')}
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
@@ -216,7 +232,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                             ? 'bg-white w-6' 
                             : 'bg-white/50 hover:bg-white/80 w-2'
                         }`}
-                        aria-label={`Image ${index + 1}`}
+                        aria-label={t('imageAria', { index: index + 1 })}
                       />
                     ))}
                   </div>
@@ -237,7 +253,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
             {hasMultipleImages && (
               <div className="mt-6">
                 <h4 className="text-sm font-medium text-foreground mb-3">
-                  Photos du véhicule ({availableImages.length})
+                  {t('photosCount', { count: availableImages.length })}
                 </h4>
                 <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3">
                   {availableImages.map((image, index) => (
@@ -254,7 +270,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={image.url}
-                          alt={`Photo ${index + 1}`} 
+                          alt=""
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -262,7 +278,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  Utilisez les flèches du clavier pour naviguer
+                  {t('useArrowKeys')}
                 </p>
               </div>
             )}
@@ -273,9 +289,22 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
             {/* Titre et statut */}
             <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
               <div className="flex items-start justify-between mb-4">
-                <h1 className="text-3xl font-bold text-foreground">
-                  {vehicle.make} {vehicle.model}
-                </h1>
+                <div>
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {vehicle.make} {vehicle.model}
+                  </h1>
+                  {ratingSummary && ratingSummary.reviewCount > 0 && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <StarRating value={ratingSummary.averageRating} size={16} />
+                      <span className="text-sm font-medium text-foreground">
+                        {ratingSummary.averageRating.toFixed(1)}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {tReviews('reviewCount', { count: ratingSummary.reviewCount })}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 {vehicle.isAvailable !== undefined && (
                   <div className={`flex items-center px-3 py-2 rounded-full text-sm font-medium ${
                     vehicle.isAvailable 
@@ -287,7 +316,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                     ) : (
                       <XCircle className="w-4 h-4 mr-2" />
                     )}
-                    {vehicle.isAvailable ? 'Disponible' : 'Non disponible'}
+                    {vehicle.isAvailable ? t('available') : t('unavailable')}
                   </div>
                 )}
               </div>
@@ -297,7 +326,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                 <div className="flex items-center text-primary mb-4 bg-primary/10 px-4 py-3 rounded-lg">
                   <Building2 className="w-5 h-5 mr-3 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold">Proposé par</p>
+                    <p className="font-semibold">{t('offeredBy')}</p>
                     <p className="text-lg">{vehicle.companyName}</p>
                   </div>
                 </div>
@@ -308,15 +337,15 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                 <div className="flex items-center text-muted-foreground">
                   <Calendar className="w-5 h-5 mr-3" />
                   <div>
-                    <span className="font-medium">Année:</span>
+                    <span className="font-medium">{t('yearLabel')}</span>
                     <span className="ml-2">{vehicle.manufacturingYear}</span>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center text-muted-foreground">
                   <MapPin className="w-5 h-5 mr-3" />
                   <div>
-                    <span className="font-medium">Localisation:</span>
+                    <span className="font-medium">{t('locationLabel')}</span>
                     <span className="ml-2">{locationDisplay}</span>
                   </div>
                 </div>
@@ -325,18 +354,18 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
 
             {/* Tarification */}
             <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-              <h3 className="text-lg font-semibold text-foreground mb-4">Tarification</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground mb-4">{t('pricingTitle')}</h3>
+
               <div className="space-y-2">
                 <div className="flex justify-between items-center py-3 border-b border-border">
-                  <span className="text-muted-foreground font-medium">Prix par jour</span>
+                  <span className="text-muted-foreground font-medium">{t('priceDayLabel')}</span>
                   <span className="text-2xl font-bold text-primary">
                     {vehicle.ratePerDay?.toLocaleString()} FBu
                   </span>
                 </div>
                 {vehicle.ratePerWeek && (
                   <div className="flex justify-between items-center py-3">
-                    <span className="text-muted-foreground font-medium">Prix par semaine</span>
+                    <span className="text-muted-foreground font-medium">{t('priceWeekLabel')}</span>
                     <span className="text-xl font-semibold text-green-600 dark:text-green-400">
                       {vehicle.ratePerWeek?.toLocaleString()} FBu
                     </span>
@@ -351,16 +380,16 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                     <ShieldAlert className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
                     <div className="ml-3">
                       <h4 className="text-sm font-bold text-orange-800 dark:text-orange-200">
-                        Permis de conduire requis
+                        {t('licenseRequiredTitle')}
                       </h4>
                       <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                        Pour des raisons de sécurité, vous devez fournir une copie de votre permis de conduire avant de louer un véhicule.
+                        {t('licenseRequiredText')}
                       </p>
                       <button
                         onClick={() => router.push('/profile')}
                         className="mt-3 text-sm bg-orange-600 hover:bg-orange-700 text-white py-1.5 px-4 rounded-md font-medium transition-colors"
                       >
-                        Vérifier mon permis maintenant
+                        {t('verifyLicenseButton')}
                       </button>
                     </div>
                   </div>
@@ -374,14 +403,14 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                   disabled={vehicle.isAvailable === false}
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
-                  {vehicle.isAvailable === false ? 'Non disponible' : 'Réserver ce véhicule'}
+                  {vehicle.isAvailable === false ? t('unavailableButton') : t('bookButton')}
                 </button>
-                
+
                 <button
                   onClick={() => router.push('/')}
                   className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3 px-6 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-colors font-medium"
                 >
-                  Voir d&apos;autres véhicules
+                  {t('seeOtherVehicles')}
                 </button>
               </div>
             </div>
@@ -394,39 +423,39 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
           <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
             <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center">
               <Car className="w-6 h-6 mr-3 text-primary" />
-              Spécifications techniques
+              {t('specsTitle')}
             </h3>
-            
+
             <div className="grid grid-cols-2 gap-6">
               {[
-                { 
-                  icon: <Car className="w-5 h-5" />, 
-                  label: 'Kilométrage', 
-                  value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : 'Non spécifié',
+                {
+                  icon: <Car className="w-5 h-5" />,
+                  label: t('mileageLabel'),
+                  value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : t('mileageUnspecified'),
                   condition: true
                 },
-                { 
-                  icon: <Fuel className="w-5 h-5" />, 
-                  label: 'Carburant', 
-                  value: vehicle.fuelType || 'Non spécifié',
+                {
+                  icon: <Fuel className="w-5 h-5" />,
+                  label: t('fuelLabel'),
+                  value: vehicle.fuelType || t('fuelUnspecified'),
                   condition: true
                 },
-                { 
-                  icon: <Settings className="w-5 h-5" />, 
-                  label: 'Transmission', 
-                  value: vehicle.transmission || 'Non spécifiée',
+                {
+                  icon: <Settings className="w-5 h-5" />,
+                  label: t('transmissionLabel'),
+                  value: vehicle.transmission || t('transmissionUnspecified'),
                   condition: true
                 },
-                { 
-                  icon: <Users className="w-5 h-5" />, 
-                  label: 'Nombre de sièges', 
-                  value: vehicle.seats ? `${vehicle.seats} sièges` : 'Non spécifié',
+                {
+                  icon: <Users className="w-5 h-5" />,
+                  label: t('seatsLabel'),
+                  value: vehicle.seats ? `${vehicle.seats} ${t('seatsUnit')}` : t('seatsUnspecified'),
                   condition: true
                 },
-                { 
-                  icon: <User className="w-5 h-5" />, 
-                  label: 'Chauffeur', 
-                  value: vehicle.supportsDriver ? 'Inclus ✅' : 'Sans chauffeur',
+                {
+                  icon: <User className="w-5 h-5" />,
+                  label: t('driverLabel'),
+                  value: vehicle.supportsDriver ? t('driverIncluded') : t('driverNotIncluded'),
                   condition: true
                 }
               ].map((spec, index) => (
@@ -447,7 +476,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
           <div className="space-y-6">
             {vehicle.description && (
               <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-                <h3 className="text-xl font-semibold text-foreground mb-4">Description</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-4">{t('descriptionTitle')}</h3>
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                   {vehicle.description}
                 </p>
@@ -456,7 +485,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
 
             {vehicle.equipment && (
               <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-                <h3 className="text-xl font-semibold text-foreground mb-4">Équipements</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-4">{t('equipmentTitle')}</h3>
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                   {vehicle.equipment}
                 </p>
@@ -468,13 +497,13 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
         {/* Informations complémentaires */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Services inclus</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">{t('servicesTitle')}</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               {[
-                'Assurance tous risques incluse',
-                'Support client 24h/24, 7j/7',
-                'Assistance dépannage',
-                'Annulation flexible'
+                t('service1'),
+                t('service2'),
+                t('service3'),
+                t('service4')
               ].map((info, index) => (
                 <div key={index} className="flex items-center">
                   <CheckCircle className="w-4 h-4 mr-3 text-green-500 dark:text-green-400 flex-shrink-0" />
@@ -485,29 +514,31 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
           </div>
 
           <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Informations importantes</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-4">{t('importantInfoTitle')}</h3>
             <div className="space-y-3 text-sm text-muted-foreground">
               <div className="flex items-start">
                 <svg className="w-4 h-4 mr-3 mt-0.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Permis de conduire valide requis</span>
+                <span>{t('info1')}</span>
               </div>
               <div className="flex items-start">
                 <svg className="w-4 h-4 mr-3 mt-0.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Inspection du véhicule avant et après location</span>
+                <span>{t('info2')}</span>
               </div>
               <div className="flex items-start">
                 <svg className="w-4 h-4 mr-3 mt-0.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Carburant à la charge du locataire</span>
+                <span>{t('info3')}</span>
               </div>
             </div>
           </div>
         </div>
+
+        <VehicleReviews vehicleId={vehicle.id} />
       </div>
     </div>
   );

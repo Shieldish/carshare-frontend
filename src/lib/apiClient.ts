@@ -10,11 +10,13 @@ import type { Page } from '@/types/page';
 
 export class ApiError extends Error {
   status: number;
+  code?: string;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, code?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -88,8 +90,9 @@ const authenticatedFetch = async (path: string, options: RequestInit = {}) => {
       errorData = { message: errorText || 'Erreur inconnue' };
     }
     throw new ApiError(
-      errorData.message || errorData.error || `Erreur API avec le statut ${response.status}`, 
-      response.status
+      errorData.message || errorData.error || `Erreur API avec le statut ${response.status}`,
+      response.status,
+      errorData.code
     );
   }
 
@@ -157,8 +160,9 @@ export const apiClient = {
   delete: (path: string) => authenticatedFetch(path, { method: 'DELETE' }),
 
   // ===== AUTHENTIFICATION =====
-  forgotPassword: (email: string) =>
-    authenticatedFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  // ✅ i18n : `locale` optionnel — langue active du site, pour recevoir l'email dans la bonne langue.
+  forgotPassword: (email: string, locale?: string) =>
+    authenticatedFetch('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email, locale }) }),
 
   resetPassword: (token: string, newPassword: string) =>
     authenticatedFetch('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ token, newPassword }) }),

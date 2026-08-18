@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { Vehicle } from '../types/vehicle';
 import ConfirmDeleteVehicleModal from './ConfirmDeleteVehicleModal';
 import VehicleStatusToggle from './VehicleStatusToggle';
+import { useTranslations } from 'next-intl';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -56,6 +57,7 @@ const Toast = ({
 };
 
 export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveChange }: VehicleCardProps) {
+  const t = useTranslations('vehicles.myVehicles');
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
@@ -83,7 +85,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
     if (uniqueParts.length > 0) {
       return uniqueParts.join(', ');
     }
-    return 'Localisation non disponible';
+    return t('locationUnavailable');
   };
 
   const imageUrl = getImageUrl();
@@ -115,16 +117,16 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
       });
 
       if (!response.ok) {
-        throw new Error('La suppression du véhicule a échoué.');
+        throw new Error(t('deleteFailed'));
       }
 
       setIsDeleteModalOpen(false);
-      showToast('Véhicule supprimé avec succès', 'success');
+      showToast(t('deleteSuccess'), 'success');
       onDelete(vehicle.id);
-      
+
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
-      showToast('Une erreur est survenue lors de la suppression.');
+      showToast(t('deleteError'));
     } finally {
       setIsDeletingVehicle(false);
     }
@@ -227,43 +229,43 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
             <Link
               href={`/vehicles/${vehicle.id}/availability`}
               className="text-sm font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors flex items-center"
-              title="Gérer Disponibilité"
+              title={t('calendarTitle')}
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Calendrier
+              {t('calendarLink')}
             </Link>
 
             {onBoostClick && (
-              <button 
+              <button
                 onClick={handleBoostClick}
                 className="text-sm font-semibold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors flex items-center"
               >
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
-                Booster
+                {t('boostLink')}
               </button>
             )}
-            <Link 
+            <Link
               href={`/vehicles/${vehicle.id}`}
               className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
             >
-              Voir les détails
+              {t('viewDetailsLink')}
             </Link>
-            <Link 
-              href={`/vehicles/edit/${vehicle.id}`} 
+            <Link
+              href={`/vehicles/edit/${vehicle.id}`}
               className="text-sm text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 font-medium transition-colors"
             >
-              Modifier
+              {t('editLink')}
             </Link>
-            <button 
-              onClick={handleDeleteClick} 
+            <button
+              onClick={handleDeleteClick}
               disabled={isDeletingVehicle}
               className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isDeletingVehicle ? 'Suppression...' : 'Supprimer'}
+              {isDeletingVehicle ? t('deleting') : t('deleteLink')}
             </button>
           </div>
         </div>

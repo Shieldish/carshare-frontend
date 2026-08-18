@@ -8,8 +8,10 @@ import { useAuth } from '@/context/AuthContext';
 import FinancialSummaryCard from '@/app/components/financial/FinancialSummaryCard';
 import type { OwnerFinancialSummary, TransactionDetail } from '@/types/financial';
 import { Calendar as CalendarIcon, FilterX, ArrowRight, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function FinancialDashboardPage() {
+  const t = useTranslations('dashboardFinancial');
   const router = useRouter();
   const { user, isLoading: isAuthLoading } = useAuth();
   const [summary, setSummary] = useState<OwnerFinancialSummary | null>(null);
@@ -35,7 +37,7 @@ export default function FinancialDashboardPage() {
       setSummary(data);
     } catch (err: unknown) {
       console.error("Error fetching summary:", err);
-      setSummaryError(err instanceof Error ? err.message : "Impossible de charger le résumé.");
+      setSummaryError(err instanceof Error ? err.message : t('loadSummaryError'));
     } finally {
       setIsLoadingSummary(false);
     }
@@ -111,7 +113,7 @@ export default function FinancialDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        <p className="ml-3 text-muted-foreground">Chargement...</p>
+        <p className="ml-3 text-muted-foreground">{t('loading')}</p>
       </div>
     );
   }
@@ -123,9 +125,9 @@ export default function FinancialDashboardPage() {
         <div className="flex flex-wrap items-center gap-4">
           <span className="font-medium text-foreground flex items-center">
             <CalendarIcon size={18} className="mr-2 text-muted-foreground"/>
-            Période :
+            {t('periodLabel')}
           </span>
-          
+
           <div className="flex flex-wrap gap-2">
             {['all', 'today', 'last7', 'last30', 'month', 'year'].map(p => (
               <button
@@ -137,12 +139,12 @@ export default function FinancialDashboardPage() {
                     : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 }`}
               >
-                {p === 'all' ? 'Tout' : 
-                 p === 'today' ? "Auj." : 
-                 p === 'last7' ? '7 jours' : 
-                 p === 'last30' ? '30 jours' : 
-                 p === 'month' ? 'Ce mois' : 
-                 'Cette année'}
+                {p === 'all' ? t('periodAll') :
+                 p === 'today' ? t('periodToday') :
+                 p === 'last7' ? t('periodLast7') :
+                 p === 'last30' ? t('periodLast30') :
+                 p === 'month' ? t('periodMonth') :
+                 t('periodYear')}
               </button>
             ))}
           </div>
@@ -170,9 +172,9 @@ export default function FinancialDashboardPage() {
             <button
               onClick={clearFilters}
               className="px-3 py-1.5 text-xs rounded-md font-medium bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex items-center gap-1"
-              title="Effacer les filtres de date"
+              title={t('clearFiltersTitle')}
             >
-              <FilterX size={14}/> Effacer
+              <FilterX size={14}/> {t('clearFilters')}
             </button>
           )}
         </div>
@@ -195,9 +197,9 @@ export default function FinancialDashboardPage() {
         >
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Gérer les Revenus</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageRevenueTitle')}</h3>
               <p className="text-sm text-muted-foreground">
-                Consultez l&apos;historique complet de vos transactions et paiements
+                {t('manageRevenueDescription')}
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
@@ -210,9 +212,9 @@ export default function FinancialDashboardPage() {
         >
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Gérer les Dépenses</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageExpensesTitle')}</h3>
               <p className="text-sm text-muted-foreground">
-                Enregistrez et suivez toutes vos dépenses liées aux véhicules
+                {t('manageExpensesDescription')}
               </p>
             </div>
             <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
@@ -224,7 +226,7 @@ export default function FinancialDashboardPage() {
       {!isOwner && (
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-md">
           <p className="text-sm">
-            Accédez à vos transactions dans l&apos;onglet <strong>Revenus</strong>.
+            {t('nonOwnerMessage')}
           </p>
         </div>
       )}

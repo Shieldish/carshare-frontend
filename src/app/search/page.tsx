@@ -4,6 +4,8 @@ import React, { useEffect, useState, Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Map as MapIcon, List, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import toast from 'react-hot-toast';
 import VehicleCard from '../components/VehicleCard';
 import type { Vehicle } from '../types/vehicle';
 import type { MapBounds } from '../components/MapComponent';
@@ -21,26 +23,34 @@ const getProvinceCoords = (provinceName?: string): [number, number] | null => {
   return null;
 };
 
-// Import dynamique de la carte
-const MapComponent = dynamic(() => import('../components/MapComponent'), { 
-  ssr: false,
-  loading: () => (
+// Composant de chargement de la carte (rendu par React, peut utiliser les hooks next-intl)
+function MapLoadingFallback() {
+  const t = useTranslations('search');
+  return (
     <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center text-muted-foreground">
-      Chargement de la carte...
+      {t('loadingMap')}
     </div>
-  )
+  );
+}
+
+// Import dynamique de la carte
+const MapComponent = dynamic(() => import('../components/MapComponent'), {
+  ssr: false,
+  loading: () => <MapLoadingFallback />
 });
 
 // Constante pour la pagination
 const ITEMS_PER_PAGE = 10;
 
 function SearchContent() {
+  const t = useTranslations('search');
   const searchParams = useSearchParams();
   const city = searchParams.get('city') || '';
   
   const [allVehicles, setAllVehicles] = useState<Vehicle[]>([]);
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
 
@@ -49,6 +59,7 @@ function SearchContent() {
 
   useEffect(() => {
     const fetchVehicles = async () => {
+      setLoadError(false);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles`);
         if (response.ok) {
@@ -63,9 +74,14 @@ function SearchContent() {
             );
           }) : data;
           setAllVehicles(cityVehicles);
+        } else {
+          setLoadError(true);
+          toast.error(t('loadError'));
         }
       } catch (error) {
         console.error('Erreur lors du chargement des véhicules', error);
+        setLoadError(true);
+        toast.error(t('loadError'));
       } finally {
         setIsLoading(false);
       }
@@ -206,20 +222,26 @@ function SearchContent() {
         {/* CÔTÉ GAUCHE : La liste */}
         <div id="search-results-container" className={`w-full lg:w-[60%] xl:w-[55%] h-full overflow-y-auto p-4 sm:p-6 pb-24 scroll-smooth ${mobileView === 'map' ? 'hidden lg:block' : 'block'}`}>
           <h1 className="text-2xl font-bold mb-2">
-            Voitures disponibles à {city}
+            {t('titleForCity', { city })}
           </h1>
           <p className="text-muted-foreground mb-6">
-            {visibleVehicles.length} {visibleVehicles.length > 1 ? 'véhicules visibles' : 'véhicule visible'} sur la carte
+            {visibleVehicles.length > 1
+              ? t('vehiclesVisiblePlural', { count: visibleVehicles.length })
+              : t('vehiclesVisibleSingular', { count: visibleVehicles.length })}
           </p>
-          
+
           {isLoading ? (
             <div className="flex items-center justify-center h-40">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
+          ) : loadError ? (
+            <div className="text-center py-10 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+              <p className="text-red-600 dark:text-red-400 font-medium">{t('loadError')}</p>
+            </div>
           ) : visibleVehicles.length === 0 ? (
             <div className="text-center py-10 bg-muted/50 rounded-xl">
-              <p className="text-muted-foreground">Aucun véhicule dans cette zone de la carte.</p>
-              <p className="text-sm">Dézoomez ou déplacez la carte pour en voir plus.</p>
+              <p className="text-muted-foreground">{t('noVehiclesInArea')}</p>
+              <p className="text-sm">{t('zoomOutHint')}</p>
             </div>
           ) : (
             <div className="flex flex-col h-full">
@@ -249,20 +271,20 @@ function SearchContent() {
                     onClick={(e) => handlePageChange(Math.max(1, currentPage - 1), e)}
                     disabled={currentPage === 1}
                     className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Page précédente"
+                    aria-label={t('previousPage')}
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  
+
                   <span className="text-sm font-medium">
-                    Page {currentPage} sur {totalPages}
+                    {t('pageOf', { current: currentPage, total: totalPages })}
                   </span>
-                  
+
                   <button
                     onClick={(e) => handlePageChange(Math.min(totalPages, currentPage + 1), e)}
                     disabled={currentPage === totalPages}
                     className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    aria-label="Page suivante"
+                    aria-label={t('nextPage')}
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -292,12 +314,12 @@ function SearchContent() {
         >
           {mobileView === 'list' ? (
             <>
-              <span>Carte</span>
+              <span>{t('mapView')}</span>
               <MapIcon className="w-4 h-4" />
             </>
           ) : (
             <>
-              <span>Liste</span>
+              <span>{t('listView')}</span>
               <List className="w-4 h-4" />
             </>
           )}
@@ -308,9 +330,14 @@ function SearchContent() {
   );
 }
 
+function SearchPageFallback() {
+  const t = useTranslations('search');
+  return <div>{t('loadingPage')}</div>;
+}
+
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Chargement de la page...</div>}>
+    <Suspense fallback={<SearchPageFallback />}>
       <SearchContent />
     </Suspense>
   );

@@ -4,8 +4,10 @@
 import React, { useState } from 'react';
 import TransactionList from '@/app/components/financial/TransactionList';
 import { Calendar as CalendarIcon, FilterX, Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function RevenuePage() {
+  const t = useTranslations('dashboardFinancial');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
@@ -73,8 +75,8 @@ export default function RevenuePage() {
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-md flex items-start">
         <Info className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
         <div className="text-sm">
-          <p className="font-medium mb-1">À propos des transactions</p>
-          <p>Consultez tous les paiements reçus et effectués. Les montants affichés sont après déduction de la commission de la plateforme.</p>
+          <p className="font-medium mb-1">{t('revenueInfoTitle')}</p>
+          <p>{t('revenueInfoDescription')}</p>
         </div>
       </div>
 
@@ -83,9 +85,9 @@ export default function RevenuePage() {
         <div className="flex flex-wrap items-center gap-4">
           <span className="font-medium text-foreground flex items-center">
             <CalendarIcon size={18} className="mr-2 text-muted-foreground"/>
-            Période :
+            {t('periodLabel')}
           </span>
-          
+
           <div className="flex flex-wrap gap-2">
             {['all', 'today', 'last7', 'last30', 'month', 'year'].map(p => (
               <button
@@ -97,12 +99,12 @@ export default function RevenuePage() {
                     : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
                 }`}
               >
-                {p === 'all' ? 'Tout' : 
-                 p === 'today' ? "Auj." : 
-                 p === 'last7' ? '7 jours' : 
-                 p === 'last30' ? '30 jours' : 
-                 p === 'month' ? 'Ce mois' : 
-                 'Cette année'}
+                {p === 'all' ? t('periodAll') :
+                 p === 'today' ? t('periodToday') :
+                 p === 'last7' ? t('periodLast7') :
+                 p === 'last30' ? t('periodLast30') :
+                 p === 'month' ? t('periodMonth') :
+                 t('periodYear')}
               </button>
             ))}
           </div>
@@ -130,9 +132,9 @@ export default function RevenuePage() {
             <button
               onClick={clearFilters}
               className="px-3 py-1.5 text-xs rounded-md font-medium bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive flex items-center gap-1"
-              title="Effacer les filtres de date"
+              title={t('clearFiltersTitle')}
             >
-              <FilterX size={14}/> Effacer
+              <FilterX size={14}/> {t('clearFilters')}
             </button>
           )}
         </div>

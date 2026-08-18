@@ -5,12 +5,20 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { jwtDecode } from 'jwt-decode';
 
 interface LoginFormProps {
   redirectTo?: string;
 }
 
+interface DecodedToken {
+  role?: string;
+}
+
 export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
+  const t = useTranslations('auth.login');
+  const tToast = useTranslations('toast.errors');
   const router = useRouter();
   const { login } = useAuth();
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -36,7 +44,7 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
       });
 
       if (!response.ok) {
-        throw new Error("L'adresse e-mail ou le mot de passe est incorrect.");
+        throw new Error(tToast('invalidCredentials'));
       }
 
       // On récupère les nouveaux champs envoyés par le backend
@@ -49,6 +57,10 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
       if (requiresPayment && pendingPaymentId) {
         console.log('Paiement requis, redirection vers la page de paiement...');
         router.push(`/payment?paymentId=${pendingPaymentId}`);
+      } else if (redirectTo === '/' && jwtDecode<DecodedToken>(token).role === 'ADMIN') {
+        // Un admin qui se connecte sans destination précise (pas de redirect= explicite)
+        // atterrit directement sur son dashboard plutôt que sur l'accueil public.
+        router.push('/admin');
       } else {
         console.log('Redirection vers:', redirectTo);
         router.push(redirectTo);
@@ -60,7 +72,7 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Une erreur inattendue s'est produite.");
+        setError(tToast('unexpected'));
       }
     } finally {
       setIsLoading(false);
@@ -76,7 +88,7 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">{t('emailLabel')}</label>
         <input
           type="email"
           name="email"
@@ -90,10 +102,10 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
 
       <div>
         <div className="flex items-center justify-between">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">Mot de passe</label>
+          <label htmlFor="password" className="block text-sm font-medium text-gray-700">{t('passwordLabel')}</label>
           <div className="text-sm">
             <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-              Mot de passe oublié ?
+              {t('forgotPasswordLink')}
             </Link>
           </div>
         </div>
@@ -133,7 +145,7 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
           disabled={isLoading}
           className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
         >
-          {isLoading ? 'Connexion en cours...' : 'Se connecter'}
+          {isLoading ? t('submitting') : t('submitButton')}
         </button>
       </div>
     </form>

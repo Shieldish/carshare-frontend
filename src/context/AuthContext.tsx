@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { usePathname } from 'next/navigation'; // ✅ On a retiré useRouter d'ici
+import { useTranslations } from 'next-intl';
 
 interface DecodedToken {
   sub: string;
@@ -53,6 +54,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const t = useTranslations('auth.onboardingGate');
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -215,8 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       <div className="flex h-screen w-full items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center space-y-4">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Paiement requis</h2>
-          <p className="text-gray-500">Veuillez régler vos frais d&apos;inscription pour continuer.</p>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h2>
+          <p className="text-gray-500">{t('description')}</p>
         </div>
       </div>
     );

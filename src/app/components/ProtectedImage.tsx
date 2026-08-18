@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { FileX, Loader2, ZoomIn, X, ShieldCheck } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ProtectedImageProps {
   userId: number;
@@ -12,6 +13,7 @@ interface ProtectedImageProps {
 }
 
 export default function ProtectedImage({ userId, docType, alt, className, fill }: ProtectedImageProps) {
+  const t = useTranslations('admin.protectedImage');
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasError, setHasError] = useState(false);
@@ -60,7 +62,7 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
     return (
       <div className={`flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 gap-2 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg ${fill ? 'absolute inset-0' : ''} ${className ?? ''}`}>
         <Loader2 className="w-6 h-6 animate-spin text-orange-500" />
-        <span className="text-xs text-gray-400">Déchiffrement...</span>
+        <span className="text-xs text-gray-400">{t('decrypting')}</span>
       </div>
     );
   }
@@ -69,7 +71,7 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
     return (
       <div className={`flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 text-gray-400 gap-2 border border-dashed border-gray-200 dark:border-gray-700 rounded-lg ${fill ? 'absolute inset-0' : ''} ${className ?? ''}`}>
         <FileX className="w-8 h-8 opacity-40" />
-        <span className="text-xs">Document indisponible</span>
+        <span className="text-xs">{t('documentUnavailable')}</span>
       </div>
     );
   }
@@ -106,14 +108,14 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
               <ShieldCheck className="w-6 h-6 text-green-400" />
               <div>
                 <h3 className="text-white font-semibold text-lg leading-tight">{alt}</h3>
-                <p className="text-green-400/80 text-xs uppercase tracking-wider font-bold">Affichage Sécurisé Budax</p>
+                <p className="text-green-400/80 text-xs uppercase tracking-wider font-bold">{t('secureDisplay')}</p>
               </div>
             </div>
-            
-            <button 
+
+            <button
               onClick={(e) => { e.stopPropagation(); setIsViewerOpen(false); }}
               className="p-3 bg-white/10 hover:bg-white/25 rounded-full text-white transition-all pointer-events-auto"
-              title="Fermer"
+              title={t('close')}
             >
               <X className="w-6 h-6" />
             </button>
@@ -127,7 +129,7 @@ export default function ProtectedImage({ userId, docType, alt, className, fill }
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imgSrc}
-              alt={`Zoom sur ${alt}`}
+              alt={t('zoomAlt', { name: alt })}
               className="max-w-full max-h-full object-contain rounded-lg shadow-2xl ring-1 ring-white/10"
             />
           </div>

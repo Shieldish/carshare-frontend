@@ -2,10 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { Car, Users, Shield, Globe, TrendingUp, Heart, Star, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 const AboutPage = () => {
+  const t = useTranslations('about');
   const { user, isLoading } = useAuth();
 
   // Fonction pour déterminer le lien du bouton "Proposer mon Véhicule"
@@ -16,8 +18,8 @@ const AboutPage = () => {
 
   // Fonction pour déterminer le texte du bouton
   const getEarnMoneyButtonText = () => {
-    if (isLoading) return 'Proposer mon Véhicule';
-    return user ? 'Mes Véhicules' : 'Proposer mon Véhicule';
+    if (isLoading) return t('cta.earnButtonLoading');
+    return user ? t('cta.earnButtonLoggedIn') : t('cta.earnButtonLoggedOut');
   };
 
   return (
@@ -32,20 +34,20 @@ const AboutPage = () => {
                 CarShare Burundi
               </h1>
               <p className="text-xl lg:text-2xl text-muted-foreground mb-8 leading-relaxed">
-                La première plateforme de <span className="font-semibold text-blue-600">location de voitures entre particuliers</span> au Burundi
+                {t('hero.subtitlePrefix')} <span className="font-semibold text-blue-600">{t('hero.subtitleHighlight')}</span> {t('hero.subtitleSuffix')}
               </p>
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                 <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-lg border border-border">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium text-card-foreground">Simple & Sécurisé</span>
+                  <span className="text-sm font-medium text-card-foreground">{t('hero.badge1')}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-lg border border-border">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium text-card-foreground">Prix Abordables</span>
+                  <span className="text-sm font-medium text-card-foreground">{t('hero.badge2')}</span>
                 </div>
                 <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-lg border border-border">
                   <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-medium text-card-foreground">Assurance Incluse</span>
+                  <span className="text-sm font-medium text-card-foreground">{t('hero.badge3')}</span>
                 </div>
               </div>
             </div>
@@ -54,19 +56,19 @@ const AboutPage = () => {
                 <div className="grid grid-cols-2 gap-6 text-center">
                   <div>
                     <div className="text-3xl font-bold">15,000+</div>
-                    <div className="text-sm opacity-90">Véhicules disponibles</div>
+                    <div className="text-sm opacity-90">{t('hero.statVehiclesLabel')}</div>
                   </div>
                   <div>
                     <div className="text-3xl font-bold">300k+</div>
-                    <div className="text-sm opacity-90">Visiteurs/an</div>
+                    <div className="text-sm opacity-90">{t('hero.statVisitorsLabel')}</div>
                   </div>
                   <div>
                     <div className="text-3xl font-bold">-40%</div>
-                    <div className="text-sm opacity-90">vs Agences</div>
+                    <div className="text-sm opacity-90">{t('hero.statSavingsLabel')}</div>
                   </div>
                   <div>
                     <div className="text-3xl font-bold">24/7</div>
-                    <div className="text-sm opacity-90">Support client</div>
+                    <div className="text-sm opacity-90">{t('hero.statSupportLabel')}</div>
                   </div>
                 </div>
               </div>
@@ -80,11 +82,10 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-foreground">
-              Notre Mission
+              {t('mission.title')}
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Révolutionner le transport au Burundi en connectant les propriétaires de véhicules 
-              avec ceux qui en ont besoin, créant une économie de partage locale et durable.
+              {t('mission.description')}
             </p>
           </div>
 
@@ -94,11 +95,10 @@ const AboutPage = () => {
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Communauté
+                {t('mission.communityTitle')}
               </h3>
               <p className="text-muted-foreground">
-                Créer une communauté de confiance entre propriétaires et locataires, 
-                favorisant les échanges locaux et le développement économique.
+                {t('mission.communityDescription')}
               </p>
             </div>
 
@@ -107,11 +107,10 @@ const AboutPage = () => {
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Accessibilité
+                {t('mission.accessibilityTitle')}
               </h3>
               <p className="text-muted-foreground">
-                Rendre la location de véhicules accessible à tous avec des prix 
-                40% moins chers que les agences traditionnelles.
+                {t('mission.accessibilityDescription')}
               </p>
             </div>
 
@@ -120,11 +119,10 @@ const AboutPage = () => {
                 <Globe className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Innovation
+                {t('mission.innovationTitle')}
               </h3>
               <p className="text-muted-foreground">
-                Apporter l&apos;innovation technologique au secteur du transport 
-                avec une plateforme moderne et sécurisée.
+                {t('mission.innovationDescription')}
               </p>
             </div>
           </div>
@@ -137,7 +135,7 @@ const AboutPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
               <h2 className="text-4xl font-bold mb-8 text-foreground">
-                Le Défi du Transport au Burundi
+                {t('challenge.title')}
               </h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -145,9 +143,9 @@ const AboutPage = () => {
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Prix Élevés</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('challenge.highPricesTitle')}</h3>
                     <p className="text-muted-foreground">
-                      Les agences traditionnelles facturent 80-150$/jour, hors budget pour la plupart des Burundais.
+                      {t('challenge.highPricesDescription')}
                     </p>
                   </div>
                 </div>
@@ -156,9 +154,9 @@ const AboutPage = () => {
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Sous-utilisation</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('challenge.underuseTitle')}</h3>
                     <p className="text-muted-foreground">
-                      15,000+ véhicules privés restent inutilisés 70% du temps à Bujumbura.
+                      {t('challenge.underuseDescription')}
                     </p>
                   </div>
                 </div>
@@ -167,9 +165,9 @@ const AboutPage = () => {
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Manque de Confiance</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('challenge.trustTitle')}</h3>
                     <p className="text-muted-foreground">
-                      Pas de plateforme sécurisée pour mettre en relation propriétaires et locataires.
+                      {t('challenge.trustDescription')}
                     </p>
                   </div>
                 </div>
@@ -178,7 +176,7 @@ const AboutPage = () => {
 
             <div>
               <h2 className="text-4xl font-bold mb-8 text-foreground">
-                Notre Solution
+                {t('solution.title')}
               </h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
@@ -186,9 +184,9 @@ const AboutPage = () => {
                     <CheckCircle className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Plateforme Sécurisée</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('solution.securePlatformTitle')}</h3>
                     <p className="text-muted-foreground">
-                      Vérification d&apos;identité, assurance incluse et paiements sécurisés via Orange Money.
+                      {t('solution.securePlatformDescription')}
                     </p>
                   </div>
                 </div>
@@ -197,9 +195,9 @@ const AboutPage = () => {
                     <CheckCircle className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Prix Abordables</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('solution.affordablePricesTitle')}</h3>
                     <p className="text-muted-foreground">
-                      Location dès 25$/jour avec 85% des revenus pour les propriétaires.
+                      {t('solution.affordablePricesDescription')}
                     </p>
                   </div>
                 </div>
@@ -208,9 +206,9 @@ const AboutPage = () => {
                     <CheckCircle className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground mb-2">Revenus Complémentaires</h3>
+                    <h3 className="font-semibold text-foreground mb-2">{t('solution.extraIncomeTitle')}</h3>
                     <p className="text-muted-foreground">
-                      Les propriétaires peuvent générer 300-800$/mois en louant leurs véhicules.
+                      {t('solution.extraIncomeDescription')}
                     </p>
                   </div>
                 </div>
@@ -225,10 +223,10 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-foreground">
-              Comment ça Marche
+              {t('process.title')}
             </h2>
             <p className="text-xl text-muted-foreground">
-              Un processus simple en 3 étapes pour louer ou proposer votre véhicule
+              {t('process.subtitle')}
             </p>
           </div>
 
@@ -243,10 +241,10 @@ const AboutPage = () => {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Choisissez
+                {t('process.step1Title')}
               </h3>
               <p className="text-muted-foreground">
-                Parcourez notre catalogue de véhicules vérifiés et choisissez celui qui correspond à vos besoins et budget.
+                {t('process.step1Description')}
               </p>
             </div>
 
@@ -260,10 +258,10 @@ const AboutPage = () => {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Réservez
+                {t('process.step2Title')}
               </h3>
               <p className="text-muted-foreground">
-                Effectuez votre réservation sécurisée avec paiement mobile money et assurance automatiquement incluse.
+                {t('process.step2Description')}
               </p>
             </div>
 
@@ -277,10 +275,10 @@ const AboutPage = () => {
                 </div>
               </div>
               <h3 className="text-2xl font-bold mb-4 text-foreground">
-                Profitez
+                {t('process.step3Title')}
               </h3>
               <p className="text-muted-foreground">
-                Récupérez votre véhicule, profitez de votre trajet et laissez un avis pour aider la communauté.
+                {t('process.step3Description')}
               </p>
             </div>
           </div>
@@ -292,10 +290,10 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6 text-foreground">
-              Nos Valeurs
+              {t('values.title')}
             </h2>
             <p className="text-xl text-muted-foreground">
-              Les principes qui guident notre mission au quotidien
+              {t('values.subtitle')}
             </p>
           </div>
 
@@ -304,9 +302,9 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Sécurité</h3>
+              <h3 className="text-xl font-bold mb-3 text-foreground">{t('values.securityTitle')}</h3>
               <p className="text-muted-foreground text-sm">
-                Protection complète pour tous nos utilisateurs avec vérification d&apos;identité et assurance incluse.
+                {t('values.securityDescription')}
               </p>
             </div>
 
@@ -314,9 +312,9 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Heart className="w-8 h-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Confiance</h3>
+              <h3 className="text-xl font-bold mb-3 text-foreground">{t('values.trustTitle')}</h3>
               <p className="text-muted-foreground text-sm">
-                Construire des relations de confiance durable entre propriétaires et locataires.
+                {t('values.trustDescription')}
               </p>
             </div>
 
@@ -324,9 +322,9 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Star className="w-8 h-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Excellence</h3>
+              <h3 className="text-xl font-bold mb-3 text-foreground">{t('values.excellenceTitle')}</h3>
               <p className="text-muted-foreground text-sm">
-                Offrir une expérience utilisateur exceptionnelle à chaque interaction.
+                {t('values.excellenceDescription')}
               </p>
             </div>
 
@@ -334,9 +332,9 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Globe className="w-8 h-8 text-orange-600" />
               </div>
-              <h3 className="text-xl font-bold mb-3 text-foreground">Impact</h3>
+              <h3 className="text-xl font-bold mb-3 text-foreground">{t('values.impactTitle')}</h3>
               <p className="text-muted-foreground text-sm">
-                Contribuer au développement économique local et à une mobilité plus durable.
+                {t('values.impactDescription')}
               </p>
             </div>
           </div>
@@ -347,26 +345,26 @@ const AboutPage = () => {
       <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">Notre Impact en Chiffres</h2>
-            <p className="text-xl opacity-90">Des résultats qui parlent d&apos;eux-mêmes</p>
+            <h2 className="text-4xl font-bold mb-6">{t('stats.title')}</h2>
+            <p className="text-xl opacity-90">{t('stats.subtitle')}</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-4xl lg:text-5xl font-bold mb-2">15k+</div>
-              <div className="text-lg opacity-90">Véhicules Disponibles</div>
+              <div className="text-lg opacity-90">{t('stats.vehiclesLabel')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl lg:text-5xl font-bold mb-2">300k+</div>
-              <div className="text-lg opacity-90">Visiteurs/An</div>
+              <div className="text-lg opacity-90">{t('stats.visitorsLabel')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl lg:text-5xl font-bold mb-2">40%</div>
-              <div className="text-lg opacity-90">Économies vs Agences</div>
+              <div className="text-lg opacity-90">{t('stats.savingsLabel')}</div>
             </div>
             <div className="text-center">
               <div className="text-4xl lg:text-5xl font-bold mb-2">800$</div>
-              <div className="text-lg opacity-90">Revenus Max/Mois</div>
+              <div className="text-lg opacity-90">{t('stats.revenueLabel')}</div>
             </div>
           </div>
         </div>
@@ -376,18 +374,17 @@ const AboutPage = () => {
       <section className="py-20 px-6 bg-card">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-4xl font-bold mb-6 text-foreground">
-            Prêt à Rejoindre la Révolution ?
+            {t('cta.title')}
           </h2>
           <p className="text-xl text-muted-foreground mb-10">
-            Que vous souhaitiez louer un véhicule ou générer des revenus avec le vôtre, 
-            CarShare Burundi est fait pour vous.
+            {t('cta.description')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
               className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 inline-flex items-center justify-center"
             >
-              Louer un Véhicule
+              {t('cta.rentButton')}
             </Link>
             <Link
               href={getEarnMoneyLink()}

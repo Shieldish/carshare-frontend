@@ -7,8 +7,10 @@ import { useAuth } from '@/context/AuthContext';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { AlertTriangle, CreditCard, CheckCircle2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTranslations } from 'next-intl';
 
 function PaymentPageContent() {
+  const t = useTranslations('payment.page');
   const searchParams = useSearchParams();
   const router = useRouter();
   const paymentId = searchParams.get('paymentId');
@@ -41,20 +43,20 @@ function PaymentPageContent() {
         setRealPaymentType(data.type || data.paymentType || null);
       } catch {
         console.error("Erreur lors de la récupération du paiement");
-        toast.error("Impossible de charger les détails de la facture.");
+        toast.error(t('invoiceLoadError'));
       } finally {
         setIsLoadingPayment(false);
       }
     };
 
     fetchPaymentDetails();
-  }, [paymentId]);
+  }, [paymentId, t]);
 
   const handleOnlinePayment = async () => {
     if (!paymentId) return;
     setIsProcessing(true);
     
-    const loadingToast = toast.loading("Préparation du paiement sécurisé...");
+    const loadingToast = toast.loading(t('preparingPayment'));
 
     try {
       const response = await apiClient.post(
@@ -72,7 +74,7 @@ function PaymentPageContent() {
         window.location.href = response.redirectUrl;
       }
     } catch {
-      toast.error("Impossible de lancer le paiement Stripe.", { id: loadingToast });
+      toast.error(t('stripeLaunchError'), { id: loadingToast });
       setIsProcessing(false);
     }
   };
@@ -81,7 +83,7 @@ function PaymentPageContent() {
     if (!paymentId) return;
 
     setIsProcessing(true);
-    const loadingToast = toast.loading("Validation de votre transaction...");
+    const loadingToast = toast.loading(t('validatingTransaction'));
 
     try {
       await apiClient.post('/api/payments/pay/mobile-money', {
@@ -92,12 +94,12 @@ function PaymentPageContent() {
 
       setShowModal(false);
       await refreshUser();
-      toast.success("Paiement validé !", { id: loadingToast, duration: 5000 });
+      toast.success(t('paymentValidated'), { id: loadingToast, duration: 5000 });
       setPaymentSuccess(true);
-      
+
       setTimeout(() => { router.push('/profile'); }, 5000);
     } catch {
-      toast.error("Échec du paiement. Vérifiez votre code.", { id: loadingToast });
+      toast.error(t('paymentFailed'), { id: loadingToast });
       setIsProcessing(false);
     }
   };
@@ -109,7 +111,7 @@ function PaymentPageContent() {
             <div className="bg-gray-200 dark:bg-gray-800 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                 <AlertTriangle className="text-gray-400" />
             </div>
-            <p className="text-gray-500 font-medium text-lg">Aucun paiement trouvé.</p>
+            <p className="text-gray-500 font-medium text-lg">{t('noPaymentFound')}</p>
         </div>
       </div>
     );
@@ -119,7 +121,7 @@ function PaymentPageContent() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center">
         <Loader2 className="animate-spin w-12 h-12 text-blue-600 mb-4" />
-        <p className="text-gray-500 font-medium">Récupération de votre facture...</p>
+        <p className="text-gray-500 font-medium">{t('loadingInvoice')}</p>
       </div>
     );
   }
@@ -131,8 +133,8 @@ function PaymentPageContent() {
                 <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                     <CheckCircle2 className="w-12 h-12 text-green-600" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Félicitations !</h2>
-                <p className="text-gray-500 mt-2">Paiement réussi. Redirection...</p>
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('congratulations')}</h2>
+                <p className="text-gray-500 mt-2">{t('successRedirecting')}</p>
                 <Loader2 className="animate-spin mx-auto mt-8 text-blue-600" />
             </div>
         </div>
@@ -146,9 +148,9 @@ function PaymentPageContent() {
           <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
             <CreditCard className="h-10 w-10 text-blue-600" />
           </div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Paiement</h2>
+          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{t('title')}</h2>
           <div className="mt-10 p-6 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-600">
-            <span className="text-sm text-gray-500 uppercase font-bold tracking-widest">Montant à régler</span>
+            <span className="text-sm text-gray-500 uppercase font-bold tracking-widest">{t('amountDue')}</span>
             <div className="text-4xl font-black text-blue-600 mt-1">
               {amount.toLocaleString()} <span className="text-xl">{currency}</span>
             </div>
@@ -159,7 +161,7 @@ function PaymentPageContent() {
             className="mt-10 w-full flex justify-center items-center py-4 rounded-2xl text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all disabled:opacity-50"
           >
             {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <CreditCard className="mr-3 h-6 w-6" />}
-            Procéder au paiement
+            {t('proceedToPayment')}
           </button>
         </div>
       </div>
@@ -168,9 +170,14 @@ function PaymentPageContent() {
   );
 }
 
+function PaymentPageFallback() {
+  const t = useTranslations('common');
+  return <div className="min-h-screen flex items-center justify-center text-gray-400">{t('loading')}</div>;
+}
+
 export default function PaymentPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-gray-400">Chargement...</div>}>
+    <Suspense fallback={<PaymentPageFallback />}>
       <PaymentPageContent />
     </Suspense>
   );

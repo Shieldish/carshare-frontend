@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import VehicleCard from './VehicleCard';
 import type { Vehicle } from '../types/vehicle';
 
@@ -13,6 +14,7 @@ interface VehicleCarouselProps {
 }
 
 export default function VehicleCarousel({ title, city, vehicles, onViewAll }: VehicleCarouselProps) {
+  const t = useTranslations('vehicleCarousel');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -67,7 +69,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
         <div className="flex items-center gap-4">
           {onViewAll && (
             <button onClick={onViewAll} className="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors">
-              Tout afficher
+              {t('showAll')}
             </button>
           )}
           
@@ -81,7 +83,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
                   ? 'border-border bg-background text-foreground hover:shadow-md hover:scale-105 cursor-pointer' 
                   : 'border-transparent bg-muted/50 text-muted-foreground opacity-50 cursor-not-allowed'
               }`}
-              aria-label="Défiler à gauche"
+              aria-label={t('scrollLeft')}
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
@@ -93,7 +95,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
                   ? 'border-border bg-background text-foreground hover:shadow-md hover:scale-105 cursor-pointer' 
                   : 'border-transparent bg-muted/50 text-muted-foreground opacity-50 cursor-not-allowed'
               }`}
-              aria-label="Défiler à droite"
+              aria-label={t('scrollRight')}
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -125,7 +127,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
                 <div className="p-4 rounded-full border-2 border-current group-hover/btn:scale-110 transition-transform">
                   <ArrowRight className="w-8 h-8" />
                 </div>
-                <span className="font-medium text-sm">Voir plus</span>
+                <span className="font-medium text-sm">{t('seeMore')}</span>
               </button>
             </div>
           )}

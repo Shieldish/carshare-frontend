@@ -9,6 +9,7 @@ import { BlockedPeriod, CreateBlockedPeriodData } from '@/types/availability';
 import { Booking } from '@/types/booking';
 import { Loader2, AlertCircle, ArrowLeft, CalendarPlus, Trash2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
 
 // Helper type for calendar tile content
 type TileContentData = {
@@ -18,6 +19,7 @@ type TileContentData = {
 
 // Internal component using client hooks
 function AvailabilityPageContent() {
+    const t = useTranslations('vehicles.availability');
     const router = useRouter();
     const params = useParams();
     const { user, isLoading: isAuthLoading } = useAuth();
@@ -35,6 +37,23 @@ function AvailabilityPageContent() {
     const [reason, setReason] = useState('');
     const [isAddingBlock, setIsAddingBlock] = useState(false);
     const [addBlockError, setAddBlockError] = useState<string | null>(null);
+
+    // react-calendar reports a same-day re-click as a zero-length [A, A] range
+    // (not null) — treat that as "cancel selection" instead of a 1-day range.
+    const handleCalendarChange = (value: Date | [Date | null, Date | null] | null) => {
+        if (
+            Array.isArray(value) &&
+            value[0] &&
+            value[1] &&
+            value[0].getFullYear() === value[1].getFullYear() &&
+            value[0].getMonth() === value[1].getMonth() &&
+            value[0].getDate() === value[1].getDate()
+        ) {
+            setSelectedDates(null);
+            return;
+        }
+        setSelectedDates(value as Date | [Date, Date] | null);
+    };
 
     // Helper function to convert Date range to LocalDateTime strings
     const formatRangeToISO = (dates: [Date, Date]): { start: string, end: string } | null => {
@@ -70,14 +89,14 @@ function AvailabilityPageContent() {
         } catch (err: unknown) {
             console.error("Error fetching availability data:", err);
             if (err instanceof ApiError && err.status === 403) {
-                setError("Accès refusé. Vérifiez que vous êtes le propriétaire ou que l'endpoint est accessible.");
+                setError(t('errors.accessDenied'));
             } else {
-                setError(err instanceof Error ? err.message : "Impossible de charger les données de disponibilité.");
+                setError(err instanceof Error ? err.message : t('errors.loadError'));
             }
         } finally {
             setIsLoading(false);
         }
-    }, [vehicleIdNum, user]);
+    }, [vehicleIdNum, user, t]);
 
     // Fetch data on mount and when user loads
     useEffect(() => {
@@ -91,13 +110,13 @@ function AvailabilityPageContent() {
 
     const handleAddBlockedPeriod = async () => {
         if (!selectedDates || !Array.isArray(selectedDates)) {
-            setAddBlockError("Veuillez sélectionner une période (deux dates) sur le calendrier.");
+            setAddBlockError(t('errors.selectPeriod'));
             return;
         }
 
         const formattedDates = formatRangeToISO(selectedDates);
         if (!formattedDates) {
-            setAddBlockError("Dates sélectionnées invalides.");
+            setAddBlockError(t('errors.invalidDates'));
             return;
         }
 
@@ -117,21 +136,21 @@ function AvailabilityPageContent() {
             setReason('');
         } catch (err: unknown) {
             console.error("Error adding blocked period:", err);
-            setAddBlockError(err instanceof Error ? err.message : "Impossible d'ajouter la période bloquée.");
+            setAddBlockError(err instanceof Error ? err.message : t('errors.addError'));
         } finally {
             setIsAddingBlock(false);
         }
     };
 
     const handleDeleteBlockedPeriod = async (periodId: number) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer cette période bloquée ?")) return;
+        if (!confirm(t('confirmDeleteBlock'))) return;
 
         try {
             await apiClient.deleteBlockedPeriod(vehicleIdNum, periodId);
             fetchData();
         } catch (err: unknown) {
             console.error("Error deleting blocked period:", err);
-            setError("Impossible de supprimer la période bloquée.");
+            setError(t('errors.deleteError'));
         }
     };
 
@@ -190,7 +209,7 @@ function AvailabilityPageContent() {
 
     const selectedRangeText = Array.isArray(selectedDates)
         ? `${selectedDates[0].toLocaleDateString()} - ${selectedDates[1].toLocaleDateString()}`
-        : selectedDates instanceof Date ? selectedDates.toLocaleDateString() : "Aucune période sélectionnée";
+        : selectedDates instanceof Date ? selectedDates.toLocaleDateString() : t('noPeriodSelected');
 
     return (
         <div className="min-h-screen bg-background">
@@ -202,22 +221,22 @@ function AvailabilityPageContent() {
                         className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
                     >
                         <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                        Retour au véhicule
+                        {t('back')}
                     </button>
                 </div>
             </div>
 
             <div className="container mx-auto max-w-6xl py-8 px-4">
                 <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
-                    Gérer la Disponibilité du Véhicule #{vehicleId}
+                    {t('title', { id: vehicleId })}
                 </h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Calendar View */}
                     <div className="md:col-span-2 bg-card p-6 rounded-lg shadow-md border border-border">
-                        <h2 className="text-xl font-semibold mb-4 text-foreground">Calendrier</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-foreground">{t('calendarTitle')}</h2>
                         <Calendar
-                            onChange={(value) => setSelectedDates(value as Date | [Date, Date] | null)}
+                            onChange={handleCalendarChange}
                             value={selectedDates}
                             selectRange={true}
                             tileClassName={tileClassName}
@@ -226,9 +245,9 @@ function AvailabilityPageContent() {
                         />
                         <div className="mt-4 flex space-x-2 items-center text-xs">
                             <span className="w-3 h-3 bg-red-200 dark:bg-red-800/50 rounded-full inline-block"></span>
-                            <span className="text-muted-foreground">Réservé</span>
+                            <span className="text-muted-foreground">{t('legendBooked')}</span>
                             <span className="w-3 h-3 bg-gray-300 dark:bg-gray-700/50 rounded-full inline-block ml-3"></span>
-                            <span className="text-muted-foreground">Bloqué</span>
+                            <span className="text-muted-foreground">{t('legendBlocked')}</span>
                         </div>
                     </div>
 
@@ -238,7 +257,7 @@ function AvailabilityPageContent() {
                         <div className="bg-card p-6 rounded-lg shadow-md border border-border">
                             <h2 className="text-xl font-semibold mb-4 text-foreground flex items-center">
                                 <CalendarPlus className="w-5 h-5 mr-2 text-primary" />
-                                Bloquer une période
+                                {t('blockFormTitle')}
                             </h2>
                             {addBlockError && (
                                 <div className="bg-red-100 text-red-700 px-3 py-2 rounded text-sm mb-3 flex items-start" role="alert">
@@ -248,7 +267,7 @@ function AvailabilityPageContent() {
                             )}
                             <div className="mb-3">
                                 <label className="block text-sm font-medium text-muted-foreground mb-1">
-                                    Période sélectionnée:
+                                    {t('selectedPeriodLabel')}
                                 </label>
                                 <input
                                     type="text"
@@ -259,14 +278,14 @@ function AvailabilityPageContent() {
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="reason" className="block text-sm font-medium text-muted-foreground mb-1">
-                                    Raison (optionnel)
+                                    {t('reasonLabel')}
                                 </label>
                                 <input
                                     id="reason"
                                     type="text"
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
-                                    placeholder="Ex: Maintenance, Usage personnel"
+                                    placeholder={t('reasonPlaceholder')}
                                     className="w-full px-3 py-1.5 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                                 />
                             </div>
@@ -276,15 +295,15 @@ function AvailabilityPageContent() {
                                 className="w-full flex items-center justify-center py-2 px-4 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 {isAddingBlock ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
-                                {isAddingBlock ? 'Ajout...' : 'Bloquer cette période'}
+                                {isAddingBlock ? t('blocking') : t('blockButton')}
                             </button>
                         </div>
 
                         {/* List Blocked Periods */}
                         <div className="bg-card p-6 rounded-lg shadow-md border border-border">
-                            <h2 className="text-xl font-semibold mb-4 text-foreground">Périodes Bloquées</h2>
+                            <h2 className="text-xl font-semibold mb-4 text-foreground">{t('blockedListTitle')}</h2>
                             {blockedPeriods.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">Aucune période bloquée pour ce véhicule.</p>
+                                <p className="text-sm text-muted-foreground">{t('noBlockedPeriods')}</p>
                             ) : (
                                 <ul className="space-y-3 max-h-60 overflow-y-auto pr-2">
                                     {blockedPeriods.map(period => (
@@ -298,7 +317,7 @@ function AvailabilityPageContent() {
                                             <button
                                                 onClick={() => handleDeleteBlockedPeriod(period.id)}
                                                 className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded"
-                                                title="Supprimer"
+                                                title={t('deleteTitle')}
                                             >
                                                 <Trash2 size={16} />
                                             </button>

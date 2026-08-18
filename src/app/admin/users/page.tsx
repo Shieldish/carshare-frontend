@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
 import {
@@ -44,12 +45,14 @@ type User = {
   isActive?: boolean;
   isPremium?: boolean;
   premiumEndDate?: string;
+  lastLoginAt?: string;
 };
 
 // ---------------------------------------------------------------------------
 // 🔒 NOUVEAU COMPOSANT : Lightbox Sécurisée pour le tableau
 // ---------------------------------------------------------------------------
 const SecureLightbox = ({ userId, docType, title, onClose }: { userId: number, docType: string, title: string, onClose: () => void }) => {
+  const t = useTranslations('admin.users');
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -89,10 +92,10 @@ const SecureLightbox = ({ userId, docType, title, onClose }: { userId: number, d
           <ShieldCheck className="w-6 h-6 text-green-400" />
           <div>
             <h3 className="text-white font-semibold text-lg leading-tight">{title}</h3>
-            <p className="text-green-400/80 text-xs uppercase tracking-wider font-bold">Affichage Sécurisé Budax</p>
+            <p className="text-green-400/80 text-xs uppercase tracking-wider font-bold">{t('lightbox.secureDisplay')}</p>
           </div>
         </div>
-        <button onClick={onClose} className="p-3 bg-white/10 hover:bg-white/25 rounded-full text-white transition-all pointer-events-auto" title="Fermer">
+        <button onClick={onClose} className="p-3 bg-white/10 hover:bg-white/25 rounded-full text-white transition-all pointer-events-auto" title={t('lightbox.close')}>
           <X className="w-6 h-6" />
         </button>
       </div>
@@ -102,12 +105,12 @@ const SecureLightbox = ({ userId, docType, title, onClose }: { userId: number, d
         {hasError && (
           <div className="flex flex-col items-center gap-4 text-gray-400">
             <FileX className="w-16 h-16 opacity-50" />
-            <p>Document inaccessible ou corrompu</p>
+            <p>{t('lightbox.documentError')}</p>
           </div>
         )}
         {!isLoading && !hasError && imgSrc && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={imgSrc} alt="Document Sécurisé" className="max-w-full max-h-full object-contain rounded-lg shadow-2xl ring-1 ring-white/10" />
+          <img src={imgSrc} alt={t('lightbox.alt')} className="max-w-full max-h-full object-contain rounded-lg shadow-2xl ring-1 ring-white/10" />
         )}
       </div>
     </div>
@@ -137,11 +140,13 @@ const VerificationStatus: React.FC<{
   onVerify: () => void;
   onView: () => void; // 👈 Nouvelle prop pour déclencher la Lightbox
 }> = ({ isVerified, isUpdating, documentUrl, onVerify, onView }) => {
+  const t = useTranslations('admin.users');
+
   if (isVerified) {
     return (
       <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
         <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-        <span className="text-sm font-medium text-green-700 dark:text-green-300">Vérifié</span>
+        <span className="text-sm font-medium text-green-700 dark:text-green-300">{t('verification.verified')}</span>
       </div>
     );
   }
@@ -153,7 +158,7 @@ const VerificationStatus: React.FC<{
           onClick={onView}
           className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
         >
-          <ExternalLink className="w-3 h-3" /> Voir
+          <ExternalLink className="w-3 h-3" /> {t('verification.view')}
         </button>
         <button
           onClick={onVerify}
@@ -165,7 +170,7 @@ const VerificationStatus: React.FC<{
           ) : (
             <CheckCircle2 className="w-3 h-3" />
           )}
-          Approuver
+          {t('verification.approve')}
         </button>
       </div>
     );
@@ -173,7 +178,7 @@ const VerificationStatus: React.FC<{
 
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
-      <XCircle className="w-3 h-3" /> En attente
+      <XCircle className="w-3 h-3" /> {t('verification.pending')}
     </span>
   );
 };
@@ -185,6 +190,7 @@ const UserRow: React.FC<{
   onExtendPremium: (userId: number) => Promise<void>;
   onViewDocument: (userId: number, docType: 'identity' | 'license' | 'selfie', title: string) => void;
 }> = ({ user, onStatusChange, onToggleStatus, onExtendPremium, onViewDocument }) => {
+  const t = useTranslations('admin.users');
   const [isUpdatingIdentity, setIsUpdatingIdentity] = useState(false);
   const [isUpdatingLicense, setIsUpdatingLicense] = useState(false);
   const [isUpdatingSelfie, setIsUpdatingSelfie] = useState(false);
@@ -214,7 +220,7 @@ const UserRow: React.FC<{
     try {
       await onStatusChange(user.id, updateData);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la vérification');
+      setError(err instanceof Error ? err.message : t('verification.genericError'));
       setTimeout(() => setError(null), 5000);
     } finally {
       if (type === 'identity') setIsUpdatingIdentity(false);
@@ -231,7 +237,7 @@ const UserRow: React.FC<{
       await onToggleStatus(user.id, actionToConfirm === 'activate');
       setActionToConfirm(null);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur lors du changement de statut');
+      setError(err instanceof Error ? err.message : t('toggleStatusModal.genericError'));
       setTimeout(() => setError(null), 5000);
     } finally {
       setIsToggling(false);
@@ -244,13 +250,13 @@ const UserRow: React.FC<{
     setError(null);
     try {
       await onExtendPremium(user.id);
-      setPremiumSuccess('✅ Abonnement prolongé de 1 mois avec succès !');
+      setPremiumSuccess(t('premiumModal.successMessage'));
       setTimeout(() => {
         setPremiumSuccess(null);
         setShowPremiumModal(false);
       }, 2500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la prolongation.');
+      setError(err instanceof Error ? err.message : t('premiumModal.genericError'));
       setTimeout(() => setError(null), 5000);
     } finally {
       setIsExtendingPremium(false);
@@ -277,19 +283,19 @@ const UserRow: React.FC<{
               {user.firstName} {user.lastName}
               {user.isPremium && (
                 <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-[10px] font-bold uppercase tracking-wider">
-                  <Crown className="w-3 h-3" /> Premium
+                  <Crown className="w-3 h-3" /> {t('premiumBadge')}
                 </span>
               )}
             </div>
             <div className="text-xs text-muted-foreground">{user.email || user.sub}</div>
             {isSuspended && (
               <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-sm bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-[10px] font-bold uppercase tracking-wider">
-                <Ban className="w-3 h-3" /> Suspendu
+                <Ban className="w-3 h-3" /> {t('suspendedBadge')}
               </span>
             )}
             {user.isPremium && premiumEndFormatted && (
               <div className="text-[10px] text-yellow-600 dark:text-yellow-400 mt-0.5">
-                Expire le {premiumEndFormatted}
+                {t('expiresOn', { date: premiumEndFormatted })}
               </div>
             )}
             {user.companyName && (
@@ -310,8 +316,8 @@ const UserRow: React.FC<{
           isVerified={user.isIdentityVerified || false} 
           isUpdating={isUpdatingIdentity} 
           documentUrl={user.identityDocumentUrl} 
-          onVerify={() => setDocToVerify('identity')} 
-          onView={() => onViewDocument(user.id, 'identity', `Identité : ${user.firstName} ${user.lastName}`)}
+          onVerify={() => setDocToVerify('identity')}
+          onView={() => onViewDocument(user.id, 'identity', t('lightbox.identityTitle', { name: `${user.firstName} ${user.lastName}` }))}
         />
       </td>
       <td className="px-6 py-4 align-top">
@@ -321,8 +327,8 @@ const UserRow: React.FC<{
           isVerified={user.isDrivingLicenseVerified || false} 
           isUpdating={isUpdatingLicense} 
           documentUrl={user.drivingLicenseUrl} 
-          onVerify={() => setDocToVerify('license')} 
-          onView={() => onViewDocument(user.id, 'license', `Permis : ${user.firstName} ${user.lastName}`)}
+          onVerify={() => setDocToVerify('license')}
+          onView={() => onViewDocument(user.id, 'license', t('lightbox.licenseTitle', { name: `${user.firstName} ${user.lastName}` }))}
         />
       </td>
       <td className="px-6 py-4 align-top">
@@ -332,13 +338,13 @@ const UserRow: React.FC<{
           isVerified={user.isSelfieVerified || false} 
           isUpdating={isUpdatingSelfie} 
           documentUrl={user.selfieUrl} 
-          onVerify={() => setDocToVerify('selfie')} 
-          onView={() => onViewDocument(user.id, 'selfie', `Selfie : ${user.firstName} ${user.lastName}`)}
+          onVerify={() => setDocToVerify('selfie')}
+          onView={() => onViewDocument(user.id, 'selfie', t('lightbox.selfieTitle', { name: `${user.firstName} ${user.lastName}` }))}
         />
       </td>
 
       <td className="px-6 py-4 text-sm text-muted-foreground relative">
-        {user.phoneNumber || <span className="text-muted-foreground/50">Non renseigné</span>}
+        {user.phoneNumber || <span className="text-muted-foreground/50">{t('notProvided')}</span>}
 
         {/* MODALE DE VÉRIFICATION DOCUMENT */}
         {docToVerify && (
@@ -348,13 +354,13 @@ const UserRow: React.FC<{
                 <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
                   <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Confirmation</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('confirmDocModal.title')}</h3>
               </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">Êtes-vous sûr de vouloir approuver ce document ?</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">{t('confirmDocModal.message')}</p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setDocToVerify(null)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">Annuler</button>
+                <button onClick={() => setDocToVerify(null)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">{t('confirmDocModal.cancel')}</button>
                 <button onClick={() => executeVerify(docToVerify)} className="px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Approuver
+                  <CheckCircle2 className="w-4 h-4" /> {t('confirmDocModal.approve')}
                 </button>
               </div>
             </div>
@@ -370,19 +376,19 @@ const UserRow: React.FC<{
                   {actionToConfirm === 'suspend' ? <ShieldAlert className="w-6 h-6" /> : <PlayCircle className="w-6 h-6" />}
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {actionToConfirm === 'suspend' ? "Suspendre l'utilisateur" : "Réactiver l'utilisateur"}
+                  {actionToConfirm === 'suspend' ? t('toggleStatusModal.suspendTitle') : t('toggleStatusModal.activateTitle')}
                 </h3>
               </div>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
                 {actionToConfirm === 'suspend'
-                  ? "Attention : Cet utilisateur ne pourra plus se connecter, ni effectuer aucune action sur BudaxDrive. Ses véhicules (s'il en a) devront être masqués manuellement. Êtes-vous sûr ?"
-                  : "Cet utilisateur retrouvera un accès complet à son compte BudaxDrive. Confirmez-vous ?"}
+                  ? t('toggleStatusModal.suspendMessage')
+                  : t('toggleStatusModal.activateMessage')}
               </p>
               <div className="flex justify-end gap-3">
-                <button onClick={() => setActionToConfirm(null)} disabled={isToggling} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">Annuler</button>
+                <button onClick={() => setActionToConfirm(null)} disabled={isToggling} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">{t('toggleStatusModal.cancel')}</button>
                 <button onClick={executeToggleStatus} disabled={isToggling} className={`px-4 py-2 text-sm font-medium text-white rounded-lg flex items-center gap-2 ${actionToConfirm === 'suspend' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
                   {isToggling ? <Loader2 className="w-4 h-4 animate-spin" /> : (actionToConfirm === 'suspend' ? <Ban className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />)}
-                  {actionToConfirm === 'suspend' ? 'Oui, Suspendre' : 'Oui, Réactiver'}
+                  {actionToConfirm === 'suspend' ? t('toggleStatusModal.confirmSuspend') : t('toggleStatusModal.confirmActivate')}
                 </button>
               </div>
             </div>
@@ -397,22 +403,22 @@ const UserRow: React.FC<{
                 <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
                   <Crown className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Valider le paiement Lumicash</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('premiumModal.title')}</h3>
               </div>
               <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                Vous êtes sur le point d&apos;ajouter <strong>1 mois de Premium</strong> pour :
+                {t('premiumModal.introPrefix')} <strong>{t('premiumModal.introHighlight')}</strong> {t('premiumModal.introSuffix')}
               </p>
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">
                 {user.firstName} {user.lastName}
               </p>
               {user.isPremium && premiumEndFormatted && (
                 <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-4">
-                  ⚠️ Abonnement actif jusqu&apos;au {premiumEndFormatted}. Le nouveau mois sera accumulé.
+                  {t('premiumModal.activeUntilPrefix')} {premiumEndFormatted}{t('premiumModal.activeUntilSuffix')}
                 </p>
               )}
               {!user.isPremium && (
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  Cet utilisateur n&apos;a pas d&apos;abonnement actif. Le mois démarrera aujourd&apos;hui.
+                  {t('premiumModal.noActiveSubscription')}
                 </p>
               )}
               {premiumSuccess && (
@@ -431,7 +437,7 @@ const UserRow: React.FC<{
                   disabled={isExtendingPremium}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50"
                 >
-                  Annuler
+                  {t('premiumModal.cancel')}
                 </button>
                 <button
                   onClick={executeExtendPremium}
@@ -439,12 +445,18 @@ const UserRow: React.FC<{
                   className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isExtendingPremium ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
-                  {isExtendingPremium ? 'Validation...' : 'Confirmer +1 Mois Premium'}
+                  {isExtendingPremium ? t('premiumModal.confirming') : t('premiumModal.confirm')}
                 </button>
               </div>
             </div>
           </div>
         )}
+      </td>
+
+      <td className="px-6 py-4 text-sm text-muted-foreground whitespace-nowrap">
+        {user.lastLoginAt
+          ? new Date(user.lastLoginAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+          : <span className="text-muted-foreground/50">{t('neverLoggedIn')}</span>}
       </td>
 
       <td className="px-6 py-4 text-center">
@@ -453,7 +465,7 @@ const UserRow: React.FC<{
             <button
               onClick={() => setActionToConfirm('suspend')}
               className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
-              title="Suspendre l'utilisateur (Kill Switch)"
+              title={t('actionTitles.suspend')}
             >
               <Ban className="w-5 h-5" />
             </button>
@@ -461,7 +473,7 @@ const UserRow: React.FC<{
             <button
               onClick={() => setActionToConfirm('activate')}
               className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
-              title="Réactiver le compte"
+              title={t('actionTitles.activate')}
             >
               <PlayCircle className="w-5 h-5" />
             </button>
@@ -470,7 +482,7 @@ const UserRow: React.FC<{
           <button
             onClick={() => setShowPremiumModal(true)}
             className="p-2 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-lg transition-colors"
-            title="Valider paiement Lumicash → +1 Mois Premium"
+            title={t('actionTitles.premium')}
           >
             <Crown className="w-5 h-5" />
           </button>
@@ -489,6 +501,7 @@ const UserRow: React.FC<{
 };
 
 function AdminUsersContent() {
+  const t = useTranslations('admin.users');
   const router = useRouter();
   const { user: adminUser, isLoading: isAuthLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
@@ -506,8 +519,9 @@ function AdminUsersContent() {
 
   useEffect(() => {
     if (!isAuthLoading && (!adminUser || adminUser.role !== 'ADMIN')) {
-      setError('Accès réservé aux administrateurs.');
+      setError(t('accessDeniedMessage'));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminUser, isAuthLoading]);
 
   const fetchUsers = useCallback(async () => {
@@ -529,7 +543,7 @@ function AdminUsersContent() {
       setFilteredUsers(formattedUsers || []);
     } catch (err: unknown) {
       console.error('Error fetching users:', err);
-      setError(err instanceof Error ? err.message : 'Impossible de charger la liste des utilisateurs.');
+      setError(err instanceof Error ? err.message : t('loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -592,7 +606,17 @@ function AdminUsersContent() {
 
   const handleExtendPremium = async (userId: number) => {
     await apiClient.extendUserPremium(userId, 1);
-    await fetchUsers();
+    // ✅ On ne recharge que cet utilisateur (pas tout le tableau) pour éviter un
+    // flash de chargement complet pour une seule ligne modifiée.
+    try {
+      const updated = await apiClient.get(`/api/users/${userId}`);
+      setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updated } : u)));
+      setFilteredUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updated } : u)));
+    } catch {
+      // Repli sûr : si le refetch ciblé échoue, on recharge tout le tableau plutôt
+      // que de laisser l'affichage désynchronisé du vrai statut premium.
+      await fetchUsers();
+    }
   };
 
   const stats = {
@@ -608,7 +632,7 @@ function AdminUsersContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Chargement des utilisateurs...</p>
+          <p className="text-muted-foreground">{t('loading')}</p>
         </div>
       </div>
     );
@@ -618,7 +642,7 @@ function AdminUsersContent() {
     return (
       <div className="container mx-auto p-8 text-center">
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold text-foreground mb-2">Accès refusé</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">{t('accessDeniedTitle')}</h2>
       </div>
     );
   }
@@ -643,35 +667,35 @@ function AdminUsersContent() {
                 <UserCog className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">Gestion des Utilisateurs</h1>
-                <p className="text-sm text-muted-foreground mt-1">Administrez les vérifications et la sécurité</p>
+                <h1 className="text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
+                <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
               </div>
             </div>
             <button onClick={() => router.back()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors border border-border rounded-lg hover:border-primary group">
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" /> Retour
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" /> {t('back')}
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200">
-              <div className="text-sm text-blue-600 font-medium">Total</div>
+              <div className="text-sm text-blue-600 font-medium">{t('stats.total')}</div>
               <div className="text-2xl font-bold text-blue-900 mt-1">{stats.total}</div>
             </div>
             <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200">
-              <div className="text-sm text-green-600 font-medium">Entièrement vérifiés</div>
+              <div className="text-sm text-green-600 font-medium">{t('stats.fullyVerified')}</div>
               <div className="text-2xl font-bold text-green-900 mt-1">{stats.fullyVerified}</div>
             </div>
             <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200">
-              <div className="text-sm text-orange-600 font-medium">Non vérifiés</div>
+              <div className="text-sm text-orange-600 font-medium">{t('stats.unverified')}</div>
               <div className="text-2xl font-bold text-orange-900 mt-1">{stats.unverified}</div>
             </div>
             <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200">
-              <div className="text-sm text-red-600 font-medium">Comptes Suspendus</div>
+              <div className="text-sm text-red-600 font-medium">{t('stats.suspended')}</div>
               <div className="text-2xl font-bold text-red-900 mt-1">{stats.suspended}</div>
             </div>
             <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200">
               <div className="text-sm text-yellow-600 font-medium flex items-center gap-1">
-                <Crown className="w-3.5 h-3.5" /> Abonnés Premium
+                <Crown className="w-3.5 h-3.5" /> {t('stats.premium')}
               </div>
               <div className="text-2xl font-bold text-yellow-900 mt-1">{stats.premium}</div>
             </div>
@@ -684,7 +708,7 @@ function AdminUsersContent() {
           <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">Une erreur est survenue</h3>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">{t('errorTitle')}</h3>
               <p className="text-sm text-red-700 dark:text-red-400 mt-1">{error}</p>
             </div>
             <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
@@ -697,24 +721,24 @@ function AdminUsersContent() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input type="text" placeholder="Rechercher par nom..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:ring-2 focus:ring-primary" />
+              <input type="text" placeholder={t('searchPlaceholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:ring-2 focus:ring-primary" />
             </div>
             <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground">
-              <option value="ALL">Tous les rôles</option>
-              <option value="USER">Utilisateurs</option>
-              <option value="OWNER">Propriétaires</option>
-              <option value="ADMIN">Administrateurs</option>
+              <option value="ALL">{t('roleFilter.all')}</option>
+              <option value="USER">{t('roleFilter.user')}</option>
+              <option value="OWNER">{t('roleFilter.owner')}</option>
+              <option value="ADMIN">{t('roleFilter.admin')}</option>
             </select>
             <select value={filterVerification} onChange={(e) => setFilterVerification(e.target.value)} className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground">
-              <option value="ALL">Vérification : Tous</option>
-              <option value="VERIFIED">Entièrement vérifiés</option>
-              <option value="PARTIAL">Partiellement vérifiés</option>
-              <option value="UNVERIFIED">Non vérifiés</option>
+              <option value="ALL">{t('verificationFilter.all')}</option>
+              <option value="VERIFIED">{t('verificationFilter.verified')}</option>
+              <option value="PARTIAL">{t('verificationFilter.partial')}</option>
+              <option value="UNVERIFIED">{t('verificationFilter.unverified')}</option>
             </select>
             <select value={filterAccountStatus} onChange={(e) => setFilterAccountStatus(e.target.value)} className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground">
-              <option value="ALL">Statut : Tous</option>
-              <option value="ACTIVE">Comptes Actifs</option>
-              <option value="SUSPENDED">Comptes Suspendus</option>
+              <option value="ALL">{t('accountStatusFilter.all')}</option>
+              <option value="ACTIVE">{t('accountStatusFilter.active')}</option>
+              <option value="SUSPENDED">{t('accountStatusFilter.suspended')}</option>
             </select>
           </div>
         </div>
@@ -724,13 +748,14 @@ function AdminUsersContent() {
             <table className="min-w-full">
               <thead className="bg-muted/50">
                 <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">Utilisateur</th>
-                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">Rôle</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">Identité</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">Permis</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">Selfie</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">Téléphone</th>
-                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">Actions</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.user')}</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">{t('columns.role')}</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.identity')}</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.license')}</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.selfie')}</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.phone')}</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.lastLogin')}</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">{t('columns.actions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-card">
@@ -749,7 +774,7 @@ function AdminUsersContent() {
                   <tr>
                     <td colSpan={7} className="text-center py-12">
                       <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground">Aucun utilisateur trouvé avec ces filtres.</p>
+                      <p className="text-muted-foreground">{t('noUsersFound')}</p>
                     </td>
                   </tr>
                 )}

@@ -19,6 +19,7 @@ import {
   Lock
 } from 'lucide-react'; // ✅ AlertCircle supprimé (inutilisé), Lock ajouté
 import { useChat } from '@/context/ChatContext';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface OwnerBookingCardProps {
   booking: Booking;
@@ -26,6 +27,8 @@ interface OwnerBookingCardProps {
 }
 
 export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCardProps) {
+  const t = useTranslations('bookings.ownerCard');
+  const locale = useLocale();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const { openChat } = useChat();
@@ -40,7 +43,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Une erreur est survenue.");
+        setError(t('genericError'));
       }
     } finally {
       setIsLoading(false);
@@ -53,41 +56,39 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
 
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'CONTACT_INITIATED':
-      case 'PENDING_CONFIRMATION':
       case 'PENDING':
         return {
           icon: <Clock className="w-5 h-5 text-orange-500" />,
-          text: "En Attente de Confirmation",
-          description: "Confirmation de disponibilité requise",
+          text: t('status.pendingConfirmationText'),
+          description: t('status.pendingConfirmationDescription'),
           color: "text-orange-600 bg-orange-100 border-orange-200 dark:bg-orange-950 dark:border-orange-700 dark:text-orange-300"
         };
       case 'CONFIRMED':
         return {
           icon: <CheckCircle className="w-5 h-5 text-green-500" />,
-          text: "Confirmée",
-          description: "Réservation confirmée",
+          text: t('status.confirmedText'),
+          description: t('status.confirmedDescription'),
           color: "text-green-600 bg-green-100 border-green-200 dark:bg-green-950 dark:border-green-700 dark:text-green-300"
         };
       case 'CANCELLED':
         return {
           icon: <X className="w-5 h-5 text-red-500" />,
-          text: "Annulée",
-          description: "Réservation annulée",
+          text: t('status.cancelledText'),
+          description: t('status.cancelledDescription'),
           color: "text-red-600 bg-red-100 border-red-200 dark:bg-red-950 dark:border-red-700 dark:text-red-300"
         };
       case 'IN_PROGRESS':
         return {
           icon: <Car className="w-5 h-5 text-purple-500" />,
-          text: "En Cours",
-          description: "Location en cours",
+          text: t('status.inProgressText'),
+          description: t('status.inProgressDescription'),
           color: "text-purple-600 bg-purple-100 border-purple-200 dark:bg-purple-950 dark:border-purple-700 dark:text-purple-300"
         };
       case 'COMPLETED':
         return {
           icon: <CheckCircle className="w-5 h-5 text-blue-500" />,
-          text: "Terminée",
-          description: "Location terminée",
+          text: t('status.completedText'),
+          description: t('status.completedDescription'),
           color: "text-blue-600 bg-blue-100 border-blue-200 dark:bg-blue-950 dark:border-blue-700 dark:text-blue-300"
         };
       default:
@@ -100,7 +101,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
     }
   };
 
-  const needsAction = booking.status === 'CONTACT_INITIATED' || booking.status === 'PENDING_CONFIRMATION' || booking.status === 'PENDING';
+  const needsAction = booking.status === 'PENDING';
 
   // Déterminer si le bouton d'inspection doit être affiché
   const canInspect = booking.status === 'CONFIRMED' || booking.status === 'IN_PROGRESS';
@@ -165,38 +166,38 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                 <div className="flex items-center">
                   <User className="w-4 h-4 text-muted-foreground mr-2" />
                   <span className="text-muted-foreground">
-                    <strong>Demande de location</strong>
+                    <strong>{t('bookingRequest')}</strong>
                   </span>
                 </div>
-                
+
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
                   <span className="text-muted-foreground">
-                    <strong>Du:</strong> {new Date(booking.startDate).toLocaleDateString('fr-FR', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    <strong>{t('fromLabel')}</strong> {new Date(booking.startDate).toLocaleDateString(locale, {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     })}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
                   <span className="text-muted-foreground">
-                    <strong>Au:</strong> {new Date(booking.endDate).toLocaleDateString('fr-FR', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
+                    <strong>{t('toLabel')}</strong> {new Date(booking.endDate).toLocaleDateString(locale, {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
                     })}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center">
                   <DollarSign className="w-4 h-4 text-green-600 mr-2" />
                   <span className="text-lg font-bold text-green-600">
-                    Votre part: {ownerShare.toLocaleString()} FBu (85%)
+                    {t('yourShare', { amount: ownerShare.toLocaleString() })}
                   </span>
                 </div>
               </div>
@@ -217,8 +218,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                   </div>
 
                   <p className="text-sm text-muted-foreground mb-4">
-                    Un client souhaite louer votre véhicule pour ces dates. Votre véhicule est-il disponible ? Vous recevrez{' '}
-                    <strong className="text-green-600">{ownerShare.toLocaleString()} FBu</strong> au moment où le locataire recevra la voiture.
+                    {t('actionRequiredText', { amount: ownerShare.toLocaleString() })}
                   </p>
                   
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -232,7 +232,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                       ) : (
                         <Check size={16} className="mr-2"/>
                       )}
-                      Confirmer Disponibilité
+                      {t('confirmAvailability')}
                     </button>
                     
                     <button
@@ -245,7 +245,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                       ) : (
                         <X size={16} className="mr-2"/>
                       )}
-                      Véhicule Non Disponible
+                      {t('vehicleNotAvailable')}
                     </button>
                   </div>
                   
@@ -274,13 +274,13 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     <div className="bg-primary/10 border border-primary/30 p-4 rounded-lg mb-4 text-center">
                       <div className="flex items-center justify-center mb-1 text-primary">
                         <Lock className="w-4 h-4 mr-2" />
-                        <span className="font-semibold text-sm">Code de Remise des Clés</span>
+                        <span className="font-semibold text-sm">{t('keyHandoverCode')}</span>
                       </div>
                       <p className="text-3xl font-mono font-bold tracking-widest text-primary my-1">
                         {booking.checkInCode}
                       </p>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Communiquez ce code au locataire. Il devra le saisir sur son application pour valider l&apos;état des lieux de départ.
+                        {t('keyHandoverHint')}
                       </p>
                     </div>
                   )}
@@ -295,7 +295,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                   className="w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-sm"
                 >
                   <MessageSquare className="w-4 h-4 mr-2" />
-                  Chat avec le locataire
+                  {t('chatWithRenter')}
                 </button>
 
                 {/* Bouton/Lien Inspection - conditionnel selon le statut */}
@@ -305,7 +305,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     className="w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <ClipboardCheck className="w-4 h-4 mr-2" />
-                    {booking.status === 'CONFIRMED' ? 'Effectuer Check-in' : 'Effectuer Check-out'}
+                    {booking.status === 'CONFIRMED' ? t('checkIn') : t('checkOut')}
                   </Link>
                 )}
 
@@ -316,7 +316,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg flex items-center justify-center text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   >
                     <ClipboardCheck className="w-4 h-4 mr-2" />
-                    Voir Inspection
+                    {t('viewInspection')}
                   </Link>
                 )}
 
@@ -327,7 +327,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <AlertTriangle className="w-4 h-4 mr-2" />
-                    Signaler Incident
+                    {t('reportIncident')}
                   </Link>
                 )}
 
@@ -337,7 +337,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     href={`/bookings/${booking.id}/incident/view`}
                     className="w-full text-center text-xs text-muted-foreground hover:text-primary hover:underline pt-1 transition-colors"
                   >
-                    Voir rapports d&apos;incidents
+                    {t('viewIncidentReports')}
                   </Link>
                 )}
               </div>

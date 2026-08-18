@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Loader2, Smartphone, CreditCard } from 'lucide-react';
+import { X, Loader2, Smartphone, CreditCard, AlertTriangle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export type PaymentProvider = 'LUMICASH' | 'IHELA' | 'ENOTI' | 'STRIPE_VISA' | 'STRIPE_MASTERCARD' | null;
 
@@ -11,6 +12,9 @@ interface UnifiedPaymentModalProps {
   amount: number;
   currency?: string;
   isLoading?: boolean;
+  // Erreur à afficher dans la modale elle-même : la modale recouvre tout l'écran (z-[60]),
+  // donc une erreur affichée seulement dans la page hôte reste invisible tant qu'elle est ouverte.
+  errorMessage?: string | null;
   // Fonction appelée pour les paiements locaux (Lumicash, iHela, Enoti)
   onLocalPaymentSubmit: (provider: string, phoneNumber: string, paymentCode: string) => void;
   // Fonction appelée pour les paiements internationaux (Stripe)
@@ -23,9 +27,11 @@ export default function UnifiedPaymentModal({
   amount,
   currency = 'FBu',
   isLoading = false,
+  errorMessage = null,
   onLocalPaymentSubmit,
   onStripePaymentSubmit,
 }: UnifiedPaymentModalProps) {
+  const t = useTranslations('payment.modal');
   const [selectedProvider, setSelectedProvider] = useState<PaymentProvider>(null);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [paymentCode, setPaymentCode] = useState('');
@@ -62,9 +68,9 @@ export default function UnifiedPaymentModal({
         {/* Header */}
         <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-between items-center border-b dark:border-gray-600">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Méthode de paiement</h2>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-300">
-              Montant à payer :{' '}
+              {t('amountLabel')}{' '}
               <span className="font-bold text-blue-600 dark:text-blue-400">
                 {amount.toLocaleString()} {currency}
               </span>
@@ -81,11 +87,18 @@ export default function UnifiedPaymentModal({
         {/* Content */}
         <div className="p-6 overflow-y-auto">
 
+          {errorMessage && (
+            <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-700 dark:text-red-400 p-4 rounded-r-lg flex items-start gap-3" role="alert">
+              <AlertTriangle size={18} className="flex-shrink-0 mt-0.5" />
+              <p className="text-sm">{errorMessage}</p>
+            </div>
+          )}
+
           {/* Section 1 : Paiements Locaux */}
           <div className="mb-8">
             <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center">
               <Smartphone size={16} className="mr-2" />
-              Paiements Locaux
+              {t('localPayments')}
             </h3>
             <div className="grid grid-cols-3 gap-3">
 
@@ -140,36 +153,36 @@ export default function UnifiedPaymentModal({
               className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg mb-8 border border-gray-200 dark:border-gray-600"
             >
               <h4 className="font-bold text-gray-800 dark:text-white mb-4">
-                Informations {selectedProvider}
+                {t('infoTitle', { provider: selectedProvider ?? '' })}
               </h4>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Numéro de téléphone
+                    {t('phoneNumberLabel')}
                   </label>
                   <input
                     type="tel"
                     required
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Ex: 79 12 34 56"
+                    placeholder={t('phoneNumberPlaceholder')}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Code de paiement généré
+                    {t('paymentCodeLabel')}
                   </label>
                   <input
                     type="text"
                     required
                     value={paymentCode}
                     onChange={(e) => setPaymentCode(e.target.value)}
-                    placeholder="Code reçu via *163# (ex: 123456)"
+                    placeholder={t('paymentCodePlaceholder')}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Générez ce code depuis votre téléphone avant de valider.
+                    {t('paymentCodeHint')}
                   </p>
                 </div>
                 <button
@@ -178,7 +191,7 @@ export default function UnifiedPaymentModal({
                   className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-colors disabled:opacity-50 flex justify-center items-center"
                 >
                   {isLoading && <Loader2 className="animate-spin mr-2" size={20} />}
-                  {isLoading ? 'Traitement en cours...' : 'Confirmer le paiement'}
+                  {isLoading ? t('processing') : t('confirmPayment')}
                 </button>
               </div>
             </form>
@@ -188,7 +201,7 @@ export default function UnifiedPaymentModal({
           <div>
             <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center">
               <CreditCard size={16} className="mr-2" />
-              Cartes Bancaires (International)
+              {t('bankCards')}
             </h3>
             <div className="grid grid-cols-2 gap-4">
 
@@ -219,7 +232,7 @@ export default function UnifiedPaymentModal({
             {isLoading &&
               (selectedProvider === 'STRIPE_VISA' || selectedProvider === 'STRIPE_MASTERCARD') && (
                 <p className="text-center text-sm text-blue-600 mt-4 animate-pulse">
-                  Redirection vers la plateforme sécurisée...
+                  {t('redirecting')}
                 </p>
               )}
           </div>

@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import IncidentDetailsDisplay from '@/app/components/incident/IncidentDetailsDisplay';
@@ -11,6 +12,7 @@ import { Loader2, AlertCircle, ArrowLeft, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 function IncidentViewPageContent() {
+    const t = useTranslations('incident.view');
     const router = useRouter();
     const params = useParams();
     const searchParams = useSearchParams();
@@ -29,7 +31,7 @@ function IncidentViewPageContent() {
 
     useEffect(() => {
         if (isNaN(bookingIdNum)) {
-            setError("ID de réservation invalide.");
+            setError(t('invalidBookingId'));
             setIsLoading(false);
             return;
         }
@@ -67,12 +69,12 @@ function IncidentViewPageContent() {
 
             } catch (err: unknown) {
                  if (err instanceof ApiError && err.status === 403) {
-                     setError("Accès refusé. Vous n'êtes pas autorisé à voir ces rapports.");
+                     setError(t('accessDenied'));
                  } else if (err instanceof ApiError && err.status === 404) {
-                     setError("Réservation non trouvée.");
+                     setError(t('bookingNotFound'));
                  } else {
                     console.error("Error fetching incident reports:", err);
-                    setError(err instanceof Error ? err.message : "Impossible de charger les rapports d'incidents.");
+                    setError(err instanceof Error ? err.message : t('loadError'));
                  }
             } finally {
                 setIsLoading(false);
@@ -89,7 +91,7 @@ function IncidentViewPageContent() {
             return (
                  <div className="flex justify-center items-center py-20">
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="ml-3 text-muted-foreground">Chargement des rapports...</p>
+                    <p className="ml-3 text-muted-foreground">{t('loading')}</p>
                 </div>
             );
         }
@@ -106,13 +108,13 @@ function IncidentViewPageContent() {
          if (reports.length === 0) {
              return (
                  <div className="text-center py-10 bg-muted rounded-lg">
-                     <p className="text-muted-foreground mb-4">Aucun rapport d&apos;incident trouvé pour cette réservation.</p>
+                     <p className="text-muted-foreground mb-4">{t('noReports')}</p>
                       <Link
                         href={`/bookings/${bookingId}/incident/report`}
                          className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
                       >
                          <PlusCircle className="w-4 h-4 mr-2"/>
-                         Signaler un nouvel incident
+                         {t('reportNew')}
                      </Link>
                  </div>
              );
@@ -143,12 +145,12 @@ function IncidentViewPageContent() {
                         className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
                      >
                         <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-                        {isOwner ? 'Retour au Tableau de bord' : 'Retour à mes réservations'}
+                        {isOwner ? t('backToDashboard') : t('backToBookings')}
                      </button>
                 </div>
             </div>
              <div className="container mx-auto max-w-2xl py-8 px-4">
-                 <h1 className="text-3xl font-bold text-foreground mb-8 text-center">Rapport(s) d&apos;Incident</h1>
+                 <h1 className="text-3xl font-bold text-foreground mb-8 text-center">{t('pageTitle')}</h1>
                  {renderContent()}
              </div>
         </div>

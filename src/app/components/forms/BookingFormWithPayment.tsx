@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { Vehicle } from '@/types/vehicle';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
+import { useTranslations } from 'next-intl';
+import toast from 'react-hot-toast';
 
 interface BookingFormWithPaymentProps {
   vehicle: Vehicle;
@@ -29,6 +31,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
   vehicle,
   vehicleId,
 }) => {
+  const t = useTranslations('bookings.formWithPayment');
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState<BookingStep>('dates');
   const [createdBooking, setCreatedBooking] = useState<CreatedBooking | null>(null);
@@ -48,35 +51,35 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
   // États pour la modale de paiement
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentModalError, setPaymentModalError] = useState<string | null>(null);
 
-  const calculateTotalPrice = () => {
+  // ✅ Facturation à la journée entière (comme le backend) : toute portion de
+  // journée entamée compte pour un jour complet, ex. 25h = 2 jours.
+  const calculateNumberOfDays = () => {
     if (!startDate || !endDate) return 0;
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const diffTime = end.getTime() - start.getTime();
-    const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
-    if (diffHours <= 0) return 0;
-    const hourlyRate = (vehicle.ratePerDay || 0) / 24;
-    return Math.round(diffHours * hourlyRate);
+    const diffMinutes = Math.round((end.getTime() - start.getTime()) / (1000 * 60));
+    if (diffMinutes <= 0) return 0;
+    return Math.ceil(diffMinutes / (24 * 60));
   };
 
-  const totalPrice = calculateTotalPrice();
-  const numberOfHours =
-    startDate && endDate
-      ? Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60))
-      : 0;
+  const numberOfDays = calculateNumberOfDays();
+  const totalPrice = numberOfDays * (vehicle.ratePerDay || 0);
 
   // Création de la réservation + Ouverture instantanée de la modale de paiement
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!startDate || !endDate) {
-      setBookingError('Veuillez sélectionner les dates de début et de fin');
+      toast.error(t('errorSelectDates'));
+      setBookingError(t('errorSelectDates'));
       return;
     }
 
     if (new Date(startDate) >= new Date(endDate)) {
-      setBookingError('La date de fin doit être postérieure à la date de début');
+      toast.error(t('errorEndBeforeStart'));
+      setBookingError(t('errorEndBeforeStart'));
       return;
     }
 
@@ -93,15 +96,14 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
       });
 
       setCreatedBooking(bookingData);
-      
+
       // 2. BAM ! On ouvre directement la modale de paiement, pas d'écran intermédiaire
+      setPaymentModalError(null);
       setShowPaymentModal(true);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setBookingError(err.message);
-      } else {
-        setBookingError('Erreur lors de la création de la réservation');
-      }
+      const message = err instanceof Error ? err.message : t('errorCreatingBooking');
+      toast.error(message);
+      setBookingError(message);
     } finally {
       setIsSubmittingBooking(false);
     }
@@ -116,6 +118,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
     if (!createdBooking) return;
 
     setIsProcessingPayment(true);
+    setPaymentModalError(null);
 
     try {
       await apiClient.post('/api/payments/pay/mobile-money', {
@@ -132,9 +135,10 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
       setShowPaymentModal(false);
       setCurrentStep('success');
     } catch (err: unknown) {
-      // Si erreur, on garde la modale ouverte et on pourrait afficher un toast d'erreur ici
       console.error("Erreur de paiement:", err);
-      alert(err instanceof Error ? err.message : 'Le paiement a échoué.');
+      const message = err instanceof Error ? err.message : t('paymentFailedAlert');
+      toast.error(message);
+      setPaymentModalError(message);
     } finally {
       setIsProcessingPayment(false);
     }
@@ -145,10 +149,12 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
     if (!createdBooking) return;
 
     setIsProcessingPayment(true);
+    setPaymentModalError(null);
 
     const token = localStorage.getItem('jwt_token');
     if (!token) {
-      alert('Session expirée. Veuillez vous reconnecter.');
+      toast.error(t('sessionExpiredAlert'));
+      setPaymentModalError(t('sessionExpiredAlert'));
       setIsProcessingPayment(false);
       return;
     }
@@ -166,17 +172,22 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
         }
       );
 
-      if (!response.ok) throw new Error("Impossible d'initier le paiement en ligne.");
+      if (!response.ok) throw new Error(t('onlinePaymentInitError'));
 
       const data = await response.json();
 
       if (data.redirectUrl) {
+        // Le paiement Stripe quitte la page : payment/callback lit cette valeur pour savoir
+        // qu'il s'agissait d'une réservation et rediriger au bon endroit au retour.
+        sessionStorage.setItem('paymentSource', 'booking');
         window.location.href = data.redirectUrl;
       } else {
-        throw new Error('URL de redirection non reçue.');
+        throw new Error(t('missingRedirectUrl'));
       }
     } catch (err: unknown) {
-      alert(err instanceof Error ? err.message : 'Erreur de paiement.');
+      const message = err instanceof Error ? err.message : t('genericPaymentError');
+      toast.error(message);
+      setPaymentModalError(message);
       setIsProcessingPayment(false);
     }
   };
@@ -194,7 +205,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             ) : '1'}
           </div>
           <span className={`ml-2 text-sm font-medium ${currentStep === 'dates' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
-            Réservation
+            {t('stepBooking')}
           </span>
         </div>
         
@@ -209,7 +220,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             ) : '2'}
           </div>
           <span className={`ml-2 text-sm font-medium ${currentStep === 'success' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
-            Confirmé
+            {t('stepConfirmed')}
           </span>
         </div>
       </div>
@@ -227,12 +238,12 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
           </div>
           <div>
             <h3 className="text-2xl font-bold text-white">
-              {currentStep === 'dates' && 'Réservez votre véhicule'}
-              {currentStep === 'success' && 'Réservation confirmée !'}
+              {currentStep === 'dates' && t('headerTitleDates')}
+              {currentStep === 'success' && t('headerTitleSuccess')}
             </h3>
             <p className="text-blue-100 mt-1">
-              {currentStep === 'dates' && 'Choisissez vos dates et procédez au paiement'}
-              {currentStep === 'success' && 'Votre véhicule est réservé avec succès'}
+              {currentStep === 'dates' && t('headerSubtitleDates')}
+              {currentStep === 'success' && t('headerSubtitleSuccess')}
             </p>
           </div>
         </div>
@@ -247,7 +258,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Date et heure de début
+                  {t('startDateLabel')}
                 </label>
                 <input
                   type="datetime-local"
@@ -261,7 +272,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Date et heure de fin
+                  {t('endDateLabel')}
                 </label>
                 <input
                   type="datetime-local"
@@ -274,10 +285,10 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
               </div>
             </div>
 
-            {startDate && endDate && numberOfHours > 0 && (
+            {startDate && endDate && numberOfDays > 0 && (
               <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 border border-blue-100 dark:border-blue-800">
                 <div className="flex justify-between items-center text-lg font-bold text-blue-900 dark:text-blue-100">
-                  <span>Total pour {numberOfHours}h</span>
+                  <span>{t('totalForDays', { days: numberOfDays, dayWord: numberOfDays > 1 ? t('dayPlural') : t('daySingular') })}</span>
                   <span>{totalPrice.toLocaleString()} FBu</span>
                 </div>
               </div>
@@ -293,9 +304,9 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:cursor-not-allowed transition-all font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               {isSubmittingBooking ? (
-                <><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>Création...</>
+                <><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>{t('creating')}</>
               ) : (
-                'Réserver et Payer'
+                t('reserveAndPay')
               )}
             </button>
           </form>
@@ -311,9 +322,9 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             </div>
             
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Paiement déclaré avec succès !</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('successTitle')}</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Votre transaction est en cours de vérification. Vous recevrez une notification une fois validée.
+                {t('successSubtitle')}
               </p>
             </div>
 
@@ -322,13 +333,13 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
                 onClick={() => router.push('/bookings/my-bookings')}
                 className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:bg-blue-700"
               >
-                Voir mes réservations
+                {t('viewMyBookings')}
               </button>
               <button
                 onClick={() => router.push('/')}
                 className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300"
               >
-                Retour à l&apos;accueil
+                {t('backToHome')}
               </button>
             </div>
           </div>
@@ -342,6 +353,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
         amount={totalPrice}
         currency="FBu"
         isLoading={isProcessingPayment}
+        errorMessage={paymentModalError}
         onLocalPaymentSubmit={handleLocalPaymentSubmit}
         onStripePaymentSubmit={handleStripePaymentSubmit}
       />

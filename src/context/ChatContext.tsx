@@ -6,6 +6,7 @@ import { Client, IMessage as StompMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { useAuth } from './AuthContext';
 import { apiClient } from '@/lib/apiClient';
+import { useTranslations } from 'next-intl';
 
 // Type pour un message (correspond au MessageDto du backend)
 export interface ChatMessage {
@@ -43,6 +44,7 @@ export const useChat = () => {
 };
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const t = useTranslations('chat');
   const { user, token } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [currentBookingId, setCurrentBookingId] = useState<number | null>(null);
@@ -104,7 +106,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       onStompError: (frame) => {
         console.error('❌ STOMP Chat Error:', frame.headers['message'], frame.body);
-        setError(`Erreur WebSocket: ${frame.headers['message']}`);
+        setError(`${t('errorWebSocketPrefix')} ${frame.headers['message']}`);
         stompClientRef.current = null;
         isConnectingRef.current = false;
       },
@@ -115,7 +117,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         stompClientRef.current?.deactivate();
         stompClientRef.current = null;
         isConnectingRef.current = false;
-        setError("Erreur de connexion WebSocket.");
+        setError(t('errorWebSocketConnection'));
       },
 
       // ✅ CORRECTION : Commenté complètement ou supprimé pour éviter 'unused variable'
@@ -133,10 +135,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     } catch (activationError) {
         console.error('❌ Failed to activate WebSocket client:', activationError);
         isConnectingRef.current = false;
-        setError("Impossible d'activer la connexion WebSocket.");
+        setError(t('errorWebSocketActivation'));
     }
 
-  }, [user, token, currentBookingId]);
+  }, [user, token, currentBookingId, t]);
 
   useEffect(() => {
       if (user && token) {
@@ -156,7 +158,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
   const openChat = useCallback(async (bookingId: number) => {
     if (!user) {
-      setError("Vous devez être connecté pour chatter.");
+      setError(t('errorMustBeLoggedIn'));
       return;
     }
     setError(null);
@@ -178,13 +180,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     } catch (fetchError) {
       // ✅ CORRECTION : Type explicite au lieu de 'any'
       console.error('Error fetching messages:', fetchError);
-      const errorMessage = fetchError instanceof Error ? fetchError.message : 'Impossible de charger les messages.';
+      const errorMessage = fetchError instanceof Error ? fetchError.message : t('errorLoadMessages');
       setError(errorMessage);
       setMessages([]);
     } finally {
       setIsLoadingMessages(false);
     }
-  }, [user, connectWebSocket]);
+  }, [user, connectWebSocket, t]);
 
   const closeChat = useCallback(() => {
     setIsOpen(false);
@@ -196,7 +198,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const sendMessage = useCallback((content: string) => {
     if (!stompClientRef.current?.active || !currentBookingId || !content.trim()) {
       console.warn('Cannot send message:', { active: stompClientRef.current?.active, bookingId: currentBookingId, content });
-      setError("Impossible d'envoyer le message. Vérifiez votre connexion.");
+      setError(t('errorSendUnavailable'));
       return;
     }
 
@@ -215,9 +217,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     } catch (sendError) {
       // ✅ CORRECTION : Renommé 'e' en 'sendError'
       console.error('Error sending message via WebSocket:', sendError);
-      setError("Erreur lors de l'envoi du message.");
+      setError(t('errorSendFailed'));
     }
-  }, [currentBookingId]);
+  }, [currentBookingId, t]);
 
   const value = {
     isOpen,

@@ -7,8 +7,10 @@ import { useAuth } from '@/context/AuthContext';
 import type { Booking } from '@/types/booking';
 import OwnerBookingCard from '@/app/components/OwnerBookingCard';
 import { ArrowLeft, Car, Calendar, DollarSign, Bell } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function OwnerDashboardContent() {
+  const t = useTranslations('dashboardOwner');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -27,7 +29,7 @@ function OwnerDashboardContent() {
       setBookings(data || []);
     } catch (error) {
       console.error("Impossible de charger les réservations", error);
-      setError(error instanceof Error ? error.message : "Erreur lors du chargement des réservations");
+      setError(error instanceof Error ? error.message : t('loadError'));
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +91,7 @@ function OwnerDashboardContent() {
 
   const stats = {
     total: bookings.length,
-    pending: bookings.filter(b => b.status === 'CONTACT_INITIATED' || b.status === 'PENDING_CONFIRMATION').length,
+    pending: bookings.filter(b => b.status === 'PENDING').length,
     confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
     totalRevenue: bookings.filter(b => b.status === 'CONFIRMED').reduce((sum, b) => sum + (b.totalPrice || 0), 0)
   };
@@ -99,7 +101,7 @@ function OwnerDashboardContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground font-medium">Chargement de votre tableau de bord...</p>
+          <p className="text-muted-foreground font-medium">{t('loadingDashboard')}</p>
         </div>
       </div>
     );
@@ -117,7 +119,7 @@ function OwnerDashboardContent() {
             className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
           >
             <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
-            Retour à l&apos;accueil
+            {t('backToHome')}
           </button>
         </div>
       </div>
@@ -125,15 +127,15 @@ function OwnerDashboardContent() {
       <div className="container mx-auto max-w-6xl py-8 px-4">
         {/* Titre et statistiques */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Tableau de Bord Propriétaire</h1>
-          <p className="text-lg text-muted-foreground">Gérez les réservations de vos véhicules</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">{t('title')}</h1>
+          <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
 
           {highlightId && (
             <div className="mt-4 bg-primary/10 border border-primary/20 rounded-lg p-3 max-w-md mx-auto">
               <div className="flex items-center justify-center space-x-2">
                 <Bell className="w-5 h-5 text-primary" />
                 <p className="text-sm text-primary font-medium">
-                  Nouvelle réservation mise en évidence
+                  {t('highlightBanner')}
                 </p>
               </div>
             </div>
@@ -148,7 +150,7 @@ function OwnerDashboardContent() {
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-muted-foreground">Total Réservations</p>
+                <p className="text-sm text-muted-foreground">{t('statTotal')}</p>
                 <p className="text-2xl font-bold text-foreground">{stats.total}</p>
               </div>
             </div>
@@ -160,7 +162,7 @@ function OwnerDashboardContent() {
                 <Car className="w-6 h-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-muted-foreground">En Attente</p>
+                <p className="text-sm text-muted-foreground">{t('statPending')}</p>
                 <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pending}</p>
               </div>
             </div>
@@ -172,7 +174,7 @@ function OwnerDashboardContent() {
                 <Car className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-muted-foreground">Confirmées</p>
+                <p className="text-sm text-muted-foreground">{t('statConfirmed')}</p>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.confirmed}</p>
               </div>
             </div>
@@ -184,7 +186,7 @@ function OwnerDashboardContent() {
                 <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm text-muted-foreground">Revenus</p>
+                <p className="text-sm text-muted-foreground">{t('statRevenue')}</p>
                 <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.totalRevenue.toLocaleString()} FBu</p>
               </div>
             </div>
@@ -199,14 +201,14 @@ function OwnerDashboardContent() {
               onClick={fetchOwnerBookings}
               className="mt-2 text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
             >
-              Réessayer
+              {t('retry')}
             </button>
           </div>
         )}
 
         {/* Liste des réservations */}
         <div className="bg-card rounded-2xl shadow-xl p-6 border border-border">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Réservations de vos véhicules</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">{t('bookingsListTitle')}</h2>
 
           {bookings.length > 0 ? (
             <div className="space-y-6">
@@ -230,13 +232,13 @@ function OwnerDashboardContent() {
           ) : (
             <div className="text-center py-12">
               <Car className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">Aucune réservation</h3>
-              <p className="text-muted-foreground">Vous n&apos;avez aucune réservation pour vos véhicules pour le moment.</p>
+              <h3 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h3>
+              <p className="text-muted-foreground">{t('emptyDescription')}</p>
               <button
                 onClick={() => router.push('/vehicles/add')}
                 className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg transition-colors"
               >
-                Ajouter un véhicule
+                {t('addVehicleButton')}
               </button>
             </div>
           )}
@@ -244,28 +246,28 @@ function OwnerDashboardContent() {
 
         {/* Instructions pour les nouveaux propriétaires */}
         <div className="mt-8 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground rounded-xl p-6">
-          <h3 className="text-xl font-bold mb-4">Comment ça marche ?</h3>
+          <h3 className="text-xl font-bold mb-4">{t('howItWorksTitle')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="text-center">
               <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="font-bold">1</span>
               </div>
-              <h4 className="font-semibold mb-1">Réservation reçue</h4>
-              <p className="text-sm opacity-90">Un client fait une demande de réservation avec paiement local</p>
+              <h4 className="font-semibold mb-1">{t('step1Title')}</h4>
+              <p className="text-sm opacity-90">{t('step1Description')}</p>
             </div>
             <div className="text-center">
               <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="font-bold">2</span>
               </div>
-              <h4 className="font-semibold mb-1">Contact & Paiement</h4>
-              <p className="text-sm opacity-90">Le client vous contacte et effectue le paiement Mobile Money</p>
+              <h4 className="font-semibold mb-1">{t('step2Title')}</h4>
+              <p className="text-sm opacity-90">{t('step2Description')}</p>
             </div>
             <div className="text-center">
               <div className="w-10 h-10 bg-primary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-2">
                 <span className="font-bold">3</span>
               </div>
-              <h4 className="font-semibold mb-1">Confirmation</h4>
-              <p className="text-sm opacity-90">Vous confirmez la réception du paiement ici</p>
+              <h4 className="font-semibold mb-1">{t('step3Title')}</h4>
+              <p className="text-sm opacity-90">{t('step3Description')}</p>
             </div>
           </div>
         </div>
@@ -275,8 +277,9 @@ function OwnerDashboardContent() {
 }
 
 export default function OwnerDashboardPage() {
+  const t = useTranslations('dashboardOwner');
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense fallback={<div>{t('loadingFallback')}</div>}>
       <OwnerDashboardContent />
     </Suspense>
   );

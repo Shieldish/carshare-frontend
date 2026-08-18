@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import { BadgeCheck, BadgeAlert, User, Mail, Phone, Building2, Shield, AlertTriangle, CheckCircle, XCircle, Edit2, Save, X, Camera, Upload, Lock, Crown, Loader2 } from 'lucide-react';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 
 type UserFormData = {
@@ -17,6 +18,7 @@ type UserFormData = {
 
 // ✅ COMPOSANT : La fenêtre de la Webcam
 function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCapture: (file: File) => void, onClose: () => void, isProfilePicture?: boolean }) {
+  const t = useTranslations('profile.webcam');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
       })
       .catch((err) => {
         console.error("Erreur webcam:", err);
-        setError("Impossible d'accéder à la caméra. Vérifiez les permissions de votre navigateur.");
+        setError(t('cameraError'));
       });
 
     return () => {
@@ -65,7 +67,7 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
       <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
           <h3 className="font-bold text-lg flex items-center gap-2">
-            <Camera className="w-5 h-5" /> Capture en direct
+            <Camera className="w-5 h-5" /> {t('liveCaptureTitle')}
           </h3>
           <button onClick={onClose} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
             <X className="w-6 h-6" />
@@ -97,21 +99,21 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
           )}
           
           <p className="text-sm text-center text-muted-foreground mt-4">
-            {isProfilePicture 
-              ? "Souriez ! Assurez-vous d'être dans un endroit bien éclairé." 
-              : "Tenez votre pièce d'identité près de votre visage et assurez-vous d'être dans un endroit bien éclairé."}
+            {isProfilePicture
+              ? t('profileHint')
+              : t('documentHint')}
           </p>
 
           <div className="mt-6 flex gap-4 w-full">
             <button onClick={onClose} className="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
-              Annuler
+              {t('cancel')}
             </button>
-            <button 
-              onClick={handleTakeSnapshot} 
+            <button
+              onClick={handleTakeSnapshot}
               disabled={!!error || !stream}
               className="flex-1 py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 font-bold shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex justify-center items-center gap-2"
             >
-              <Camera className="w-5 h-5" /> Capturer l&apos;image
+              <Camera className="w-5 h-5" /> {t('capture')}
             </button>
           </div>
         </div>
@@ -125,6 +127,8 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
 // ==========================================
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
+  const locale = useLocale();
   const router = useRouter();
   const { user, isLoading: isAuthLoading, refreshUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -212,10 +216,10 @@ export default function ProfilePage() {
       await refreshUser();
 
       setIsEditing(false);
-      setSuccessMessage('Profil mis à jour avec succès !');
+      setSuccessMessage(t('toasts.profileUpdated'));
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la mise à jour.';
+      const errorMessage = err instanceof Error ? err.message : t('toasts.updateError');
       setError(errorMessage);
     } finally {
       setIsSaving(false);
@@ -232,11 +236,11 @@ export default function ProfilePage() {
 
     try {
       await apiClient.upload('/api/users/me/profile-picture', formData);
-      await refreshUser(); 
-      setSuccessMessage('Photo de profil mise à jour avec succès !');
+      await refreshUser();
+      setSuccessMessage(t('toasts.photoUpdated'));
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'upload de l'image.";
+      const errorMessage = err instanceof Error ? err.message : t('toasts.photoUploadError');
       setError(errorMessage);
     } finally {
       setIsUploadingImage(false);
@@ -261,17 +265,17 @@ export default function ProfilePage() {
 
     try {
       await apiClient.upload('/api/users/me/documents', formData);
-      await refreshUser(); 
-      
-      let docName = "Document";
-      if (docType === 'IDENTITY') docName = "Carte d'identité";
-      else if (docType === 'DRIVING_LICENSE') docName = "Permis de conduire";
-      else if (docType === 'SELFIE') docName = "Selfie";
+      await refreshUser();
 
-      setSuccessMessage(`Votre ${docName} a été envoyé(e) avec succès ! En attente de vérification par un administrateur.`);
+      let docName = t('toasts.docNameDefault');
+      if (docType === 'IDENTITY') docName = t('toasts.docNameIdentity');
+      else if (docType === 'DRIVING_LICENSE') docName = t('toasts.docNameLicense');
+      else if (docType === 'SELFIE') docName = t('toasts.docNameSelfie');
+
+      setSuccessMessage([t('toasts.documentSentPrefix'), docName, t('toasts.documentSentSuffix')].filter(Boolean).join(' '));
       setTimeout(() => setSuccessMessage(null), 8000);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erreur lors de l'envoi du document.";
+      const errorMessage = err instanceof Error ? err.message : t('toasts.documentUploadError');
       setError(errorMessage);
     } finally {
       setUploadingDocType(null);
@@ -306,7 +310,7 @@ export default function ProfilePage() {
 
       setPremiumStep('PAYMENT');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la création du paiement Premium.');
+      setError(err instanceof Error ? err.message : t('toasts.premiumInitError'));
     } finally {
       setIsPremiumLoading(false);
     }
@@ -316,6 +320,7 @@ export default function ProfilePage() {
   const handlePremiumLocalPayment = async (provider: string, phoneNumber: string, paymentCode: string) => {
     if (!premiumPaymentData) return;
     setIsPremiumLoading(true);
+    setError(null);
     try {
       await apiClient.post('/api/payments/pay/mobile-money', {
         paymentId: premiumPaymentData.paymentId,
@@ -328,7 +333,7 @@ export default function ProfilePage() {
       setSavedPendingPayment(null);
       setPremiumStep('SUCCESS');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur de paiement mobile.');
+      setError(err instanceof Error ? err.message : t('toasts.mobilePaymentError'));
     } finally {
       setIsPremiumLoading(false);
     }
@@ -338,13 +343,29 @@ export default function ProfilePage() {
   const handlePremiumStripePayment = async () => {
     if (!premiumPaymentData) return;
     setIsPremiumLoading(true);
+    setError(null);
     try {
       const response = await apiClient.post(`/api/payments/${premiumPaymentData.paymentId}/initiate-online-payment`, {});
       if (response.redirectUrl) {
+        // Le paiement Stripe quitte la page : payment/callback lit cette valeur pour savoir
+        // qu'il s'agissait de Premium et rediriger au bon endroit au retour.
+        sessionStorage.setItem('paymentSource', 'premium');
         window.location.href = response.redirectUrl;
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur Stripe.');
+      const message = err instanceof Error ? err.message : t('toasts.stripeError');
+      // Le paiement sauvegardé en local (anti-abandon de panier) n'existe plus côté serveur
+      // (ex: base de données réinitialisée depuis) : la bannière "reprendre" ne pourra plus
+      // jamais aboutir, donc on nettoie l'état local plutôt que de laisser un bouton mort.
+      if (message === 'Paiement non trouvé') {
+        localStorage.removeItem('pendingPremiumPayment');
+        setSavedPendingPayment(null);
+        setPremiumStep('NONE');
+        setPremiumPaymentData(null);
+        setError(t('toasts.stalePendingPayment'));
+      } else {
+        setError(message);
+      }
       setIsPremiumLoading(false);
     }
   };
@@ -354,7 +375,7 @@ export default function ProfilePage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg text-foreground">Chargement du profil...</p>
+          <p className="text-lg text-foreground">{t('loadingProfile')}</p>
         </div>
       </div>
     );
@@ -366,13 +387,13 @@ export default function ProfilePage() {
         <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-xl text-red-600 dark:text-red-400 font-semibold">
-            Vous devez être connecté pour voir cette page.
+            {t('mustLoginMessage')}
           </p>
           <button
             onClick={() => router.push('/login')}
             className="mt-6 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
           >
-            Se connecter
+            {t('loginButton')}
           </button>
         </div>
       </div>
@@ -412,10 +433,10 @@ export default function ProfilePage() {
           <div>
             <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
               <User className="w-10 h-10 text-primary" />
-              Mon Profil
+              {t('title')}
             </h1>
             <p className="text-muted-foreground mt-2">
-              Gérez vos informations personnelles et votre statut de vérification
+              {t('subtitle')}
             </p>
           </div>
           {!isEditing && (
@@ -424,7 +445,7 @@ export default function ProfilePage() {
               className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
             >
               <Edit2 className="w-4 h-4" />
-              Modifier le profil
+              {t('editButton')}
             </button>
           )}
         </div>
@@ -434,7 +455,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3">
               <XCircle className="w-5 h-5 flex-shrink-0" />
               <div>
-                <p className="font-bold">Une erreur est survenue</p>
+                <p className="font-bold">{t('errorTitle')}</p>
                 <p className="text-sm">{error}</p>
               </div>
             </div>
@@ -446,7 +467,7 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3">
               <CheckCircle className="w-5 h-5 flex-shrink-0" />
               <div>
-                <p className="font-bold">Succès</p>
+                <p className="font-bold">{t('successTitle')}</p>
                 <p className="text-sm">{successMessage}</p>
               </div>
             </div>
@@ -471,7 +492,7 @@ export default function ProfilePage() {
                     : 'text-red-600 dark:text-red-400'
                 }`} />
                 <div>
-                  <h3 className="font-bold text-lg text-foreground">Statut de Vérification</h3>
+                  <h3 className="font-bold text-lg text-foreground">{t('verification.statusTitle')}</h3>
                   <p className={`text-sm font-medium ${
                     isFullyVerified
                       ? 'text-green-600 dark:text-green-400'
@@ -480,10 +501,10 @@ export default function ProfilePage() {
                       : 'text-red-600 dark:text-red-400'
                   }`}>
                     {isFullyVerified
-                      ? '✓ Compte entièrement vérifié'
+                      ? t('verification.fullyVerified')
                       : isPartiallyVerified
-                      ? '⚠ Vérification partielle'
-                      : '✗ Compte non vérifié'}
+                      ? t('verification.partiallyVerified')
+                      : t('verification.notVerified')}
                   </p>
                 </div>
               </div>
@@ -506,7 +527,7 @@ export default function ProfilePage() {
                           <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
-                          CNI / Passeport
+                          {t('verification.identityLabel')}
                         </span>
                       </div>
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
@@ -516,23 +537,23 @@ export default function ProfilePage() {
                           ? 'bg-blue-200 text-blue-800'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
-                        {user?.isIdentityVerified 
-                          ? 'Vérifié' 
-                          : user?.identityDocumentUrl 
-                          ? 'En attente de validation' 
-                          : 'Non envoyé'}
+                        {user?.isIdentityVerified
+                          ? t('verification.statusVerified')
+                          : user?.identityDocumentUrl
+                          ? t('verification.statusPendingReview')
+                          : t('verification.statusNotSent')}
                       </span>
                     </div>
-                    
+
                     {!user?.isIdentityVerified && (
                       <div className="mt-2">
                         <label className={`flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${uploadingDocType === 'IDENTITY' ? 'opacity-50 cursor-wait' : ''}`}>
                           <Upload className="w-4 h-4" />
-                          {uploadingDocType === 'IDENTITY' 
-                            ? 'Envoi en cours...' 
-                            : user?.identityDocumentUrl 
-                              ? 'Remplacer la CNI' 
-                              : 'Ajouter ma CNI'}
+                          {uploadingDocType === 'IDENTITY'
+                            ? t('verification.uploading')
+                            : user?.identityDocumentUrl
+                              ? t('verification.replaceIdentity')
+                              : t('verification.uploadIdentity')}
                           <input
                             type="file"
                             accept="image/*,.pdf"
@@ -542,7 +563,7 @@ export default function ProfilePage() {
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> Transfert chiffré sécurisé
+                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
                         </p>
                       </div>
                     )}
@@ -566,7 +587,7 @@ export default function ProfilePage() {
                           <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
-                          Permis de conduire
+                          {t('verification.licenseLabel')}
                         </span>
                       </div>
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
@@ -576,11 +597,11 @@ export default function ProfilePage() {
                           ? 'bg-blue-200 text-blue-800'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
-                        {user?.isDrivingLicenseVerified 
-                          ? 'Vérifié' 
-                          : user?.drivingLicenseUrl 
-                          ? 'En attente de validation' 
-                          : 'Non envoyé'}
+                        {user?.isDrivingLicenseVerified
+                          ? t('verification.statusVerified')
+                          : user?.drivingLicenseUrl
+                          ? t('verification.statusPendingReview')
+                          : t('verification.statusNotSent')}
                       </span>
                     </div>
 
@@ -588,11 +609,11 @@ export default function ProfilePage() {
                       <div className="mt-2">
                         <label className={`flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${uploadingDocType === 'DRIVING_LICENSE' ? 'opacity-50 cursor-wait' : ''}`}>
                           <Upload className="w-4 h-4" />
-                          {uploadingDocType === 'DRIVING_LICENSE' 
-                            ? 'Envoi en cours...' 
-                            : user?.drivingLicenseUrl 
-                              ? 'Remplacer mon Permis' 
-                              : 'Ajouter mon Permis'}
+                          {uploadingDocType === 'DRIVING_LICENSE'
+                            ? t('verification.uploading')
+                            : user?.drivingLicenseUrl
+                              ? t('verification.replaceLicense')
+                              : t('verification.uploadLicense')}
                           <input
                             type="file"
                             accept="image/*,.pdf"
@@ -602,7 +623,7 @@ export default function ProfilePage() {
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> Transfert chiffré sécurisé
+                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
                         </p>
                       </div>
                     )}
@@ -625,7 +646,7 @@ export default function ProfilePage() {
                         ) : (
                           <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
-                        <span className="font-medium text-sm text-foreground">Selfie de vérification</span>
+                        <span className="font-medium text-sm text-foreground">{t('verification.selfieLabel')}</span>
                       </div>
                       <span className={`text-xs font-semibold px-2 py-1 rounded ${
                         user?.isSelfieVerified
@@ -634,11 +655,11 @@ export default function ProfilePage() {
                           ? 'bg-blue-200 text-blue-800'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
-                        {user?.isSelfieVerified 
-                          ? 'Vérifié' 
-                          : user?.selfieUrl 
-                          ? 'En attente de validation' 
-                          : 'Non envoyé'}
+                        {user?.isSelfieVerified
+                          ? t('verification.statusVerified')
+                          : user?.selfieUrl
+                          ? t('verification.statusPendingReview')
+                          : t('verification.statusNotSent')}
                       </span>
                     </div>
 
@@ -646,42 +667,42 @@ export default function ProfilePage() {
                       <div className="mt-2">
                         <div className="mb-3 text-center bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-md border border-blue-100 dark:border-blue-800/30">
                           <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
-                            📸 Comment prendre un bon selfie ?
+                            {t('verification.selfieHintTitle')}
                           </p>
                           <p className="text-[11px] text-blue-600/80 dark:text-blue-400/80">
-                            Prenez une photo claire de votre visage en tenant votre pièce d&apos;identité (CNI ou Permis) à côté de vous. Le texte sur le document doit être lisible.
+                            {t('verification.selfieHintText')}
                           </p>
                         </div>
 
                         <div className="flex flex-col sm:flex-row gap-3">
-                          <button 
+                          <button
                             onClick={() => setShowWebcamModal(true)}
                             disabled={uploadingDocType !== null}
                             className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}
                           >
                             <Camera className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                             <span className="text-gray-800 dark:text-gray-200">
-                              {uploadingDocType === 'SELFIE' ? 'Envoi...' : 'Prendre une photo'}
+                              {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.takePhoto')}
                             </span>
                           </button>
 
                           <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}>
                             <Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                             <span className="text-gray-800 dark:text-gray-200">
-                              {uploadingDocType === 'SELFIE' ? 'Envoi...' : 'Téléverser un fichier'}
+                              {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.uploadFile')}
                             </span>
-                            <input 
-                              type="file" 
-                              accept="image/*" 
-                              className="hidden" 
-                              onChange={(e) => handleFileInputChange(e, 'SELFIE')} 
-                              disabled={uploadingDocType !== null} 
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleFileInputChange(e, 'SELFIE')}
+                              disabled={uploadingDocType !== null}
                             />
                           </label>
                         </div>
 
                         <p className="text-[10px] text-center text-muted-foreground mt-3 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> Transfert chiffré sécurisé
+                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
                         </p>
                       </div>
                     )}
@@ -694,15 +715,15 @@ export default function ProfilePage() {
             {!isFullyVerified && (
               <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl shadow-sm">
                 <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">
-                  <strong>Pourquoi vérifier mon identité ?</strong><br />
-                  La vérification garantit la sécurité de tous les membres de la communauté BudaxDrive au Burundi.
+                  <strong>{t('verification.whyVerifyTitle')}</strong><br />
+                  {t('verification.whyVerifyText')}
                 </p>
-                
+
                 <div className="flex items-start mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
                   <Lock className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
                   <p className="text-xs text-blue-900 dark:text-blue-200">
-                    <strong>Protection des données (Norme KYC)</strong><br />
-                    Vos documents sont stockés dans un coffre-fort numérique chiffré. Ils n&apos;apparaîtront jamais publiquement et sont détruits en cas de suppression de compte.
+                    <strong>{t('verification.kycTitle')}</strong><br />
+                    {t('verification.kycText')}
                   </p>
                 </div>
               </div>
@@ -712,7 +733,7 @@ export default function ProfilePage() {
               <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-5 h-5 text-primary" />
-                  <h4 className="font-semibold text-foreground">Rôle</h4>
+                  <h4 className="font-semibold text-foreground">{t('roleLabel')}</h4>
                 </div>
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                   user.role === 'ADMIN'
@@ -731,7 +752,7 @@ export default function ProfilePage() {
             <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-border">
               <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <User className="w-6 h-6 text-primary" />
-                Informations Personnelles
+                {t('personalInfoTitle')}
               </h2>
 
               <div className="flex flex-col items-center mb-8">
@@ -758,7 +779,7 @@ export default function ProfilePage() {
                            className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
                              isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-primary hover:bg-primary/90'
                            }`}
-                           title="Prendre une photo"
+                           title={t('takePhotoTitle')}
                          >
                            <Camera className="w-4 h-4" />
                          </button>
@@ -766,7 +787,7 @@ export default function ProfilePage() {
                            className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
                              isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'
                            }`}
-                           title="Téléverser"
+                           title={t('uploadPhotoTitle')}
                          >
                            <Upload className="w-4 h-4" />
                            <input
@@ -784,7 +805,7 @@ export default function ProfilePage() {
                         handleEditClick();
                       }}
                       className="absolute bottom-0 right-0 p-2 rounded-full text-white bg-primary hover:bg-primary/90 transition-transform hover:scale-110 shadow-md"
-                      title="Modifier la photo"
+                      title={t('editPhotoTitle')}
                     >
                       <Camera className="w-4 h-4" />
                     </button>
@@ -793,7 +814,7 @@ export default function ProfilePage() {
                 </div>
                 {isUploadingImage && (
                   <p className="text-sm text-muted-foreground mt-12 animate-pulse">
-                    Envoi en cours...
+                    {t('uploadingPhoto')}
                   </p>
                 )}
               </div>
@@ -804,7 +825,7 @@ export default function ProfilePage() {
                     <div className="group">
                       <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                         <User className="w-4 h-4" />
-                        Prénom
+                        {t('firstNameLabel')}
                       </label>
                       <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg">
                         {user?.firstName || '-'}
@@ -814,7 +835,7 @@ export default function ProfilePage() {
                     <div className="group">
                       <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                         <User className="w-4 h-4" />
-                        Nom
+                        {t('lastNameLabel')}
                       </label>
                       <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg">
                         {user?.lastName || '-'}
@@ -825,7 +846,7 @@ export default function ProfilePage() {
                   <div className="group">
                     <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                       <Mail className="w-4 h-4" />
-                      Email
+                      {t('emailLabel')}
                     </label>
                     <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg break-all">
                       {user?.email || user?.sub || '-'}
@@ -835,10 +856,10 @@ export default function ProfilePage() {
                   <div className="group">
                     <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                       <Phone className="w-4 h-4" />
-                      Téléphone
+                      {t('phoneLabel')}
                     </label>
                     <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg">
-                      {user?.phoneNumber || 'Non renseigné'}
+                      {user?.phoneNumber || t('phoneNotProvided')}
                     </p>
                   </div>
 
@@ -846,7 +867,7 @@ export default function ProfilePage() {
                     <div className="group">
                       <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                         <Building2 className="w-4 h-4" />
-                        Entreprise
+                        {t('companyLabel')}
                       </label>
                       <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg">
                         {user.companyName}
@@ -855,19 +876,20 @@ export default function ProfilePage() {
                   )}
 
                   <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Mon Abonnement</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">{t('subscription.title')}</h3>
 
                     {user?.isPremium ? (
                       <div className="bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded-lg flex items-center justify-between gap-4">
                         <div>
-                          <span className="font-bold">🌟 Compte Premium Actif</span>
+                          <span className="font-bold">{t('subscription.premiumActiveLabel')}</span>
                           {user.premiumEndDate && (
                             <p className="text-sm mt-1">
-                              Valable jusqu&apos;au :{' '}
-                              {new Date(user.premiumEndDate).toLocaleDateString('fr-FR', {
-                                day: '2-digit',
-                                month: 'long',
-                                year: 'numeric',
+                              {t('subscription.validUntil', {
+                                date: new Date(user.premiumEndDate).toLocaleDateString(locale, {
+                                  day: '2-digit',
+                                  month: 'long',
+                                  year: 'numeric',
+                                }),
                               })}
                             </p>
                           )}
@@ -876,7 +898,7 @@ export default function ProfilePage() {
                           onClick={() => setPremiumStep('SELECT_DURATION')}
                           className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
                         >
-                          Prolonger
+                          {t('subscription.extend')}
                         </button>
                       </div>
                     ) : (
@@ -885,20 +907,21 @@ export default function ProfilePage() {
                         {savedPendingPayment && (
                           <div className="mb-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-4">
                             <div>
-                              <h4 className="font-bold text-yellow-800 dark:text-yellow-400">Paiement en attente</h4>
+                              <h4 className="font-bold text-yellow-800 dark:text-yellow-400">{t('subscription.pendingPaymentTitle')}</h4>
                               <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                                Vous avez un abonnement non finalisé de {savedPendingPayment.amount} {savedPendingPayment.currency}.
+                                {t('subscription.pendingPaymentDescription', { amount: savedPendingPayment.amount, currency: savedPendingPayment.currency })}
                               </p>
                             </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => {
+                                  setError(null);
                                   setPremiumPaymentData(savedPendingPayment);
                                   setPremiumStep('PAYMENT');
                                 }}
                                 className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                               >
-                                Reprendre
+                                {t('subscription.resume')}
                               </button>
                               <button
                                 onClick={() => {
@@ -907,7 +930,7 @@ export default function ProfilePage() {
                                 }}
                                 className="text-yellow-600 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 px-3 py-2 rounded-lg text-sm transition-colors"
                               >
-                                Annuler
+                                {t('subscription.cancel')}
                               </button>
                             </div>
                           </div>
@@ -915,14 +938,14 @@ export default function ProfilePage() {
 
                       <div className="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-lg flex items-center justify-between gap-4">
                         <div>
-                          <span className="font-bold">Compte Standard</span>
-                          <p className="text-sm mt-1">Passez au Premium pour débloquer tous les avantages.</p>
+                          <span className="font-bold">{t('subscription.standardLabel')}</span>
+                          <p className="text-sm mt-1">{t('subscription.standardDescription')}</p>
                         </div>
                         <button
                           onClick={() => setPremiumStep('SELECT_DURATION')}
                           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
                         >
-                          Devenir Premium
+                          {t('subscription.becomePremium')}
                         </button>
                       </div>
                       </>
@@ -935,7 +958,7 @@ export default function ProfilePage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-2">
-                        Prénom <span className="text-red-500">*</span>
+                        {t('firstNameLabel')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -945,13 +968,13 @@ export default function ProfilePage() {
                         value={editFormData.firstName}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="Votre prénom"
+                        placeholder={t('form.firstNamePlaceholder')}
                       />
                     </div>
 
                     <div>
                       <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-2">
-                        Nom <span className="text-red-500">*</span>
+                        {t('lastNameLabel')} <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -961,14 +984,14 @@ export default function ProfilePage() {
                         value={editFormData.lastName}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        placeholder="Votre nom"
+                        placeholder={t('form.lastNamePlaceholder')}
                       />
                     </div>
                   </div>
 
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-                      Email <span className="text-red-500">*</span>
+                      {t('emailLabel')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="email"
@@ -978,13 +1001,13 @@ export default function ProfilePage() {
                       value={editFormData.email}
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                      placeholder="votre.email@exemple.com"
+                      placeholder={t('form.emailPlaceholder')}
                     />
                   </div>
 
                   <div>
                     <label htmlFor="phoneNumber" className="block text-sm font-medium text-foreground mb-2">
-                      Numéro de téléphone <span className="text-red-500">*</span>
+                      {t('phoneLabel')} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -997,7 +1020,7 @@ export default function ProfilePage() {
                       className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     />
                     <p className="mt-2 text-xs text-muted-foreground">
-                      Nécessaire pour la communication avec les autres utilisateurs
+                      {t('form.phoneHelp')}
                     </p>
                   </div>
 
@@ -1008,7 +1031,7 @@ export default function ProfilePage() {
                       className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
                     >
                       <Save className="w-4 h-4" />
-                      {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+                      {isSaving ? t('form.saving') : t('form.save')}
                     </button>
                     <button
                       type="button"
@@ -1017,7 +1040,7 @@ export default function ProfilePage() {
                       className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-all"
                     >
                       <X className="w-4 h-4" />
-                      Annuler
+                      {t('form.cancel')}
                     </button>
                   </div>
                 </form>
@@ -1037,13 +1060,13 @@ export default function ProfilePage() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold flex items-center text-gray-900 dark:text-white">
-                <Crown className="mr-2 text-yellow-500" /> Abonnement Premium
+                <Crown className="mr-2 text-yellow-500" /> {t('premiumModal.title')}
               </h2>
               <button onClick={() => setPremiumStep('NONE')} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
             </div>
-            
+
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-              Débloquez des fonctionnalités exclusives, réduisez vos frais et faites briller votre profil.
+              {t('premiumModal.description')}
             </p>
 
             <div className="space-y-4">
@@ -1052,10 +1075,10 @@ export default function ProfilePage() {
                 className={`w-full p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center ${premiumDuration === 1 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 hover:border-yellow-300'}`}
               >
                 <div>
-                  <h3 className="font-bold">1 Mois</h3>
-                  <p className="text-xs text-gray-500">Sans engagement</p>
+                  <h3 className="font-bold">{t('premiumModal.plan1Month')}</h3>
+                  <p className="text-xs text-gray-500">{t('premiumModal.plan1MonthSub')}</p>
                 </div>
-                <span className="font-bold text-lg">10 000 FBu</span>
+                <span className="font-bold text-lg">{t('premiumModal.plan1MonthPrice')}</span>
               </button>
 
               <button
@@ -1063,15 +1086,15 @@ export default function ProfilePage() {
                 className={`w-full relative p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center ${premiumDuration === 12 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 hover:border-yellow-300'}`}
               >
                 <div className="absolute -top-3 right-4 bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
-                  2 MOIS OFFERTS
+                  {t('premiumModal.plan1YearBadge')}
                 </div>
                 <div>
-                  <h3 className="font-bold">1 An</h3>
-                  <p className="text-xs text-gray-500">Paiement unique</p>
+                  <h3 className="font-bold">{t('premiumModal.plan1Year')}</h3>
+                  <p className="text-xs text-gray-500">{t('premiumModal.plan1YearSub')}</p>
                 </div>
                 <div className="text-right">
-                  <span className="font-bold text-lg">100 000 FBu</span>
-                  <p className="text-xs text-gray-400 line-through">120 000 FBu</p>
+                  <span className="font-bold text-lg">{t('premiumModal.plan1YearPrice')}</span>
+                  <p className="text-xs text-gray-400 line-through">{t('premiumModal.plan1YearOldPrice')}</p>
                 </div>
               </button>
             </div>
@@ -1081,7 +1104,7 @@ export default function ProfilePage() {
               disabled={isPremiumLoading}
               className="w-full mt-6 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold flex justify-center items-center"
             >
-              {isPremiumLoading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Continuer vers le paiement'}
+              {isPremiumLoading ? <Loader2 className="animate-spin w-5 h-5" /> : t('premiumModal.continueButton')}
             </button>
           </div>
         </div>
@@ -1095,6 +1118,7 @@ export default function ProfilePage() {
           amount={premiumPaymentData.amount}
           currency={premiumPaymentData.currency}
           isLoading={isPremiumLoading}
+          errorMessage={error}
           onLocalPaymentSubmit={handlePremiumLocalPayment}
           onStripePaymentSubmit={handlePremiumStripePayment}
         />
@@ -1107,12 +1131,12 @@ export default function ProfilePage() {
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Félicitations !</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('premiumModal.successTitle')}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Votre abonnement Premium pour {premiumDuration} mois est maintenant actif.
+              {t('premiumModal.successMessage', { months: premiumDuration })}
             </p>
             <button onClick={() => setPremiumStep('NONE')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold">
-              Super !
+              {t('premiumModal.successButton')}
             </button>
           </div>
         </div>

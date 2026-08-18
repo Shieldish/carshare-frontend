@@ -5,11 +5,13 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
 import { CheckCircle, XCircle, Loader } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { refreshUser } = useAuth();
+  const t = useTranslations('payment.callback');
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
@@ -41,17 +43,17 @@ function CallbackContent() {
           await refreshUser();
           setStatus('success');
         } catch (err) {
-          setErrorMessage(err instanceof Error ? err.message : 'Échec de la confirmation.');
+          setErrorMessage(err instanceof Error ? err.message : t('confirmationFailed'));
           setStatus('error');
         }
       } else {
-        setErrorMessage("Données de transaction manquantes.");
+        setErrorMessage(t('missingTransactionData'));
         setStatus('error');
       }
     };
 
     processPayment();
-  }, [searchParams, refreshUser]);
+  }, [searchParams, refreshUser, t]);
 
   // Fonction pour obtenir la destination de redirection selon la source
   const getRedirectPath = (paymentSource: string | null): string => {
@@ -68,7 +70,7 @@ function CallbackContent() {
         return '/profile';
       case 'BOOST':
       case 'VEHICLE_BOOST':
-        return '/profile';
+        return '/vehicles';
       default:
         return '/profile';
     }
@@ -78,8 +80,8 @@ function CallbackContent() {
   const getSuccessContent = (paymentSource: string | null) => {
     if (!paymentSource) {
       return {
-        message: "Votre transaction a été confirmée avec succès. Merci de votre confiance.",
-        buttonText: "Continuer",
+        message: t('default.message'),
+        buttonText: t('default.button'),
         buttonAction: () => router.push('/profile'),
       };
     }
@@ -90,28 +92,28 @@ function CallbackContent() {
       case 'BOOKING':
       case 'BOOKING_PAYMENT':
         return {
-          message: "Paiement validé ! Votre réservation est confirmée et prête pour le départ. Vous pouvez maintenant accéder à tous les détails de votre location.",
-          buttonText: "Voir mes réservations",
+          message: t('booking.message'),
+          buttonText: t('booking.button'),
           buttonAction: () => router.push('/bookings/my-bookings'),
         };
       case 'PREMIUM':
       case 'PREMIUM_SUBSCRIPTION':
         return {
-          message: "Félicitations ! Votre compte est désormais Premium. Profitez de tous les avantages exclusifs.",
-          buttonText: "Mon Profil",
+          message: t('premium.message'),
+          buttonText: t('premium.button'),
           buttonAction: () => router.push('/profile'),
         };
       case 'BOOST':
       case 'VEHICLE_BOOST':
         return {
-          message: "Félicitations ! Votre véhicule bénéficie désormais d'une visibilité boostée pendant 7 jours.",
-          buttonText: "Mes Véhicules",
-          buttonAction: () => router.push('/profile'),
+          message: t('boost.message'),
+          buttonText: t('boost.button'),
+          buttonAction: () => router.push('/vehicles'),
         };
       default:
         return {
-          message: "Votre transaction a été confirmée avec succès. Merci de votre confiance.",
-          buttonText: "Continuer",
+          message: t('default.message'),
+          buttonText: t('default.button'),
           buttonAction: () => router.push('/profile'),
         };
     }
@@ -126,15 +128,15 @@ function CallbackContent() {
         {status === 'loading' && (
           <>
             <Loader className="w-16 h-16 text-blue-500 mx-auto animate-spin mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Vérification...</h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-3">Veuillez patienter pendant que nous confirmez votre paiement.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('verifyingTitle')}</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-3">{t('verifyingSubtitle')}</p>
           </>
         )}
 
         {status === 'success' && (
           <>
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Paiement Réussi !</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('successTitle')}</h1>
             <p className="text-gray-600 dark:text-gray-300 my-6">
               {successContent.message}
             </p>
@@ -150,13 +152,13 @@ function CallbackContent() {
         {status === 'error' && (
           <>
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Erreur de Paiement</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('errorTitle')}</h1>
             <p className="text-gray-600 dark:text-gray-300 my-6">{errorMessage}</p>
-            <button 
+            <button
               onClick={() => router.push(getRedirectPath(source))}
               className="bg-gray-600 text-white py-2 px-8 rounded-lg hover:bg-gray-700 transition-colors font-medium"
             >
-              Retour
+              {t('backButton')}
             </button>
           </>
         )}
@@ -166,12 +168,13 @@ function CallbackContent() {
 }
 
 export default function CallbackPage() {
+  const t = useTranslations('payment.callback');
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center dark:bg-gray-950 bg-gray-50">
         <div className="text-center">
           <Loader className="w-8 h-8 text-blue-500 mx-auto animate-spin mb-4" />
-          <p className="text-gray-600 dark:text-gray-300">Chargement...</p>
+          <p className="text-gray-600 dark:text-gray-300">{t('loading')}</p>
         </div>
       </div>
     }>

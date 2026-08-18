@@ -15,6 +15,8 @@ interface Notification {
   read: boolean;
   isRead?: boolean;
   createdAt: string;
+  type?: string;                    // ✅ i18n : code stable pour re-rendre le texte traduit (optionnel, absent sur l'historique)
+  params?: Record<string, unknown>; // ✅ i18n : données structurées pour l'interpolation
 }
 
 interface NotificationContextType {
@@ -22,6 +24,7 @@ interface NotificationContextType {
   unreadCount: number;
   markAsRead: (id: number) => Promise<void>;
   markAllAsRead: () => Promise<void>; // ✅ NOUVEAU
+  markConversationAsRead: (bookingId: number) => Promise<void>;
   refreshNotifications: () => Promise<void>;
 }
 
@@ -175,11 +178,42 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [notifications, unreadCount]);
 
+  /**
+   * ✅ Marque comme lues toutes les notifications NEW_CHAT_MESSAGE d'une conversation (réservation)
+   * donnée. Appelé quand l'utilisateur ouvre/consulte ce chat — n'affecte jamais les notifications
+   * d'autres types (incident, statut...) ni d'autres conversations, même sur la même réservation.
+   */
+  const markConversationAsRead = useCallback(async (bookingId: number) => {
+    const matchingIds = notifications
+      .filter(n => !n.read && n.type === 'NEW_CHAT_MESSAGE' && Number(n.params?.bookingId) === bookingId)
+      .map(n => n.id);
+
+    if (matchingIds.length === 0) return; // Rien à faire, aucun appel réseau
+
+    const previousNotifications = [...notifications];
+    const previousUnreadCount = unreadCount;
+
+    try {
+      // 🚀 Mise à jour optimiste
+      setNotifications(prev => prev.map(n => matchingIds.includes(n.id) ? { ...n, read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - matchingIds.length));
+
+      // 📡 Synchronisation avec le backend
+      await apiClient.put(`/api/notifications/conversation/${bookingId}/read`, {});
+    } catch (error) {
+      console.error('❌ Failed to mark conversation notifications as read:', error);
+      // 🔄 Rollback en cas d'erreur
+      setNotifications(previousNotifications);
+      setUnreadCount(previousUnreadCount);
+    }
+  }, [notifications, unreadCount]);
+
   const value = {
     notifications,
     unreadCount,
     markAsRead,
     markAllAsRead, // ✅ NOUVEAU
+    markConversationAsRead,
     refreshNotifications
   };
 

@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Calendar, FileText, MapPin, Image as ImageIcon, Send, Loader2 } from 'lucide-react';
 import ImageUploader from '@/app/components/inspection/ImageUploader';
 import { apiClient } from '@/lib/apiClient';
@@ -13,6 +14,7 @@ interface IncidentReportFormProps {
 }
 
 const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onReportSuccess }) => {
+  const t = useTranslations('incident.form');
   const [incidentTimestamp, setIncidentTimestamp] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
@@ -34,13 +36,13 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
 
     // 1. Détecter précisément ce qui manque
     const missingFields = [];
-    if (!incidentTimestamp) missingFields.push("Date et heure");
-    if (!location.trim()) missingFields.push("Lieu");
-    if (!description.trim()) missingFields.push("Description");
-    if (photoUrls.length === 0) missingFields.push("Photos");
+    if (!incidentTimestamp) missingFields.push(t('fieldDate'));
+    if (!location.trim()) missingFields.push(t('fieldLocation'));
+    if (!description.trim()) missingFields.push(t('fieldDescription'));
+    if (photoUrls.length === 0) missingFields.push(t('fieldPhotos'));
 
     if (missingFields.length > 0) {
-      setError(`Action requise. Il manque : ${missingFields.join(", ")}`);
+      setError(`${t('missingFieldsPrefix')}${missingFields.join(", ")}`);
       return;
     }
 
@@ -58,7 +60,7 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
       onReportSuccess(result);
     } catch (err: unknown) {
       console.error("Incident report error:", err);
-      setError(err instanceof Error ? err.message : "Une erreur est survenue lors du signalement.");
+      setError(err instanceof Error ? err.message : t('genericError'));
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +72,7 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
         <div>
           <label htmlFor="incidentTimestamp" className="block text-sm font-medium text-foreground mb-1">
             <Calendar className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Date et Heure de l&apos;incident *
+            {t('dateLabel')}
           </label>
           <input
             id="incidentTimestamp"
@@ -86,14 +88,14 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
         <div>
           <label htmlFor="location" className="block text-sm font-medium text-foreground mb-1">
             <MapPin className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Lieu de l&apos;incident *
+            {t('locationLabel')}
           </label>
           <input
             id="location"
             type="text"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Ex: Près du rond-point central, Bujumbura"
+            placeholder={t('locationPlaceholder')}
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -102,14 +104,14 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-foreground mb-1">
             <FileText className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Description de l&apos;incident *
+            {t('descriptionLabel')}
           </label>
           <textarea
             id="description"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Décrivez ce qui s'est passé, les dommages observés, etc."
+            placeholder={t('descriptionPlaceholder')}
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
@@ -118,13 +120,13 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             <ImageIcon className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Photos (dommages, lieu, etc.) *
+            {t('photosLabel')}
           </label>
           <ImageUploader
             maxImages={10}
             onImageUrlsChange={setPhotoUrls}
           />
-          {photoUrls.length === 0 && <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Au moins une photo est requise.</p>}
+          {photoUrls.length === 0 && <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t('photosRequired')}</p>}
         </div>
 
         {/* Le bouton n'est plus bloqué par isFormValid, il affiche les erreurs en Toast */}
@@ -136,12 +138,12 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Envoi en cours...
+              {t('submitting')}
             </>
           ) : (
             <>
               <Send className="w-5 h-5 mr-2" />
-              Envoyer le signalement
+              {t('submitButton')}
             </>
           )}
         </button>
@@ -156,7 +158,7 @@ const IncidentReportForm: React.FC<IncidentReportFormProps> = ({ bookingId, onRe
             </svg>
           </div>
           <div>
-            <p className="font-semibold text-sm">Formulaire incomplet</p>
+            <p className="font-semibold text-sm">{t('incompleteFormTitle')}</p>
             <p className="text-xs text-red-100 mt-1">{error}</p>
           </div>
         </div>

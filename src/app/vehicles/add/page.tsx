@@ -6,8 +6,10 @@ import Link from 'next/link';
 import AddVehicleForm from '@/app/components/forms/AddVehicleForm';
 import { useAuth } from '@/context/AuthContext';
 import { ShieldAlert, ArrowRight } from 'lucide-react'; // Ajout des icônes
+import { useTranslations } from 'next-intl';
 
 export default function AddVehiclePage() {
+  const t = useTranslations('vehicles.add');
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
@@ -37,23 +39,23 @@ export default function AddVehiclePage() {
         <div className="bg-white dark:bg-gray-800 max-w-lg w-full rounded-2xl shadow-xl p-8 text-center border-t-4 border-orange-500">
           <ShieldAlert className="w-20 h-20 text-orange-500 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Vérification d&apos;identité requise
+            {t('verificationRequiredTitle')}
           </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-8">
-            Pour garantir la sécurité de notre plateforme et protéger vos véhicules, vous devez vérifier votre identité (CNI ou Passeport) avant de pouvoir publier une voiture sur BudaxDrive.
+            {t('verificationRequiredText')}
           </p>
-          <Link 
+          <Link
             href="/profile"
             className="inline-flex items-center justify-center w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200"
           >
-            Vérifier mon identité maintenant
+            {t('verifyNowButton')}
             <ArrowRight className="w-5 h-5 ml-2" />
           </Link>
-          <button 
+          <button
             onClick={() => router.back()}
             className="mt-4 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
           >
-            Retour
+            {t('back')}
           </button>
         </div>
       </div>
@@ -72,7 +74,7 @@ export default function AddVehiclePage() {
             <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Retour
+            {t('back')}
           </button>
         </div>
       </div>
@@ -86,10 +88,10 @@ export default function AddVehiclePage() {
             </svg>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Ajouter un Véhicule
+            {t('title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Ajoutez un nouveau véhicule à votre flotte de location
+            {t('subtitle')}
           </p>
         </div>
 
@@ -104,8 +106,8 @@ export default function AddVehiclePage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Informations du véhicule</h2>
-                  <p className="text-blue-100 mt-1">Remplissez les détails de votre nouveau véhicule</p>
+                  <h2 className="text-2xl font-bold text-white">{t('sectionTitle')}</h2>
+                  <p className="text-blue-100 mt-1">{t('sectionSubtitle')}</p>
                 </div>
               </div>
             </div>

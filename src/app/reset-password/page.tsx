@@ -4,8 +4,12 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
 
 function ResetPasswordForm() {
+  const t = useTranslations('auth.resetPassword');
+  const tToast = useTranslations('toast.errors');
   const searchParams = useSearchParams();
   const token = searchParams.get('token'); // On récupère le token dans l'URL
   const router = useRouter();
@@ -23,26 +27,27 @@ function ResetPasswordForm() {
     setError('');
 
     if (newPassword !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('passwordMismatch'));
       setIsLoading(false);
       return;
     }
 
     if (!token) {
-      setError('Le lien de réinitialisation est invalide ou manquant.');
+      setError(t('missingToken'));
       setIsLoading(false);
       return;
     }
 
     try {
       await apiClient.resetPassword(token, newPassword);
-      setMessage('Votre mot de passe a été réinitialisé avec succès ! Redirection vers la connexion...');
+      setMessage(t('successMessage'));
       // Redirection après 3 secondes
       setTimeout(() => {
         router.push('/login');
       }, 3000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Le lien a expiré ou une erreur est survenue.');
+      const key = getApiErrorMessageKey(err);
+      setError(key === 'generic' ? tToast('expiredOrError') : tToast(key));
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +57,7 @@ function ResetPasswordForm() {
     <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
       <div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-          Nouveau mot de passe
+          {t('title')}
         </h2>
       </div>
       
@@ -70,27 +75,27 @@ function ResetPasswordForm() {
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="new-password" className="sr-only">Nouveau mot de passe</label>
+            <label htmlFor="new-password" className="sr-only">{t('newPasswordLabel')}</label>
             <input
               id="new-password"
               name="password"
               type="password"
               required
               className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-              placeholder="Nouveau mot de passe"
+              placeholder={t('newPasswordPlaceholder')}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
           <div>
-            <label htmlFor="confirm-password" className="sr-only">Confirmer le mot de passe</label>
+            <label htmlFor="confirm-password" className="sr-only">{t('confirmPasswordLabel')}</label>
             <input
               id="confirm-password"
               name="confirmPassword"
               type="password"
               required
               className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-              placeholder="Confirmer le mot de passe"
+              placeholder={t('confirmPasswordPlaceholder')}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
@@ -103,13 +108,13 @@ function ResetPasswordForm() {
             disabled={isLoading || !token}
             className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-white dark:focus:ring-offset-gray-800 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            {isLoading ? 'Modification...' : 'Changer le mot de passe'}
+            {isLoading ? t('submitting') : t('submitButton')}
           </button>
         </div>
-        
+
         <div className="text-center mt-4">
           <Link href="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 text-sm">
-            Retour à la connexion
+            {t('backToLogin')}
           </Link>
         </div>
       </form>
@@ -119,9 +124,10 @@ function ResetPasswordForm() {
 
 // Next.js demande d'envelopper les composants qui utilisent useSearchParams dans un Suspense
 export default function ResetPasswordPage() {
+  const t = useTranslations('auth.resetPassword');
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <Suspense fallback={<div className="text-gray-600 dark:text-gray-400">Chargement...</div>}>
+      <Suspense fallback={<div className="text-gray-600 dark:text-gray-400">{t('loadingFallback')}</div>}>
         <ResetPasswordForm />
       </Suspense>
     </div>

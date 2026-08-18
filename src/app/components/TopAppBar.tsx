@@ -4,14 +4,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
+import {
   ChevronDown,
   UserCircle,
   LogIn,
   UserPlus,
   Sun,
   Moon,
-  Globe,
   HelpCircle,
   Car,
   LogOut,
@@ -22,12 +21,27 @@ import {
   DollarSign,
   UserCog,
   Menu,
-  X
+  X,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  MessageSquare,
+  Rocket,
+  ShieldCheck,
+  ShieldAlert,
+  FileWarning,
+  FileText,
+  ClipboardCheck,
+  Crown,
+  ImagePlus,
+  Star
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { useChat } from '@/context/ChatContext';
 import { useTheme } from 'next-themes';
+import { useLocale, useTranslations } from 'next-intl';
+import LanguageSwitcher from './LanguageSwitcher';
 
 type IconComponent = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 
@@ -39,28 +53,143 @@ interface ProfileMenuItem {
   divider?: boolean;
 }
 
+// ✅ i18n : icône par type de notification (remplace les emojis pour un rendu plus soigné)
+const NOTIFICATION_ICONS: Record<string, IconComponent> = {
+  NEW_BOOKING_REQUEST: Calendar,
+  BOOKING_STATUS_CHANGED: CheckCircle,
+  INCIDENT_REPORTED: AlertTriangle,
+  INCIDENT_STATUS_UPDATED: AlertTriangle,
+  INCIDENT_RESOLVED_OWNER: ShieldCheck,
+  INCIDENT_RESOLVED_RENTER: ShieldCheck,
+  CHECKOUT_VALIDATED: ClipboardCheck,
+  NEW_CHAT_MESSAGE: MessageSquare,
+  PAYMENT_SUCCESS_BOOKING: CheckCircle,
+  PAYMENT_SUCCESS_BOOST: Rocket,
+  PAYMENT_VALIDATED_RENTER: CheckCircle,
+  PAYMENT_VALIDATED_OWNER: CheckCircle,
+  BOOST_ACTIVATED: Rocket,
+  PAYMENT_REJECTED_BOOKING: XCircle,
+  PAYMENT_REJECTED_BOOST: XCircle,
+  SUBSCRIPTION_EXPIRED: Crown,
+  SUBSCRIPTION_EXPIRING_SOON: Crown,
+  NEW_VERIFICATION_DOCS_SUBMITTED: FileText,
+  ACCOUNT_VERIFIED: ShieldCheck,
+  VERIFICATION_REJECTED: ShieldAlert,
+  DOCUMENT_EXPIRED_SUSPENDED: FileWarning,
+  DOCUMENT_EXPIRING_SOON: FileWarning,
+  VEHICLE_APPROVED: Car,
+  VEHICLE_DOCS_UPDATED: FileText,
+  NEW_BOOST_PAYMENT: Rocket,
+  BOOST_AD_IMAGE_ADDED: ImagePlus,
+  NEW_REVIEW_RECEIVED: Star,
+  LISTING_INACTIVITY_WARNING: FileWarning,
+  LISTING_UNPUBLISHED_INACTIVITY: FileWarning,
+};
+
+type NotifTranslator = {
+  (key: string, values?: Record<string, string | number>): string;
+  has: (key: string) => boolean;
+};
+
+// ✅ i18n : résout le texte traduit d'une notification à partir de son `type`/`params`.
+// Retourne `null` si `type` est absent (historique) ou si la clé n'existe pas encore
+// pour cette langue — dans ce cas l'appelant se replie sur `notif.message` brut.
+function resolveNotificationText(
+  notif: { type?: string; params?: Record<string, unknown> },
+  t: NotifTranslator,
+  tIncidentStatus: (key: string) => string
+): string | null {
+  const type = notif.type;
+  if (!type) return null;
+  const params = notif.params ?? {};
+
+  if (type === 'BOOKING_STATUS_CHANGED') {
+    const key = params.status === 'CONFIRMED' ? 'BOOKING_STATUS_CHANGED_CONFIRMED' : 'BOOKING_STATUS_CHANGED_CANCELLED';
+    return t.has(key) ? t(key, { vehicleModel: String(params.vehicleModel ?? '') }) : null;
+  }
+
+  if (type === 'INCIDENT_REPORTED') {
+    if (!t.has('INCIDENT_REPORTED')) return null;
+    const roleKey = `reporterRoles.${params.reporterRole}`;
+    return t('INCIDENT_REPORTED', {
+      reporterRole: t.has(roleKey) ? t(roleKey) : String(params.reporterRole ?? ''),
+      bookingId: Number(params.bookingId ?? 0),
+      vehicleName: String(params.vehicleName ?? ''),
+    });
+  }
+
+  if (type === 'INCIDENT_STATUS_UPDATED') {
+    if (!t.has('INCIDENT_STATUS_UPDATED')) return null;
+    return t('INCIDENT_STATUS_UPDATED', {
+      reportId: Number(params.reportId ?? 0),
+      bookingId: Number(params.bookingId ?? 0),
+      vehicleName: String(params.vehicleName ?? ''),
+      oldStatus: tIncidentStatus(String(params.oldStatus ?? '')),
+      newStatus: tIncidentStatus(String(params.newStatus ?? '')),
+    });
+  }
+
+  if (type === 'DOCUMENT_EXPIRED_SUSPENDED') {
+    if (!t.has('DOCUMENT_EXPIRED_SUSPENDED')) return null;
+    const docKey = `documentTypes.${params.documentName}`;
+    return t('DOCUMENT_EXPIRED_SUSPENDED', {
+      documentName: t.has(docKey) ? t(docKey) : String(params.documentName ?? ''),
+      vehicleMake: String(params.vehicleMake ?? ''),
+      vehicleModel: String(params.vehicleModel ?? ''),
+    });
+  }
+
+  if (type === 'DOCUMENT_EXPIRING_SOON') {
+    const daysLeft = Number(params.daysLeft ?? 0);
+    const urgencyKey = daysLeft <= 3
+      ? 'DOCUMENT_EXPIRING_SOON_URGENT'
+      : daysLeft <= 7
+      ? 'DOCUMENT_EXPIRING_SOON_REMINDER'
+      : 'DOCUMENT_EXPIRING_SOON_INFO';
+    if (!t.has(urgencyKey)) return null;
+    const docKey = `documentTypes.${params.documentName}`;
+    return t(urgencyKey, {
+      documentName: t.has(docKey) ? t(docKey) : String(params.documentName ?? ''),
+      vehicleMake: String(params.vehicleMake ?? ''),
+      vehicleModel: String(params.vehicleModel ?? ''),
+      daysLeft,
+    });
+  }
+
+  // Cas générique : toutes les autres notifications interpolent directement leurs `params`.
+  if (!t.has(type)) return null;
+  const stringParams: Record<string, string | number> = {};
+  for (const [key, value] of Object.entries(params)) {
+    stringParams[key] = typeof value === 'number' ? value : String(value);
+  }
+  return t(type, stringParams);
+}
+
 const TopAppBar = () => {
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
   const { notifications, unreadCount, markAllAsRead, markAsRead } = useNotifications();
   const { openChat } = useChat();
-  
+  const locale = useLocale();
+  const t = useTranslations('nav');
+  const tNotif = useTranslations('notifications');
+  const tIncidentStatus = useTranslations('incident.details.status');
+
   // ✅ CORRECTION : On a retiré "theme" car on utilise uniquement "resolvedTheme"
   const { setTheme, resolvedTheme } = useTheme();
-  
+
   const [mounted, setMounted] = useState(false);
-  
+
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // ✅ NOUVEAU : État pour gérer l'affichage des notifications (nouvelles ou historique)
   const [showAllNotifications, setShowAllNotifications] = useState(false);
-  
+
   // ✅ NOUVEAU : État pour gérer le loading du bouton "Tout marquer comme lu"
   const [isLoadingMarkAll, setIsLoadingMarkAll] = useState(false);
-  
-  const [currentLanguage, setCurrentLanguage] = useState('fr');
+
   const [isScrolled, setIsScrolled] = useState(false);
   
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -78,11 +207,6 @@ const TopAppBar = () => {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem('language') || 'fr';
-    setCurrentLanguage(savedLanguage);
   }, []);
 
   useEffect(() => {
@@ -111,14 +235,6 @@ const TopAppBar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const toggleLanguage = () => {
-    const newLanguage = currentLanguage === 'fr' ? 'en' : 'fr';
-    setCurrentLanguage(newLanguage);
-    localStorage.setItem('language', newLanguage);
-    setIsProfileMenuOpen(false);
-    setIsMobileMenuOpen(false);
-  };
 
   const handleLogout = () => {
     logout();
@@ -181,7 +297,7 @@ const TopAppBar = () => {
     // On intercepte ce pattern pour rediriger le propriétaire vers son tableau de bord
     // Les nouvelles notifications ont déjà /dashboard/owner?highlight=<id> directement en base
     if (/^\/vehicles\/\d+$/.test(notif.link)) {
-      router.push('/dashboard/owner');
+      window.location.href = '/dashboard/owner';
       return;
     }
 
@@ -195,11 +311,16 @@ const TopAppBar = () => {
           openChat(bookingIdNum);
         }
       } else {
-        router.push(notif.link);
+        // ✅ Navigation "dure" (pas router.push) : si l'utilisateur est déjà sur la page
+        // cible (ex: déjà sur "Mes Véhicules" quand la notification arrive), une navigation
+        // Next.js en douceur ne redéclenche pas le chargement des données — la page resterait
+        // affichée avec les anciennes infos. Un rechargement complet garantit des données
+        // fraîches à chaque clic, quelle que soit la page où se trouve l'utilisateur.
+        window.location.href = notif.link;
       }
     } catch (error) {
       console.log("Lien de notification standard, navigation...", error);
-      router.push(notif.link);
+      window.location.href = notif.link;
     }
   };
 
@@ -233,26 +354,24 @@ const TopAppBar = () => {
   const isDark = resolvedTheme === 'dark';
 
   const profileMenuItems: ProfileMenuItem[] = user ? [
-    { icon: User, label: currentLanguage === 'fr' ? 'Mon Profil' : 'My Profile', href: '/profile' },
-    { icon: Car, label: currentLanguage === 'fr' ? 'Mes véhicules' : 'My Vehicles', href: '/vehicles' },
-    { icon: Calendar, label: currentLanguage === 'fr' ? 'Mes réservations' : 'My Bookings', href: '/bookings/my-bookings' },
-    { icon: BarChart3, label: currentLanguage === 'fr' ? 'Dashboard Propriétaire' : 'Owner Dashboard', href: '/dashboard/owner' },
-    { icon: DollarSign, label: currentLanguage === 'fr' ? 'Finances' : 'Finances', href: '/dashboard/financial' },
+    { icon: User, label: t('profile'), href: '/profile' },
+    { icon: Car, label: t('myVehicles'), href: '/vehicles' },
+    { icon: Calendar, label: t('myBookings'), href: '/bookings/my-bookings' },
+    { icon: BarChart3, label: t('ownerDashboard'), href: '/dashboard/owner' },
+    { icon: DollarSign, label: t('finances'), href: '/dashboard/financial' },
     ...(user.role === 'ADMIN' ? [{
       icon: UserCog,
-      label: currentLanguage === 'fr' ? 'Panel Administrateur' : 'Admin Panel',
+      label: t('adminPanel'),
       href: '/admin'
     }] : []),
-    { icon: LogOut, label: currentLanguage === 'fr' ? 'Déconnexion' : 'Sign Out', onClick: handleLogout, divider: true },
-    { icon: isDark ? Sun : Moon, label: isDark ? (currentLanguage === 'fr' ? 'Mode clair' : 'Light mode') : (currentLanguage === 'fr' ? 'Mode sombre' : 'Dark mode'), onClick: handleThemeToggle },
-    { icon: Globe, label: currentLanguage === 'fr' ? 'English' : 'Français', onClick: toggleLanguage },
-    { icon: HelpCircle, label: currentLanguage === 'fr' ? 'Service Client' : 'Customer Service', href: '/faq' }
+    { icon: LogOut, label: t('signOut'), onClick: handleLogout, divider: true },
+    { icon: isDark ? Sun : Moon, label: isDark ? t('lightMode') : t('darkMode'), onClick: handleThemeToggle },
+    { icon: HelpCircle, label: t('customerService'), href: '/faq' }
   ] : [
-    { icon: LogIn, label: currentLanguage === 'fr' ? 'Connexion' : 'Sign In', href: '/login' },
-    { icon: UserPlus, label: currentLanguage === 'fr' ? 'Inscription' : 'Sign Up', href: '/register', divider: true },
-    { icon: isDark ? Sun : Moon, label: isDark ? (currentLanguage === 'fr' ? 'Mode clair' : 'Light mode') : (currentLanguage === 'fr' ? 'Mode sombre' : 'Dark mode'), onClick: handleThemeToggle },
-    { icon: Globe, label: currentLanguage === 'fr' ? 'English' : 'Français', onClick: toggleLanguage },
-    { icon: HelpCircle, label: currentLanguage === 'fr' ? 'Service Client' : 'Customer Service', href: '/faq' }
+    { icon: LogIn, label: t('signIn'), href: '/login' },
+    { icon: UserPlus, label: t('signUp'), href: '/register', divider: true },
+    { icon: isDark ? Sun : Moon, label: isDark ? t('lightMode') : t('darkMode'), onClick: handleThemeToggle },
+    { icon: HelpCircle, label: t('customerService'), href: '/faq' }
   ];
 
   return (
@@ -286,7 +405,7 @@ const TopAppBar = () => {
                 href="/how-it-works"
                 className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               >
-                {currentLanguage === 'fr' ? 'Pourquoi OurCarShare' : 'Why OurCarShare'}
+                {t('whyOurCarShare')}
               </Link>
             </div>
 
@@ -304,7 +423,7 @@ const TopAppBar = () => {
                     <Bell className="h-6 w-6 text-gray-600 dark:text-gray-400" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-medium">
-                        {unreadCount > 99 ? '99+' : unreadCount}
+                        {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}
                   </button>
@@ -314,7 +433,7 @@ const TopAppBar = () => {
                       {/* ✅ NOUVEAU : En-tête avec bouton "Tout marquer comme lu" */}
                       <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
                         <div className="font-semibold text-gray-900 dark:text-white">
-                          {currentLanguage === 'fr' ? 'Notifications' : 'Notifications'}
+                          {t('notifications')}
                         </div>
                         {/* Bouton visible seulement s'il y a des notifications non lues */}
                         {unreadCount > 0 && (
@@ -327,34 +446,46 @@ const TopAppBar = () => {
                                 : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700'
                             }`}
                           >
-                            {isLoadingMarkAll ? '⏳' : '✓'} {currentLanguage === 'fr' ? 'Tout marquer comme lu' : 'Mark all as read'}
+                            {isLoadingMarkAll ? '⏳' : '✓'} {t('markAllAsRead')}
                           </button>
                         )}
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {displayedNotifications.length > 0 ? (
-                          displayedNotifications.map(notif => (
-                            <div
-                              key={notif.id}
-                              onClick={() => handleNotificationClick(notif)}
-                              className="block cursor-pointer"
-                            >
-                              <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600">
-                                {/* ✅ SÉCURITÉ : On s'assure d'afficher uniquement des strings */}
-                                <p className="text-sm text-gray-900 dark:text-gray-100">
-                                  {typeof notif.message === 'string' ? notif.message : JSON.stringify(notif.message)}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                  {notif.createdAt
-                                    ? new Date(notif.createdAt).toLocaleString(currentLanguage === 'fr' ? 'fr-FR' : 'en-US')
-                                    : ''}
-                                </p>
+                          displayedNotifications.map(notif => {
+                            // ✅ i18n : préfère le rendu traduit via type/params, repli sur `message` brut
+                            // (historique pré-migration, ou clé pas encore disponible dans cette langue)
+                            const translatedText = resolveNotificationText(notif, tNotif, tIncidentStatus);
+                            const NotifIcon = notif.type ? NOTIFICATION_ICONS[notif.type] : undefined;
+
+                            return (
+                              <div
+                                key={notif.id}
+                                onClick={() => handleNotificationClick(notif)}
+                                className="block cursor-pointer"
+                              >
+                                <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 flex items-start gap-2">
+                                  {NotifIcon && translatedText && (
+                                    <NotifIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                                  )}
+                                  <div>
+                                    {/* ✅ SÉCURITÉ : On s'assure d'afficher uniquement des strings */}
+                                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                                      {translatedText ?? (typeof notif.message === 'string' ? notif.message : JSON.stringify(notif.message))}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                      {notif.createdAt
+                                        ? new Date(notif.createdAt).toLocaleString(locale)
+                                        : ''}
+                                    </p>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          ))
+                            );
+                          })
                         ) : (
                           <p className="text-sm text-gray-500 p-4 text-center">
-                            {currentLanguage === 'fr' ? 'Aucune notification' : 'No notifications'}
+                            {t('noNotifications')}
                           </p>
                         )}
                       </div>
@@ -366,7 +497,7 @@ const TopAppBar = () => {
                             onClick={() => setShowAllNotifications(true)}
                             className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium py-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
                           >
-                            {currentLanguage === 'fr' ? 'Voir l\'historique des notifications' : 'View notification history'}
+                            {t('viewHistory')}
                           </button>
                         </div>
                       )}
@@ -378,7 +509,7 @@ const TopAppBar = () => {
                             onClick={() => setShowAllNotifications(false)}
                             className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium py-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
                           >
-                            {currentLanguage === 'fr' ? 'Voir seulement les nouvelles' : 'View only new notifications'}
+                            {t('viewNewOnly')}
                           </button>
                         </div>
                       )}
@@ -386,6 +517,11 @@ const TopAppBar = () => {
                   )}
                 </div>
               )}
+
+              {/* Sélecteur de langue (Caché sur Mobile, Visible Desktop) */}
+              <div className="hidden md:block">
+                <LanguageSwitcher variant="desktop" />
+              </div>
 
               {/* Menu profil (Caché sur Mobile, Visible Desktop) */}
               <div className="hidden md:block relative">
@@ -489,8 +625,10 @@ const TopAppBar = () => {
                 className="flex items-center space-x-3 px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg font-medium"
               >
                 <HelpCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <span>{currentLanguage === 'fr' ? 'Pourquoi OurCarShare' : 'Why OurCarShare'}</span>
+                <span>{t('whyOurCarShare')}</span>
               </Link>
+
+              <LanguageSwitcher variant="mobile" onSelect={() => setIsMobileMenuOpen(false)} />
 
               <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
 

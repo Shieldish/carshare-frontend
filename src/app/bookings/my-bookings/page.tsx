@@ -2,13 +2,18 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
 import { useChat } from '@/context/ChatContext';
 import PhoneInputModal from '@/app/bookings/my-bookings/PhoneInputModal';
 import ConfirmDeleteModal from '@/app/bookings/my-bookings/ConfirmDeleteModal';
-import { MessageSquare, ClipboardCheck, AlertTriangle } from 'lucide-react';
+import LeaveReviewModal from '@/app/bookings/my-bookings/LeaveReviewModal';
+import { StarRating } from '@/app/components/reviews/VehicleReviews';
+import type { Review } from '@/types/review';
+import { MessageSquare, ClipboardCheck, AlertTriangle, Star, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 // Types mis à jour pour correspondre à la nouvelle structure
 type PaymentInfo = {
@@ -22,6 +27,7 @@ type CompanyContactInfo = {
 };
 
 type VehicleInfo = {
+  id: number;
   make: string;
   model: string;
   imageUrl?: string;
@@ -34,72 +40,12 @@ type Booking = {
   startDate: string;
   endDate: string;
   totalPrice: number;
-  status: 'PENDING' | 'CONTACT_INITIATED' | 'PENDING_CONFIRMATION' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   vehicle: VehicleInfo;
   payment: PaymentInfo | null;
   // ✅ Code secret pour le handshake Check-in
   checkInCode?: string;
 };
-
-// Composant de notification personnalisée
-function SuccessNotification({
-  isVisible,
-  message,
-  onClose,
-}: {
-  isVisible: boolean;
-  message: string;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(() => {
-        onClose();
-      }, 4000);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, onClose]);
-
-  if (!isVisible) return null;
-
-  return (
-    <div className="fixed top-4 right-4 z-50 transform transition-all duration-300 ease-in-out">
-      <div className="bg-card border-l-4 border-primary rounded-lg shadow-xl p-4 max-w-sm min-w-[320px]">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-            <div className="ml-3">
-              <div className="text-sm font-semibold text-foreground">Paiement réussi !</div>
-              <div className="text-sm text-muted-foreground mt-1">{message}</div>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="ml-4 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div className="mt-3">
-          <div className="bg-muted rounded-full h-1 overflow-hidden">
-            <div
-              className="bg-primary h-1 rounded-full transition-all duration-[4000ms] ease-linear"
-              style={{ width: isVisible ? '0%' : '100%' }}
-            ></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Composant pour une seule carte de réservation
 function BookingCard({
@@ -113,6 +59,8 @@ function BookingCard({
   onDelete: (id: number) => void;
   isHighlighted?: boolean;
 }) {
+  const t = useTranslations('bookings.myBookings.card');
+  const tStatus = useTranslations('bookings.myBookings.status');
   const router = useRouter();
   const { openChat } = useChat();
   const { vehicle, startDate, endDate, status, totalPrice, payment } = booking;
@@ -131,26 +79,59 @@ function BookingCard({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+
+  const [myReview, setMyReview] = useState<Review | null>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [isDeletingReview, setIsDeletingReview] = useState(false);
+
+  useEffect(() => {
+    if (status !== 'COMPLETED') return;
+    apiClient.get(`/api/reviews/booking/${booking.id}`)
+      .then((data) => setMyReview(data))
+      .catch(() => setMyReview(null));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, booking.id]);
+
+  const handleSubmitReview = async (rating: number, comment: string) => {
+    setIsSubmittingReview(true);
+    try {
+      const review = myReview
+        ? await apiClient.put(`/api/vehicles/${vehicle.id}/reviews/${myReview.id}`, { bookingId: booking.id, rating, comment })
+        : await apiClient.post(`/api/vehicles/${vehicle.id}/reviews`, { bookingId: booking.id, rating, comment });
+      setMyReview(review);
+      setShowReviewModal(false);
+      toast.success(myReview ? t('reviewUpdated') : t('reviewSubmitted'));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('errors.genericError');
+      toast.error(message);
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!myReview) return;
+    if (!confirm(t('confirmDeleteReview'))) return;
+    setIsDeletingReview(true);
+    try {
+      await apiClient.delete(`/api/vehicles/${vehicle.id}/reviews/${myReview.id}`);
+      setMyReview(null);
+      toast.success(t('reviewDeleted'));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : t('errors.genericError');
+      toast.error(message);
+    } finally {
+      setIsDeletingReview(false);
+    }
+  };
 
   const statusStyles = {
     PENDING: 'bg-orange-100 text-orange-800 border-orange-200',
-    CONTACT_INITIATED: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    PENDING_CONFIRMATION: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     CONFIRMED: 'bg-blue-100 text-blue-800 border-blue-200',
     IN_PROGRESS: 'bg-green-100 text-green-800 border-green-200',
     COMPLETED: 'bg-muted text-muted-foreground border-border',
     CANCELLED: 'bg-red-100 text-red-800 border-red-200',
-  };
-
-  const statusTranslations = {
-    PENDING: 'En attente',
-    CONTACT_INITIATED: 'Contact initié',
-    PENDING_CONFIRMATION: 'En attente de confirmation',
-    CONFIRMED: 'Confirmé',
-    IN_PROGRESS: 'En cours',
-    COMPLETED: 'Terminé',
-    CANCELLED: 'Annulé',
   };
 
   const handleOpenChat = () => {
@@ -159,7 +140,8 @@ function BookingCard({
 
   const handleOnlinePayment = async () => {
     if (!payment || payment.status !== 'PENDING') {
-      setError("Ce paiement n'est pas en attente.");
+      toast.error(t('errors.paymentNotPending'));
+      setError(t('errors.paymentNotPending'));
       return;
     }
 
@@ -169,12 +151,17 @@ function BookingCard({
     try {
       const response = await apiClient.post(`/api/payments/${payment.id}/initiate-online-payment`, {});
       if (response && response.redirectUrl) {
+        // Le paiement Stripe quitte la page : payment/callback lit cette valeur pour savoir
+        // qu'il s'agissait d'une réservation et rediriger au bon endroit au retour.
+        sessionStorage.setItem('paymentSource', 'booking');
         window.location.href = response.redirectUrl;
       } else {
-        throw new Error("Impossible d'obtenir l'URL de paiement.");
+        throw new Error(t('errors.paymentUrlMissing'));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Le lancement du paiement a échoué.');
+      const message = err instanceof Error ? err.message : t('errors.paymentLaunchFailed');
+      toast.error(message);
+      setError(message);
       setIsLoading(false);
     }
   };
@@ -184,7 +171,7 @@ function BookingCard({
 
     try {
       const token = localStorage.getItem('jwt_token');
-      if (!token) throw new Error('Authentification requise');
+      if (!token) throw new Error(t('errors.authRequired'));
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/bookings/${booking.id}`, {
         method: 'DELETE',
@@ -194,13 +181,16 @@ function BookingCard({
       });
 
       if (!response.ok) {
-        throw new Error('La suppression a échoué');
+        throw new Error(t('errors.deleteFailed'));
       }
 
       setShowDeleteModal(false);
+      toast.success(t('errors.deleteSuccess'));
       onDelete(booking.id);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+      const message = err instanceof Error ? err.message : t('errors.genericError');
+      toast.error(message);
+      setError(message);
     } finally {
       setIsDeleting(false);
     }
@@ -243,7 +233,7 @@ function BookingCard({
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                   />
                 </svg>
-                {vehicle.images.length} photos
+                {t('photosCount', { count: vehicle.images.length })}
               </div>
             )}
           </div>
@@ -265,7 +255,7 @@ function BookingCard({
                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                       </svg>
-                      Du {new Date(startDate).toLocaleDateString()} au {new Date(endDate).toLocaleDateString()}
+                      {t('dateRange', { start: new Date(startDate).toLocaleDateString(), end: new Date(endDate).toLocaleDateString() })}
                     </div>
 
                     {vehicle.companyContact && (
@@ -279,7 +269,7 @@ function BookingCard({
                               d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a2 2 0 012-2h2a2 2 0 012 2v5m-4 0h4"
                             />
                           </svg>
-                          <span className="font-medium">Contactez-nous :</span>
+                          <span className="font-medium">{t('contactUs')}</span>
                         </div>
                         <div className="flex items-center text-muted-foreground text-sm">
                           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -323,7 +313,7 @@ function BookingCard({
                         statusStyles[status as keyof typeof statusStyles]
                       }`}
                     >
-                      {statusTranslations[status as keyof typeof statusTranslations]}
+                      {tStatus(status)}
                     </span>
                   </div>
                 </div>
@@ -345,7 +335,7 @@ function BookingCard({
                           d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z"
                         />
                       </svg>
-                      {isLoading ? 'Initialisation...' : 'Payer maintenant'}
+                      {isLoading ? t('initializing') : t('payNow')}
                     </button>
                   </div>
                 )}
@@ -356,7 +346,7 @@ function BookingCard({
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      Réservation confirmée et payée
+                      {t('paymentConfirmed')}
                     </div>
                   </div>
                 )}
@@ -369,18 +359,18 @@ function BookingCard({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
                       <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-                        Code de remise des clés
+                        {t('checkInCodeTitle')}
                       </h3>
                     </div>
                     <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
-                      Donnez ce code au propriétaire lors de la remise des clés pour valider le début de la location.
+                      {t('checkInCodeDesc')}
                     </p>
                     <div className="mt-3 flex items-center gap-3">
                       <span className="text-2xl font-black tracking-widest text-blue-900 dark:text-blue-100 bg-white dark:bg-blue-900/50 px-4 py-2 rounded-lg shadow-sm border border-blue-200 dark:border-blue-700">
                         {booking.checkInCode}
                       </span>
                       <span className="text-xs text-blue-600 dark:text-blue-400 italic">
-                        Ne partagez ce code qu&apos;en mains propres
+                        {t('checkInCodeWarning')}
                       </span>
                     </div>
                   </div>
@@ -392,10 +382,10 @@ function BookingCard({
                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <MessageSquare className="w-4 h-4 mr-2" />
-                    Chat
+                    {t('chat')}
                   </button>
 
-                  {(status === 'PENDING' || status === 'CONTACT_INITIATED' || status === 'PENDING_CONFIRMATION') && (
+                  {status === 'PENDING' && (
                     <button
                       onClick={() => setShowDeleteModal(true)}
                       disabled={isDeleting}
@@ -409,7 +399,7 @@ function BookingCard({
                           d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                         />
                       </svg>
-                      {isDeleting ? 'Suppression...' : 'Supprimer'}
+                      {isDeleting ? t('deleting') : t('delete')}
                     </button>
                   )}
 
@@ -419,7 +409,7 @@ function BookingCard({
                       className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg w-full justify-center sm:w-auto"
                     >
                       <ClipboardCheck className="w-4 h-4 mr-2" />
-                      {status === 'CONFIRMED' ? 'Effectuer Check-in' : 'Effectuer Check-out'}
+                      {status === 'CONFIRMED' ? t('checkIn') : t('checkOut')}
                     </Link>
                   )}
 
@@ -429,8 +419,40 @@ function BookingCard({
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium w-full justify-center sm:w-auto"
                     >
                       <ClipboardCheck className="w-4 h-4 mr-2" />
-                      Voir Inspection
+                      {t('viewInspection')}
                     </Link>
+                  )}
+
+                  {status === 'COMPLETED' && (
+                    myReview ? (
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setShowReviewModal(true)}
+                          title={t('editReview')}
+                          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted hover:bg-muted/70 text-sm font-medium transition-colors"
+                        >
+                          <StarRating value={myReview.rating} size={14} />
+                          <span className="text-muted-foreground">{t('yourReview')}</span>
+                          <Pencil className="w-3 h-3 text-muted-foreground" />
+                        </button>
+                        <button
+                          onClick={handleDeleteReview}
+                          disabled={isDeletingReview}
+                          title={t('deleteReview')}
+                          className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg disabled:opacity-50 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowReviewModal(true)}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
+                      >
+                        <Star className="w-4 h-4 mr-2" />
+                        {t('leaveReview')}
+                      </button>
+                    )
                   )}
 
                   {canReportIncident && (
@@ -439,7 +461,7 @@ function BookingCard({
                       className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
                     >
                       <AlertTriangle className="w-4 h-4 mr-2" />
-                      Signaler Incident
+                      {t('reportIncident')}
                     </Link>
                   )}
 
@@ -448,7 +470,7 @@ function BookingCard({
                       href={`/bookings/${booking.id}/incident/view`}
                       className="text-xs text-muted-foreground hover:text-primary hover:underline pt-1"
                     >
-                      Voir rapports d&apos;incidents
+                      {t('viewIncidentReports')}
                     </Link>
                   )}
 
@@ -464,7 +486,7 @@ function BookingCard({
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-                    Support
+                    {t('support')}
                   </button>
                 </div>
 
@@ -493,10 +515,14 @@ function BookingCard({
         isLoading={isDeleting}
       />
 
-      <SuccessNotification
-        isVisible={showSuccessNotification}
-        message="Votre réservation est confirmée."
-        onClose={() => setShowSuccessNotification(false)}
+      <LeaveReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        onSubmit={handleSubmitReview}
+        vehicleName={`${vehicle.make} ${vehicle.model}`}
+        isLoading={isSubmittingReview}
+        initialRating={myReview?.rating ?? 0}
+        initialComment={myReview?.comment ?? ''}
       />
     </>
   );
@@ -508,19 +534,18 @@ function FilterTabs({
   onFilterChange,
   totalCounts,
 }: {
-  activeFilter: 'all' | 'pending' | 'contact_initiated' | 'pending_confirmation' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
-  onFilterChange: (filter: 'all' | 'pending' | 'contact_initiated' | 'pending_confirmation' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled') => void;
-  totalCounts: Record<'all' | 'pending' | 'contact_initiated' | 'pending_confirmation' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled', number>;
+  activeFilter: 'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
+  onFilterChange: (filter: 'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled') => void;
+  totalCounts: Record<'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled', number>;
 }) {
+  const t = useTranslations('bookings.myBookings.filterTabs');
   const tabs = [
-    { key: 'all' as const, label: 'Toutes', icon: '📋' },
-    { key: 'pending' as const, label: 'En attente', icon: '⏳' },
-    { key: 'contact_initiated' as const, label: 'Contact initié', icon: '📞' },
-    { key: 'pending_confirmation' as const, label: 'En attente de confirmation', icon: '⌛' },
-    { key: 'confirmed' as const, label: 'Confirmées', icon: '✅' },
-    { key: 'in_progress' as const, label: 'En cours', icon: '🚗' },
-    { key: 'completed' as const, label: 'Terminées', icon: '🏁' },
-    { key: 'cancelled' as const, label: 'Annulées', icon: '❌' },
+    { key: 'all' as const, label: t('all'), icon: '📋' },
+    { key: 'pending' as const, label: t('pending'), icon: '⏳' },
+    { key: 'confirmed' as const, label: t('confirmed'), icon: '✅' },
+    { key: 'in_progress' as const, label: t('in_progress'), icon: '🚗' },
+    { key: 'completed' as const, label: t('completed'), icon: '🏁' },
+    { key: 'cancelled' as const, label: t('cancelled'), icon: '❌' },
   ];
 
   return (
@@ -561,13 +586,14 @@ function FilterTabs({
 
 // Page principale
 function MyBookingsContent() {
+  const t = useTranslations('bookings.myBookings');
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [activeFilter, setActiveFilter] = useState<
-    'all' | 'pending' | 'contact_initiated' | 'pending_confirmation' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
+    'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
   >('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -605,13 +631,11 @@ function MyBookingsContent() {
 
   const calculateStatusCounts = (bookings: Booking[]) => {
     const counts: Record<
-      'all' | 'pending' | 'contact_initiated' | 'pending_confirmation' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled',
+      'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled',
       number
     > = {
       all: bookings.length,
       pending: 0,
-      contact_initiated: 0,
-      pending_confirmation: 0,
       confirmed: 0,
       in_progress: 0,
       completed: 0,
@@ -622,12 +646,6 @@ function MyBookingsContent() {
       switch (booking.status) {
         case 'PENDING':
           counts.pending++;
-          break;
-        case 'CONTACT_INITIATED':
-          counts.contact_initiated++;
-          break;
-        case 'PENDING_CONFIRMATION':
-          counts.pending_confirmation++;
           break;
         case 'CONFIRMED':
           counts.confirmed++;
@@ -655,7 +673,9 @@ function MyBookingsContent() {
       setBookings(data);
       applyFilter(data, activeFilter);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Impossible de récupérer vos réservations.');
+      const message = err instanceof Error ? err.message : t('loadError');
+      toast.error(message);
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -668,10 +688,6 @@ function MyBookingsContent() {
       filtered = bookingsData;
     } else if (filter === 'pending') {
       filtered = bookingsData.filter((booking) => booking.status === 'PENDING');
-    } else if (filter === 'contact_initiated') {
-      filtered = bookingsData.filter((booking) => booking.status === 'CONTACT_INITIATED');
-    } else if (filter === 'pending_confirmation') {
-      filtered = bookingsData.filter((booking) => booking.status === 'PENDING_CONFIRMATION');
     } else if (filter === 'confirmed') {
       filtered = bookingsData.filter((booking) => booking.status === 'CONFIRMED');
     } else if (filter === 'in_progress') {
@@ -718,7 +734,7 @@ function MyBookingsContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-muted-foreground font-medium">Chargement de vos réservations...</p>
+          <p className="text-muted-foreground font-medium">{t('loading')}</p>
         </div>
       </div>
     );
@@ -744,13 +760,13 @@ function MyBookingsContent() {
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-foreground mb-2">Erreur</h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">{t('errorTitle')}</h3>
             <p className="text-muted-foreground">{error}</p>
             <button
               onClick={fetchBookings}
               className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
             >
-              Réessayer
+              {t('retry')}
             </button>
           </div>
         </div>
@@ -766,10 +782,10 @@ function MyBookingsContent() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Mes Réservations</h1>
+              <h1 className="text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
               <p className="text-muted-foreground mt-1">
-                {filteredBookings.length} {filteredBookings.length === 1 ? 'réservation' : 'réservations'}{' '}
-                {activeFilter !== 'all' && ` • ${statusCounts.all} au total`}
+                {filteredBookings.length} {filteredBookings.length === 1 ? t('countSingular') : t('countPlural')}{' '}
+                {activeFilter !== 'all' && t('totalCount', { count: statusCounts.all })}
               </p>
             </div>
             <button
@@ -784,7 +800,7 @@ function MyBookingsContent() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Retour à l&apos;accueil
+              {t('backHome')}
             </button>
           </div>
         </div>
@@ -820,47 +836,19 @@ function MyBookingsContent() {
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 {activeFilter === 'all'
-                  ? 'Aucune réservation'
-                  : `Aucune réservation ${
-                      activeFilter === 'pending'
-                        ? 'en attente'
-                        : activeFilter === 'contact_initiated'
-                        ? 'avec contact initié'
-                        : activeFilter === 'pending_confirmation'
-                        ? 'en attente de confirmation'
-                        : activeFilter === 'confirmed'
-                        ? 'confirmée'
-                        : activeFilter === 'in_progress'
-                        ? 'en cours'
-                        : activeFilter === 'completed'
-                        ? 'terminée'
-                        : 'annulée'
-                    }`}
+                  ? t('emptyState.allTitle')
+                  : `${t('emptyState.filteredTitlePrefix')} ${t(`emptyState.filterLabels.${activeFilter}`)}`}
               </h3>
               <p className="text-muted-foreground mb-6">
                 {activeFilter === 'all'
-                  ? "Vous n'avez aucune réservation pour le moment."
-                  : `Vous n'avez aucune réservation dans la catégorie "${
-                      activeFilter === 'pending'
-                        ? 'En attente'
-                        : activeFilter === 'contact_initiated'
-                        ? 'Contact initié'
-                        : activeFilter === 'pending_confirmation'
-                        ? 'En attente de confirmation'
-                        : activeFilter === 'confirmed'
-                        ? 'Confirmées'
-                        : activeFilter === 'in_progress'
-                        ? 'En cours'
-                        : activeFilter === 'completed'
-                        ? 'Terminées'
-                        : 'Annulées'
-                    }"`}
+                  ? t('emptyState.allDesc')
+                  : `${t('emptyState.filteredDescPrefix')} "${t(`emptyState.filterLabelsCapitalized.${activeFilter}`)}"`}
               </p>
               <button
                 onClick={() => router.push('/')}
                 className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-3 px-6 rounded-lg hover:from-primary/90 hover:to-primary transition-all duration-200 font-medium shadow-md hover:shadow-lg"
               >
-                Explorer les véhicules
+                {t('exploreVehicles')}
               </button>
             </div>
           </div>
@@ -870,9 +858,14 @@ function MyBookingsContent() {
   );
 }
 
+function MyBookingsFallback() {
+  const t = useTranslations('common');
+  return <div>{t('loading')}</div>;
+}
+
 export default function MyBookingsPage() {
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense fallback={<MyBookingsFallback />}>
       <MyBookingsContent />
     </Suspense>
   );

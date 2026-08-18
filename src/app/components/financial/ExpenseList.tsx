@@ -2,21 +2,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Expense, ExpenseCategory } from '@/types/financial';
+import type { Expense } from '@/types/financial';
 import type { Page } from '@/types/page';
 import { apiClient } from '@/lib/apiClient';
-import { Loader2, Trash2, Edit2, ChevronLeft, ChevronRight, Filter, Calendar, Paperclip, CalendarPlus } from 'lucide-react';
+import { Loader2, Trash2, Edit2, ChevronLeft, ChevronRight, Filter, Paperclip, CalendarPlus } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import ExpenseForm from './ExpenseForm';
-
-const categoryLabels: Record<ExpenseCategory, string> = {
-  FUEL: 'Carburant',
-  MAINTENANCE: 'Entretien',
-  CLEANING: 'Nettoyage',
-  INSURANCE: 'Assurance',
-  TAXES: 'Taxes/Vignettes',
-  PARKING: 'Parking',
-  OTHER: 'Autre'
-};
 
 interface Vehicle {
   id: number;
@@ -30,6 +21,8 @@ interface ExpenseListProps {
 }
 
 const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
+  const t = useTranslations('financial');
+  const locale = useLocale();
   const [expensesPage, setExpensesPage] = useState<Page<Expense> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +63,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
       setExpensesPage(response);
     } catch (err: unknown) {
       console.error("Error fetching expenses:", err);
-      setError(err instanceof Error ? err.message : "Impossible de charger les dépenses.");
+      setError(err instanceof Error ? err.message : t('loadError'));
       setExpensesPage(null);
     } finally {
       setIsLoading(false);
@@ -88,13 +81,13 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
   };
 
   const handleDeleteExpense = async (expenseId: number) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette dépense ?")) return;
+    if (!confirm(t('confirmDeleteExpense'))) return;
 
     try {
       await apiClient.deleteExpense(expenseId);
       loadExpenses(expensesPage?.number ?? 0);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Erreur lors de la suppression.");
+      setError(err instanceof Error ? err.message : t('deleteError'));
     }
   };
 
@@ -106,38 +99,38 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
   return (
     <div className="bg-card p-6 rounded-lg shadow border border-border">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-        <h2 className="text-xl font-semibold text-foreground">Gestion des Dépenses</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t('expensesManagementTitle')}</h2>
         <button
           onClick={() => { setExpenseToEdit(null); setShowForm(true); }}
           className="flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm font-medium"
         >
           <CalendarPlus size={16} className="mr-2" />
-          Ajouter une Dépense
+          {t('addExpenseButton')}
         </button>
       </div>
 
       {/* Section Filtres */}
       <div className="mb-6 p-4 bg-muted rounded-md border border-border space-y-3">
         <h3 className="text-sm font-medium text-foreground flex items-center">
-          <Filter size={16} className="mr-1"/> Filtres
+          <Filter size={16} className="mr-1"/> {t('filtersTitle')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label htmlFor="filterVehicle" className="text-xs text-muted-foreground">Véhicule</label>
+            <label htmlFor="filterVehicle" className="text-xs text-muted-foreground">{t('filterVehicleLabel')}</label>
             <select
               id="filterVehicle"
               value={filterVehicleId ?? ''}
               onChange={(e) => setFilterVehicleId(e.target.value ? Number(e.target.value) : undefined)}
               className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary mt-1"
             >
-              <option value="">Tous</option>
+              <option value="">{t('filterAllVehicles')}</option>
               {userVehicles.map(v => (
                 <option key={v.id} value={v.id}>{v.make} {v.model}</option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="filterStart" className="text-xs text-muted-foreground">Date Début</label>
+            <label htmlFor="filterStart" className="text-xs text-muted-foreground">{t('filterStartDateLabel')}</label>
             <input
               id="filterStart"
               type="date"
@@ -148,7 +141,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
             />
           </div>
           <div>
-            <label htmlFor="filterEnd" className="text-xs text-muted-foreground">Date Fin</label>
+            <label htmlFor="filterEnd" className="text-xs text-muted-foreground">{t('filterEndDateLabel')}</label>
             <input
               id="filterEnd"
               type="date"
@@ -167,7 +160,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
         <div className="mb-6 p-4 border border-border rounded-lg bg-muted/50">
           <div className="flex justify-between items-center mb-3">
             <h3 className="text-lg font-medium text-foreground">
-              {expenseToEdit ? 'Modifier la Dépense' : 'Nouvelle Dépense'}
+              {expenseToEdit ? t('editExpenseTitle') : t('newExpenseTitle')}
             </h3>
             <button 
               onClick={() => { setShowForm(false); setExpenseToEdit(null); }} 
@@ -197,7 +190,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
 
       {!isLoading && expensesPage && expensesPage.empty && (
         <p className="text-center py-6 text-muted-foreground">
-          Aucune dépense trouvée {filterVehicleId || filterStartDate || filterEndDate ? 'pour ces filtres' : ''}.
+          {filterVehicleId || filterStartDate || filterEndDate ? t('expensesEmptyFiltered') : t('expensesEmpty')}
         </p>
       )}
 
@@ -209,14 +202,14 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                 <div className="mb-2 sm:mb-0">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-xs px-2 py-0.5 rounded font-medium bg-primary/10 text-primary">
-                      {categoryLabels[expense.category] || expense.category}
+                      {t(`categories.${expense.category}`)}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {expense.amount.toLocaleString('fr-FR')} FBu
+                      {expense.amount.toLocaleString(locale)} FBu
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(expense.expenseDate).toLocaleDateString('fr-FR')}
+                    {new Date(expense.expenseDate).toLocaleDateString(locale)}
                     {expense.vehicleInfo && ` - ${expense.vehicleInfo}`}
                   </p>
                   {expense.description && (
@@ -229,8 +222,8 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                       href={expense.receiptUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className="p-1 text-blue-500 hover:text-blue-700" 
-                      title="Voir reçu"
+                      className="p-1 text-blue-500 hover:text-blue-700"
+                      title={t('viewReceiptTitle')}
                     >
                       <Paperclip size={16}/>
                     </a>
@@ -238,14 +231,14 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                   <button
                     onClick={() => { setExpenseToEdit(expense); setShowForm(true); }}
                     className="p-1 text-yellow-600 hover:text-yellow-800"
-                    title="Modifier"
+                    title={t('editTitle')}
                   >
                     <Edit2 size={16}/>
                   </button>
                   <button
                     onClick={() => handleDeleteExpense(expense.id)}
                     className="p-1 text-red-600 hover:text-red-800"
-                    title="Supprimer"
+                    title={t('deleteTitle')}
                   >
                     <Trash2 size={16}/>
                   </button>
@@ -262,17 +255,17 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                 disabled={expensesPage.first || isLoading}
                 className="flex items-center px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Préc.
+                <ChevronLeft className="w-4 h-4 mr-1" /> {t('prevShort')}
               </button>
               <span className="text-xs text-muted-foreground">
-                Page {expensesPage.number + 1} / {expensesPage.totalPages}
+                {t('pageOfShort', { current: expensesPage.number + 1, total: expensesPage.totalPages })}
               </span>
               <button
                 onClick={() => loadExpenses(expensesPage.number + 1)}
                 disabled={expensesPage.last || isLoading}
                 className="flex items-center px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50"
               >
-                Suiv. <ChevronRight className="w-4 h-4 ml-1" />
+                {t('nextShort')} <ChevronRight className="w-4 h-4 ml-1" />
               </button>
             </div>
           )}

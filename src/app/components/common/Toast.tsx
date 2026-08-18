@@ -5,6 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { AlertCircle, CheckCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface ToastProps {
   type: 'success' | 'error' | 'warning' | 'info';
@@ -23,6 +24,7 @@ const Toast: React.FC<ToastProps> = ({
   onClose,
   position = 'bottom-right',
 }) => {
+  const t = useTranslations('common');
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
@@ -96,7 +98,7 @@ const Toast: React.FC<ToastProps> = ({
         <button
           onClick={handleClose}
           className="flex-shrink-0 text-white/70 hover:text-white transition-colors mt-0.5"
-          aria-label="Fermer la notification"
+          aria-label={t('closeNotification')}
           type="button"
         >
           <X className="w-4 h-4" />

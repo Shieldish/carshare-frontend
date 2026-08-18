@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Fuel, Gauge, Image as ImageIcon, FileText, Send, Loader2, AlertCircle, MapPin } from 'lucide-react';
 import ImageUploader from './ImageUploader';
 import Toast from '@/app/components/common/Toast';
@@ -18,6 +19,7 @@ interface CheckOutFormProps {
 const fuelLevels: FuelLevel[] = ["FULL", "3/4", "1/2", "1/4", "EMPTY"];
 
 const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSuccess, mileageStart }) => {
+  const t = useTranslations('inspection.checkOut');
   const [mileageEnd, setMileageEnd] = useState<number | null>(null);
   const [fuelLevelEnd, setFuelLevelEnd] = useState<FuelLevel>("");
   const [photoUrlsEnd, setPhotoUrlsEnd] = useState<string[]>([]);
@@ -80,20 +82,20 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
 
     // 1. Détecter précisément ce qui manque
     const missingFields = [];
-    if (mileageEnd === null) missingFields.push("Kilométrage");
-    if (fuelLevelEnd === "") missingFields.push("Niveau de carburant");
-    if (photoUrlsEnd.length === 0) missingFields.push("Photos du véhicule");
-    if (latitudeEnd === null || longitudeEnd === null) missingFields.push("Position GPS"); // ✅ NOUVEAU
+    if (mileageEnd === null) missingFields.push(t('fieldMileage'));
+    if (fuelLevelEnd === "") missingFields.push(t('fieldFuel'));
+    if (photoUrlsEnd.length === 0) missingFields.push(t('fieldPhotos'));
+    if (latitudeEnd === null || longitudeEnd === null) missingFields.push(t('fieldGps')); // ✅ NOUVEAU
 
     if (missingFields.length > 0) {
       // Le Toast va annoncer exactement les champs oubliés !
-      setError(`Action requise. Il manque : ${missingFields.join(", ")}`);
+      setError(`${t('missingFieldsPrefix')}${missingFields.join(", ")}`);
       return;
     }
 
     // 2. Vérification stricte du kilométrage
     if (mileageStart !== undefined && mileageEnd !== null && mileageEnd < mileageStart) {
-      setError(`Le kilométrage de retour (${mileageEnd} km) ne peut pas être inférieur à celui du départ (${mileageStart} km).`);
+      setError(t('mileageBelowStartError', { end: mileageEnd, start: mileageStart }));
       return;
     }
 
@@ -115,7 +117,7 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
       onCheckOutSuccess(result);
     } catch (err: unknown) {
       console.error("Check-out error:", err);
-      const message = err instanceof Error ? err.message : "Une erreur est survenue lors du check-out.";
+      const message = err instanceof Error ? err.message : t('genericError');
       setError(message);
     } finally {
       setIsLoading(false);
@@ -156,20 +158,20 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         <div>
           <label htmlFor="mileageEnd" className="block text-sm font-medium text-foreground mb-1">
             <Gauge className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Kilométrage au retour *
+            {t('mileageLabel')}
           </label>
           <input
             id="mileageEnd"
             type="number"
             value={mileageEnd ?? ''}
             onChange={(e) => setMileageEnd(e.target.value === '' ? null : parseInt(e.target.value, 10))}
-            placeholder={`Doit être >= ${mileageStart ?? 0}`}
+            placeholder={t('mileagePlaceholderPrefix', { min: mileageStart ?? 0 })}
             min={mileageStart ?? 0}
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
           {mileageStart !== undefined && mileageEnd !== null && mileageEnd < mileageStart && (
-            <p className="text-xs text-red-500 mt-1">Le kilométrage de retour ne peut être inférieur à {mileageStart} km.</p>
+            <p className="text-xs text-red-500 mt-1">{t('mileageBelowStart', { min: mileageStart })}</p>
           )}
         </div>
 
@@ -177,7 +179,7 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         <div>
           <label htmlFor="fuelLevelEnd" className="block text-sm font-medium text-foreground mb-1">
             <Fuel className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Niveau de carburant au retour *
+            {t('fuelLabel')}
           </label>
           <select
             id="fuelLevelEnd"
@@ -186,7 +188,7 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
             required
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
           >
-            <option value="" disabled>-- Sélectionnez --</option>
+            <option value="" disabled>{t('fuelPlaceholder')}</option>
             {fuelLevels.map(level => (
               <option key={level} value={level}>{level}</option>
             ))}
@@ -197,14 +199,14 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             <ImageIcon className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Photos du véhicule au retour *
+            {t('photosLabel')}
           </label>
           <ImageUploader
             maxImages={6}
             onImageUrlsChange={setPhotoUrlsEnd}
           />
           {photoUrlsEnd.length === 0 && (
-            <p className="text-xs text-muted-foreground mt-1">Veuillez ajouter les photos montrant l&apos;état actuel.</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('photosHint')}</p>
           )}
         </div>
 
@@ -212,14 +214,14 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         <div>
           <label htmlFor="notesEnd" className="block text-sm font-medium text-foreground mb-1">
             <FileText className="inline-block w-4 h-4 mr-1 mb-0.5" />
-            Notes sur d&apos;éventuels dommages (optionnel)
+            {t('notesLabel')}
           </label>
           <textarea
             id="notesEnd"
             rows={3}
             value={notesEnd}
             onChange={(e) => setNotesEnd(e.target.value)}
-            placeholder="Ex: Nouvelle rayure sur pare-choc arrière, dégât intérieur..."
+            placeholder={t('notesPlaceholder')}
             className="w-full px-4 py-2 border border-border bg-background rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
           />
         </div>
@@ -234,13 +236,13 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         }`}>
           <MapPin className={`w-5 h-5 mr-3 mt-0.5 flex-shrink-0 ${locationStatus === 'loading' && 'animate-pulse'}`} />
           <div>
-            <h4 className="text-sm font-medium">Localisation du véhicule</h4>
+            <h4 className="text-sm font-medium">{t('locationTitle')}</h4>
             <p className="text-xs mt-1">
-              {locationStatus === 'success' 
-                ? '✅ Position exacte enregistrée avec succès. Cela prouve que vous avez restitué le véhicule au bon endroit.' 
-                : locationStatus === 'loading' 
-                ? '⏳ Recherche de votre position en cours...' 
-                : '❌ Impossible d\'obtenir votre position. Veuillez autoriser le GPS dans votre navigateur pour valider le retour.'}
+              {locationStatus === 'success'
+                ? `✅ ${t('locationSuccess')}`
+                : locationStatus === 'loading'
+                ? `⏳ ${t('locationLoading')}`
+                : `❌ ${t('locationError')}`}
             </p>
           </div>
         </div>
@@ -254,17 +256,17 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Validation en cours...
+              {t('submitting')}
             </>
           ) : locationStatus !== 'success' ? (
             <>
               <MapPin className="w-5 h-5 mr-2" />
-              En attente de localisation...
+              {t('waitingLocation')}
             </>
           ) : (
             <>
               <Send className="w-5 h-5 mr-2" />
-              Valider le Check-out
+              {t('submitButton')}
             </>
           )}
         </button>
@@ -274,7 +276,7 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
       {error && (
         <Toast
           type="error"
-          title="Erreur de validation"
+          title={t('validationErrorTitle')}
           message={error}
           duration={5000}
           onClose={() => setError(null)}

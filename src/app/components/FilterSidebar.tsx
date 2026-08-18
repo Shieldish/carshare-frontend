@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X } from 'lucide-react';
 import { Vehicle } from '../types/vehicle';
 import { apiClient } from '@/lib/apiClient';
@@ -43,7 +44,6 @@ interface FilterContentProps {
   loadingCommunes: boolean;
   loadingCompanies: boolean;
   hasActiveFilters: boolean;
-  currentLanguage: string;
   today: string;
   onInputChange: (field: keyof FilterData, value: string | boolean) => void;
   onProvinceChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -51,23 +51,10 @@ interface FilterContentProps {
   onSupportsDriverChange: (checked: boolean) => void;
 }
 
-const VEHICLE_TYPES = [
-  { value: 'sedan', label: 'Berline (Voiture classique)' },
-  { value: 'suv', label: 'SUV / 4x4' },
-  { value: 'suv_coupe', label: 'SUV Coupé' },
-  { value: 'hatchback', label: 'Citadine (Petite)' },
-  { value: 'minibus', label: 'Minibus (Hiace, Coaster...)' },
-  { value: 'pickup', label: 'Pick-up' },
-  { value: 'van', label: 'Fourgonnette' },
-  { value: 'minivan', label: 'Monospace' },
-  { value: 'truck', label: 'Camion' },
-  { value: 'motorcycle', label: 'Moto' },
-  { value: 'tricycle', label: 'Tricycle (Bajaj / Tuk-Tuk)' },
-  { value: 'coupe', label: 'Coupé (2 portes)' },
-  { value: 'convertible', label: 'Cabriolet' },
-  { value: 'wagon', label: 'Break' },
-  { value: 'other', label: 'Autre' }
-];
+const VEHICLE_TYPE_VALUES = [
+  'sedan', 'suv', 'suv_coupe', 'hatchback', 'minibus', 'pickup', 'van',
+  'minivan', 'truck', 'motorcycle', 'tricycle', 'coupe', 'convertible', 'wagon', 'other',
+] as const;
 
 const FilterContent: React.FC<FilterContentProps> = ({
   filters,
@@ -85,89 +72,222 @@ const FilterContent: React.FC<FilterContentProps> = ({
   onProvinceChange,
   onResetFilters,
   onSupportsDriverChange,
-}) => (
-  <div className="space-y-6 p-6">
-    {/* Header avec compteur de filtres */}
-    <div className="flex items-center justify-between">
-      <h3 className="text-lg font-semibold text-foreground">
-        Filtres de recherche
-      </h3>
-      {hasActiveFilters && (
-        <button
-          onClick={onResetFilters}
-          className="text-sm text-primary hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Réinitialiser
-        </button>
-      )}
-    </div>
+}) => {
+  const t = useTranslations('filters');
 
-    {/* Section Dates */}
-    <div className="space-y-4">
-      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-        Dates de location
-      </h4>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Date de prise en charge
-          </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input
-              type="date"
-              value={filters.pickupDate}
-              onChange={(e) => onInputChange('pickupDate', e.target.value)}
-              min={today || undefined}
-              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
-            />
+  return (
+    <div className="space-y-6 p-6">
+      {/* Header avec compteur de filtres */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-foreground">
+          {t('title')}
+        </h3>
+        {hasActiveFilters && (
+          <button
+            onClick={onResetFilters}
+            className="text-sm text-primary hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            {t('reset')}
+          </button>
+        )}
+      </div>
+
+      {/* Section Dates */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('datesTitle')}
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('pickupDate')}
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="date"
+                value={filters.pickupDate}
+                onChange={(e) => onInputChange('pickupDate', e.target.value)}
+                min={today || undefined}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+              />
+            </div>
           </div>
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Date de retour
-          </label>
-          <div className="relative">
-            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <input
-              type="date"
-              value={filters.dropoffDate}
-              onChange={(e) => onInputChange('dropoffDate', e.target.value)}
-              min={filters.pickupDate || today || undefined}
-              className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
-            />
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('dropoffDate')}
+            </label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="date"
+                value={filters.dropoffDate}
+                onChange={(e) => onInputChange('dropoffDate', e.target.value)}
+                min={filters.pickupDate || today || undefined}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    {/* Section Localisation */}
-    <div className="space-y-4">
-      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-        Localisation
-      </h4>
-      <div className="space-y-3">
+      {/* Section Localisation */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('locationTitle')}
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('province')}
+            </label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={selectedProvince}
+                onChange={onProvinceChange}
+                disabled={loadingProvinces}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+              >
+                <option value="">{t('allProvinces')}</option>
+                {loadingProvinces ? (
+                  <option value="" disabled>{t('loading')}</option>
+                ) : (
+                  provinces.map((province) => (
+                    <option key={province.id} value={province.id.toString()}>
+                      {province.name}
+                    </option>
+                  ))
+                )}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('commune')}
+            </label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.communeId}
+                onChange={(e) => onInputChange('communeId', e.target.value)}
+                disabled={!selectedProvince || communes.length === 0 || loadingCommunes}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+              >
+                <option value="">
+                  {loadingCommunes ? t('loading') : t('allCommunes')}
+                </option>
+                {communes.map((commune) => (
+                  <option key={commune.id} value={commune.id.toString()}>
+                    {commune.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Véhicule */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('vehicleTitle')}
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('vehicleType')}
+            </label>
+            <div className="relative">
+              <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.carType}
+                onChange={(e) => onInputChange('carType', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allTypes')}</option>
+                {VEHICLE_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`vehicleTypes.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('vehicleMake')}
+            </label>
+            <div className="relative">
+              <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.make}
+                onChange={(e) => onInputChange('make', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allMakes')}</option>
+                {makes.map((make) => (
+                  <option key={make} value={make}>
+                    {make}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Options */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('optionsTitle')}
+        </h4>
         <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Province
+          <label className="flex items-center space-x-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={filters.supportsDriver}
+              onChange={(e) => onSupportsDriverChange(e.target.checked)}
+              className="form-checkbox h-5 w-5 text-primary border-border rounded focus:ring-primary transition duration-150 ease-in-out"
+            />
+            <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+              {t('withDriver')}
+            </span>
           </label>
+        </div>
+      </div>
+
+      {/* Section Entreprise */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('companyTitle')}
+        </h4>
+        <div>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <select
-              value={selectedProvince}
-              onChange={onProvinceChange}
-              disabled={loadingProvinces}
+              value={filters.companyName}
+              onChange={(e) => onInputChange('companyName', e.target.value)}
+              disabled={loadingCompanies}
               className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
             >
-              <option value="">Toutes les provinces</option>
-              {loadingProvinces ? (
-                <option value="" disabled>Chargement...</option>
+              <option value="">{t('allCompanies')}</option>
+              {loadingCompanies ? (
+                <option value="" disabled>{t('loading')}</option>
+              ) : companies.length === 0 ? (
+                <option value="" disabled>{t('noCompaniesAvailable')}</option>
               ) : (
-                provinces.map((province) => (
-                  <option key={province.id} value={province.id.toString()}>
-                    {province.name}
+                companies.map((company) => (
+                  <option key={company.id} value={company.name}>
+                    {company.name}
                   </option>
                 ))
               )}
@@ -175,155 +295,25 @@ const FilterContent: React.FC<FilterContentProps> = ({
             <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
           </div>
         </div>
-
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Commune / Ville
-          </label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <select
-              value={filters.communeId}
-              onChange={(e) => onInputChange('communeId', e.target.value)}
-              disabled={!selectedProvince || communes.length === 0 || loadingCommunes}
-              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
-            >
-              <option value="">
-                {loadingCommunes ? 'Chargement...' : 'Toutes les communes'}
-              </option>
-              {communes.map((commune) => (
-                <option key={commune.id} value={commune.id.toString()}>
-                  {commune.name}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
-          </div>
-        </div>
       </div>
     </div>
-
-    {/* Section Véhicule */}
-    <div className="space-y-4">
-      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-        Véhicule
-      </h4>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Type de véhicule
-          </label>
-          <div className="relative">
-            <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <select
-              value={filters.carType}
-              onChange={(e) => onInputChange('carType', e.target.value)}
-              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
-            >
-              <option value="">Tous types</option>
-              {VEHICLE_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-2">
-            Marque du véhicule
-          </label>
-          <div className="relative">
-            <Car className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <select
-              value={filters.make}
-              onChange={(e) => onInputChange('make', e.target.value)}
-              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
-            >
-              <option value="">Toutes marques</option>
-              {makes.map((make) => (
-                <option key={make} value={make}>
-                  {make}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Section Options */}
-    <div className="space-y-4">
-      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-        Options
-      </h4>
-      <div>
-        <label className="flex items-center space-x-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={filters.supportsDriver}
-            onChange={(e) => onSupportsDriverChange(e.target.checked)}
-            className="form-checkbox h-5 w-5 text-primary border-border rounded focus:ring-primary transition duration-150 ease-in-out"
-          />
-          <span className="text-sm text-foreground group-hover:text-primary transition-colors">
-            Avec chauffeur inclus
-          </span>
-        </label>
-      </div>
-    </div>
-
-    {/* Section Entreprise */}
-    <div className="space-y-4">
-      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
-        Entreprise
-      </h4>
-      <div>
-        <div className="relative">
-          <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-          <select
-            value={filters.companyName}
-            onChange={(e) => onInputChange('companyName', e.target.value)}
-            disabled={loadingCompanies}
-            className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
-          >
-            <option value="">Toutes les entreprises</option>
-            {loadingCompanies ? (
-              <option value="" disabled>Chargement...</option>
-            ) : companies.length === 0 ? (
-              <option value="" disabled>Aucune entreprise disponible</option>
-            ) : (
-              companies.map((company) => (
-                <option key={company.id} value={company.name}>
-                  {company.name}
-                </option>
-              ))
-            )}
-          </select>
-          <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
-        </div>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 interface FilterSidebarProps {
   onFilterChange?: (filters: FilterData) => void;
   vehicles: Vehicle[];
   isOpen: boolean;
   onClose: () => void;
-  currentLanguage?: string;
 }
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ 
-  onFilterChange, 
-  vehicles, 
-  isOpen, 
+const FilterSidebar: React.FC<FilterSidebarProps> = ({
+  onFilterChange,
+  vehicles,
+  isOpen,
   onClose,
-  currentLanguage = 'fr',
 }) => {
+  const t = useTranslations('filters');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   
@@ -524,7 +514,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     loadingCommunes,
     loadingCompanies,
     hasActiveFilters,
-    currentLanguage,
     today,
     onInputChange: handleInputChange,
     onProvinceChange: handleProvinceChange,
@@ -551,7 +540,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-card shadow-2xl">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-lg font-semibold text-foreground">
-                Filtres de recherche
+                {t('title')}
               </h3>
               <button
                 onClick={onClose}

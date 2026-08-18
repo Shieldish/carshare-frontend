@@ -2,10 +2,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
-import { 
+import {
   AlertTriangle, 
   Loader2, 
   Calendar, 
@@ -46,16 +47,9 @@ const STATUS_COLORS = {
   CLOSED_UNRESOLVED: 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300',
 };
 
-const STATUS_LABELS = {
-  REPORTED: 'Signalé',
-  INVESTIGATING: 'En cours d\'examen',
-  AWAITING_INFO: 'En attente d\'informations',
-  RESOLUTION_PROPOSED: 'Résolution proposée',
-  RESOLVED: 'Résolu',
-  CLOSED_UNRESOLVED: 'Fermé non résolu',
-};
-
 export default function AdminIncidentsPage() {
+  const t = useTranslations('admin.incidents');
+  const tStatus = useTranslations('admin.incidents.statusLabels');
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
@@ -96,7 +90,7 @@ export default function AdminIncidentsPage() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Impossible de charger les incidents');
+        setError(t('loadError'));
       }
     } finally {
       setIsLoading(false);
@@ -130,24 +124,39 @@ export default function AdminIncidentsPage() {
     setFilteredIncidents(result);
   }, [filterStatus, searchTerm, incidents]);
 
+  // ✅ Patch local ciblé : ne remplace que status/resolutionNotes/resolvedAt (les seuls
+  // champs que ces deux actions changent) sans re-fetcher tout le tableau des incidents.
+  // Le backend calcule resolutionNotes en concaténant l'historique (voir
+  // IncidentService.updateIncidentStatus) — on utilise donc la réponse de l'API, pas une
+  // reconstruction côté client qui perdrait cet historique.
+  const patchIncident = (id: number, changes: Partial<Pick<IncidentReport, 'status' | 'resolutionNotes' | 'resolvedAt'>>) => {
+    const apply = (incident: IncidentReport) => (incident.id === id ? { ...incident, ...changes } : incident);
+    setIncidents(prev => prev.map(apply));
+    setFilteredIncidents(prev => prev.map(apply));
+  };
+
   // Fonction classique de mise à jour du statut
   const handleUpdateStatus = async () => {
     if (!selectedIncident) return;
-    
+
     setIsUpdating(true);
     try {
-      await apiClient.put(`/api/admin/incidents/${selectedIncident.id}/status`, {
+      const updated = await apiClient.put(`/api/admin/incidents/${selectedIncident.id}/status`, {
         newStatus,
         notes: adminNotes.trim() || undefined,
       });
-      
-      await fetchIncidents();
+
+      patchIncident(selectedIncident.id, {
+        status: updated.status,
+        resolutionNotes: updated.resolutionNotes,
+        resolvedAt: updated.resolvedAt,
+      });
       closeModal();
     } catch (err: unknown) {
       if (err instanceof Error) {
         alert(err.message);
       } else {
-        alert('Erreur lors de la mise à jour');
+        alert(t('modal.updateStatusError'));
       }
     } finally {
       setIsUpdating(false);
@@ -158,28 +167,32 @@ export default function AdminIncidentsPage() {
   const handleFinancialResolution = async () => {
     if (!selectedIncident) return;
     if (penaltyAmount === '' || penaltyAmount < 0) {
-      alert('Veuillez entrer un montant de pénalité valide.');
+      alert(t('modal.invalidPenaltyAlert'));
       return;
     }
 
-    if (!confirm(`Confirmez-vous le prélèvement de ${penaltyAmount} FBU sur la caution du locataire pour dédommager le propriétaire ? Cette action est irréversible.`)) {
+    if (!confirm(`${t('modal.confirmPenaltyPrefix')} ${penaltyAmount} ${t('modal.confirmPenaltySuffix')}`)) {
       return;
     }
 
     setIsUpdating(true);
     try {
-      await apiClient.post(`/api/admin/incidents/${selectedIncident.id}/resolve-finance`, {
+      const updated = await apiClient.post(`/api/admin/incidents/${selectedIncident.id}/resolve-finance`, {
         penaltyAmount: Number(penaltyAmount),
-        notes: adminNotes.trim() || 'Résolution financière appliquée suite à arbitrage.',
+        notes: adminNotes.trim() || t('modal.defaultFinancialNotes'),
       });
-      
-      await fetchIncidents();
+
+      patchIncident(selectedIncident.id, {
+        status: updated.status,
+        resolutionNotes: updated.resolutionNotes,
+        resolvedAt: updated.resolvedAt,
+      });
       closeModal();
     } catch (err: unknown) {
       if (err instanceof Error) {
         alert(err.message);
       } else {
-        alert('Erreur lors de la résolution financière');
+        alert(t('modal.financialResolutionError'));
       }
     } finally {
       setIsUpdating(false);
@@ -225,10 +238,10 @@ export default function AdminIncidentsPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Gestion des Incidents & Arbitrage
+          {t('pageTitle')}
         </h1>
         <p className="text-muted-foreground">
-          Gérez les litiges et décidez des prélèvements sur la caution
+          {t('subtitle')}
         </p>
       </div>
 
@@ -243,19 +256,19 @@ export default function AdminIncidentsPage() {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
-          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">Total</div>
+          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t('stats.total')}</div>
           <div className="text-2xl font-bold text-blue-900 dark:text-blue-100 mt-1">{stats.total}</div>
         </div>
         <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
-          <div className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">Signalés</div>
+          <div className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">{t('stats.reported')}</div>
           <div className="text-2xl font-bold text-yellow-900 dark:text-yellow-100 mt-1">{stats.reported}</div>
         </div>
         <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
-          <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">En examen</div>
+          <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">{t('stats.investigating')}</div>
           <div className="text-2xl font-bold text-purple-900 dark:text-purple-100 mt-1">{stats.investigating}</div>
         </div>
         <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-800">
-          <div className="text-sm text-green-600 dark:text-green-400 font-medium">Résolus</div>
+          <div className="text-sm text-green-600 dark:text-green-400 font-medium">{t('stats.resolved')}</div>
           <div className="text-2xl font-bold text-green-900 dark:text-green-100 mt-1">{stats.resolved}</div>
         </div>
       </div>
@@ -267,7 +280,7 @@ export default function AdminIncidentsPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Rechercher..."
+              placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border rounded-lg bg-background"
@@ -278,13 +291,13 @@ export default function AdminIncidentsPage() {
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-4 py-2 border rounded-lg bg-background"
           >
-            <option value="ALL">Tous les statuts</option>
-            <option value="REPORTED">Signalés</option>
-            <option value="INVESTIGATING">En cours d&apos;examen</option>
-            <option value="AWAITING_INFO">En attente d&apos;informations</option>
-            <option value="RESOLUTION_PROPOSED">Résolution proposée</option>
-            <option value="RESOLVED">Résolus</option>
-            <option value="CLOSED_UNRESOLVED">Fermés non résolus</option>
+            <option value="ALL">{t('statusFilter.all')}</option>
+            <option value="REPORTED">{t('statusFilter.reported')}</option>
+            <option value="INVESTIGATING">{t('statusFilter.investigating')}</option>
+            <option value="AWAITING_INFO">{t('statusFilter.awaitingInfo')}</option>
+            <option value="RESOLUTION_PROPOSED">{t('statusFilter.resolutionProposed')}</option>
+            <option value="RESOLVED">{t('statusFilter.resolved')}</option>
+            <option value="CLOSED_UNRESOLVED">{t('statusFilter.closedUnresolved')}</option>
           </select>
         </div>
       </div>
@@ -304,7 +317,7 @@ export default function AdminIncidentsPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Incident #{incident.id} (Réservation #{incident.bookingId})
+                      {t('incidentLabel', { id: incident.id, bookingId: incident.bookingId })}
                     </h3>
                     <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
                       <span className="flex items-center">
@@ -319,7 +332,7 @@ export default function AdminIncidentsPage() {
                   </div>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[incident.status]}`}>
-                  {STATUS_LABELS[incident.status]}
+                  {tStatus(incident.status)}
                 </span>
               </div>
 
@@ -327,7 +340,7 @@ export default function AdminIncidentsPage() {
                 <div className="flex items-start space-x-2 text-sm">
                   <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
                   <div>
-                    <span className="text-muted-foreground">Date de l&apos;incident : </span>
+                    <span className="text-muted-foreground">{t('incidentDateLabel')}</span>
                     <span className="font-medium">
                       {new Date(incident.incidentTimestamp).toLocaleDateString('fr-FR')}
                     </span>
@@ -368,7 +381,7 @@ export default function AdminIncidentsPage() {
                   className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   <Eye className="w-4 h-4" />
-                  <span>Juger / Gérer</span>
+                  <span>{t('judgeManage')}</span>
                 </button>
               </div>
             </div>
@@ -376,7 +389,7 @@ export default function AdminIncidentsPage() {
         ) : (
           <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
             <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-            <p className="text-muted-foreground">Aucun incident trouvé</p>
+            <p className="text-muted-foreground">{t('noIncidents')}</p>
           </div>
         )}
       </div>
@@ -386,9 +399,9 @@ export default function AdminIncidentsPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-2xl font-bold">Détails de l&apos;incident #{selectedIncident.id}</h2>
+              <h2 className="text-2xl font-bold">{t('modal.detailsTitle', { id: selectedIncident.id })}</h2>
               <span className={`px-3 py-1 rounded-full text-xs font-medium border ${STATUS_COLORS[selectedIncident.status]}`}>
-                  {STATUS_LABELS[selectedIncident.status]}
+                  {tStatus(selectedIncident.status)}
               </span>
             </div>
 
@@ -396,18 +409,18 @@ export default function AdminIncidentsPage() {
               {/* Onglets de mode d'action */}
               {selectedIncident.status !== 'RESOLVED' && (
                 <div className="flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                  <button 
+                  <button
                     className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors ${!isFinancialMode ? 'bg-white dark:bg-gray-800 shadow text-gray-900 dark:text-white' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                     onClick={() => setIsFinancialMode(false)}
                   >
-                    Suivi Simple
+                    {t('modal.simpleTrackingTab')}
                   </button>
-                  <button 
+                  <button
                     className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center space-x-2 ${isFinancialMode ? 'bg-red-500 text-white shadow' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
                     onClick={() => setIsFinancialMode(true)}
                   >
                     <Banknote className="w-4 h-4" />
-                    <span>Arbitrage Financier</span>
+                    <span>{t('modal.financialArbitrationTab')}</span>
                   </button>
                 </div>
               )}
@@ -415,18 +428,18 @@ export default function AdminIncidentsPage() {
               {/* Contenu Informational */}
               <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Véhicule</label>
+                  <label className="text-sm font-medium text-muted-foreground">{t('modal.vehicleLabel')}</label>
                   <p className="mt-1 font-semibold">{selectedIncident.vehicleMake} {selectedIncident.vehicleModel}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Signalé par</label>
+                  <label className="text-sm font-medium text-muted-foreground">{t('modal.reportedByLabel')}</label>
                   <p className="mt-1 font-semibold">{selectedIncident.reporterName}</p>
                   <p className="text-sm text-muted-foreground">{selectedIncident.reporterEmail}</p>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground block mb-2">Description des faits</label>
+                <label className="text-sm font-medium text-muted-foreground block mb-2">{t('modal.descriptionLabel')}</label>
                 <p className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm whitespace-pre-wrap">
                   {selectedIncident.description}
                 </p>
@@ -434,7 +447,7 @@ export default function AdminIncidentsPage() {
 
               {selectedIncident.photoUrls.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground mb-2 block">Preuves photographiques</label>
+                  <label className="text-sm font-medium text-muted-foreground mb-2 block">{t('modal.photosLabel')}</label>
                   <div className="grid grid-cols-3 gap-2">
                     {selectedIncident.photoUrls.map((url, idx) => (
                       <a key={idx} href={url} target="_blank" rel="noopener noreferrer" className="relative aspect-square rounded-lg overflow-hidden border hover:opacity-80 transition-opacity">
@@ -453,21 +466,21 @@ export default function AdminIncidentsPage() {
                   <div className="bg-red-50 dark:bg-red-900/10 p-4 rounded-lg border border-red-200 dark:border-red-800 mb-4">
                     <h4 className="text-red-800 dark:text-red-400 font-bold flex items-center mb-2">
                       <AlertTriangle className="w-5 h-5 mr-2" />
-                      Prélèvement sur la Caution (Max 150 000 FBU)
+                      {t('modal.deductionTitle')}
                     </h4>
                     <p className="text-sm text-red-600 dark:text-red-300 mb-4">
-                      Cette action va clore l&apos;incident, libérer l&apos;argent de la location au propriétaire, et lui ajouter ce montant prélevé sur la caution du locataire.
+                      {t('modal.deductionDesc')}
                     </p>
-                    
+
                     <div className="mb-4">
-                      <label className="text-sm font-bold text-gray-900 dark:text-white block mb-2">Montant à prélever (FBU)</label>
+                      <label className="text-sm font-bold text-gray-900 dark:text-white block mb-2">{t('modal.amountLabel')}</label>
                       <input
                         type="number"
                         min="0"
                         max="150000"
                         value={penaltyAmount}
                         onChange={(e) => setPenaltyAmount(Number(e.target.value))}
-                        placeholder="Ex: 50000"
+                        placeholder={t('modal.amountPlaceholder')}
                         className="w-full px-4 py-2 border border-red-300 rounded-lg bg-white dark:bg-gray-800 focus:ring-red-500"
                       />
                     </div>
@@ -475,35 +488,35 @@ export default function AdminIncidentsPage() {
                 ) : (
                   /* MODE CLASSIQUE */
                   <div className="mb-4">
-                    <label className="text-sm font-medium text-muted-foreground block mb-2">Changer le statut (Sans mouvement d&apos;argent)</label>
+                    <label className="text-sm font-medium text-muted-foreground block mb-2">{t('modal.changeStatusLabel')}</label>
                     <select
                       value={newStatus}
                       onChange={(e) => setNewStatus(e.target.value as IncidentReport['status'])}
                       className="w-full px-4 py-2 border rounded-lg bg-background"
                       disabled={selectedIncident.status === 'RESOLVED'}
                     >
-                      <option value="REPORTED">Signalé</option>
-                      <option value="INVESTIGATING">En cours d&apos;examen</option>
-                      <option value="AWAITING_INFO">En attente d&apos;informations</option>
-                      <option value="RESOLUTION_PROPOSED">Résolution proposée</option>
-                      <option value="CLOSED_UNRESOLVED">Fermé non résolu</option>
+                      <option value="REPORTED">{tStatus('REPORTED')}</option>
+                      <option value="INVESTIGATING">{tStatus('INVESTIGATING')}</option>
+                      <option value="AWAITING_INFO">{tStatus('AWAITING_INFO')}</option>
+                      <option value="RESOLUTION_PROPOSED">{tStatus('RESOLUTION_PROPOSED')}</option>
+                      <option value="CLOSED_UNRESOLVED">{tStatus('CLOSED_UNRESOLVED')}</option>
                     </select>
                   </div>
                 )}
 
-                <label className="text-sm font-medium text-muted-foreground block mb-2">Notes & Décision de l&apos;Admin</label>
+                <label className="text-sm font-medium text-muted-foreground block mb-2">{t('modal.notesLabel')}</label>
                 <textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
-                  placeholder="Expliquez la décision prise pour que le propriétaire et le locataire comprennent..."
+                  placeholder={t('modal.notesPlaceholder')}
                   rows={4}
                   className="w-full px-4 py-2 border rounded-lg bg-background resize-none"
                   disabled={selectedIncident.status === 'RESOLVED'}
                 />
-                
+
                 {selectedIncident.resolutionNotes && (
                   <div className="mt-4">
-                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">Historique des décisions</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">{t('modal.historyLabel')}</label>
                     <div className="mt-1 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg border text-sm whitespace-pre-wrap text-gray-600 dark:text-gray-400">
                       {selectedIncident.resolutionNotes}
                     </div>
@@ -518,9 +531,9 @@ export default function AdminIncidentsPage() {
                 disabled={isUpdating}
                 className="px-4 py-2 border rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-medium"
               >
-                Annuler
+                {t('modal.cancel')}
               </button>
-              
+
               {selectedIncident.status !== 'RESOLVED' && (
                 <button
                   onClick={isFinancialMode ? handleFinancialResolution : handleUpdateStatus}
@@ -528,7 +541,7 @@ export default function AdminIncidentsPage() {
                   className={`flex items-center space-x-2 px-6 py-2 text-white rounded-lg transition-colors font-medium shadow-sm disabled:opacity-50 ${isFinancialMode ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary/90'}`}
                 >
                   {isUpdating && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>{isFinancialMode ? 'Appliquer le prélèvement' : 'Mettre à jour le statut'}</span>
+                  <span>{isFinancialMode ? t('modal.applyDeduction') : t('modal.updateStatus')}</span>
                 </button>
               )}
             </div>

@@ -1,5 +1,6 @@
 // ConfirmDeleteVehicleModal.tsx
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 interface ConfirmDeleteVehicleModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ const ConfirmDeleteVehicleModal: React.FC<ConfirmDeleteVehicleModalProps> = ({
   vehicleName,
   isLoading = false
 }) => {
+  const t = useTranslations('vehicles.deleteModal');
+
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !isLoading) {
@@ -66,14 +69,13 @@ const ConfirmDeleteVehicleModal: React.FC<ConfirmDeleteVehicleModalProps> = ({
 
         <div className="text-center mb-6">
           <h2 className="text-xl font-bold text-gray-800 mb-2">
-            Supprimer le véhicule
+            {t('title')}
           </h2>
           <p className="text-gray-600">
-            Êtes-vous sûr de vouloir supprimer{' '}
-            <span className="font-semibold text-gray-800">{vehicleName}</span> ?
+            {t('confirmText', { name: vehicleName })}
           </p>
           <p className="text-sm text-red-600 mt-2">
-            Cette action est irréversible et supprimera également toutes les réservations associées.
+            {t('warningText')}
           </p>
         </div>
 
@@ -84,7 +86,7 @@ const ConfirmDeleteVehicleModal: React.FC<ConfirmDeleteVehicleModalProps> = ({
             disabled={isLoading}
             className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
           >
-            Annuler
+            {t('cancel')}
           </button>
           <button
             onClick={onConfirm}
@@ -94,24 +96,24 @@ const ConfirmDeleteVehicleModal: React.FC<ConfirmDeleteVehicleModalProps> = ({
             {isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Suppression...
+                {t('deleting')}
               </>
             ) : (
               <>
-                <svg 
-                  className="w-4 h-4 mr-2" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
-                Supprimer
+                {t('confirm')}
               </>
             )}
           </button>

@@ -4,31 +4,33 @@
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft, LayoutDashboard, TrendingUp, Receipt } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface FinancialLayoutProps {
   children: React.ReactNode;
 }
 
 const FinancialLayout: React.FC<FinancialLayoutProps> = ({ children }) => {
+  const t = useTranslations('dashboardFinancial');
   const pathname = usePathname();
   const router = useRouter();
 
   const navItems = [
-    { 
-      path: '/dashboard/financial', 
-      label: 'Vue d\'ensemble', 
+    {
+      path: '/dashboard/financial',
+      label: t('navOverview'),
       icon: LayoutDashboard,
-      exact: true 
+      exact: true
     },
-    { 
-      path: '/dashboard/financial/revenue', 
-      label: 'Revenus', 
-      icon: TrendingUp 
+    {
+      path: '/dashboard/financial/revenue',
+      label: t('navRevenue'),
+      icon: TrendingUp
     },
-    { 
-      path: '/dashboard/financial/expenses', 
-      label: 'Dépenses', 
-      icon: Receipt 
+    {
+      path: '/dashboard/financial/expenses',
+      label: t('navExpenses'),
+      icon: Receipt
     },
   ];
 
@@ -45,13 +47,13 @@ const FinancialLayout: React.FC<FinancialLayoutProps> = ({ children }) => {
       <div className="bg-card border-b border-border">
         <div className="container mx-auto max-w-6xl px-4 py-4">
           <div className="flex justify-between items-center mb-4">
-            <h1 className="text-2xl font-bold text-foreground">Gestion Financière</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
             <button
               onClick={() => router.back()}
               className="inline-flex items-center text-foreground hover:text-primary transition-colors group text-sm"
             >
               <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" />
-              Retour
+              {t('back')}
             </button>
           </div>
 

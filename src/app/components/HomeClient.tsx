@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'next-intl';
 import HeroSection from './HeroSection ';
 import CategoryCardsOverlay from './CategoryCardsOverlay';
 import FilterSidebar from './FilterSidebar';
@@ -12,11 +13,11 @@ import type { Vehicle } from '../types/vehicle';
 import type { HeroSliderData } from '../page';
 import { Filter, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Info, LayoutGrid, Map as MapIcon, Car } from 'lucide-react';
 
-const MapComponent = dynamic(() => import('./MapComponent'), { 
+const MapComponent = dynamic(() => import('./MapComponent'), {
   ssr: false,
   loading: () => (
     <div className="h-[600px] w-full bg-muted animate-pulse rounded-xl flex items-center justify-center text-muted-foreground">
-      Chargement de la carte...
+      ...
     </div>
   )
 });
@@ -48,6 +49,7 @@ const Toast: React.FC<{
   notification: Notification;
   onDismiss: (id: string) => void;
 }> = ({ notification, onDismiss }) => {
+  const t = useTranslations('home');
   const { id, type, title, message } = notification;
 
   useEffect(() => {
@@ -77,7 +79,7 @@ const Toast: React.FC<{
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button className={`rounded-md inline-flex ${currentStyle.titleColor} hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} onClick={() => onDismiss(id)}>
-              <span className="sr-only">Fermer</span>
+              <span className="sr-only">{t('closeToast')}</span>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -110,6 +112,7 @@ const toArray = (data: unknown): Vehicle[] => {
 
 const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, featuredPromotions }) => {
   const router = useRouter();
+  const t = useTranslations('home');
   const safeInitial = toArray(initialVehicles);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(safeInitial);
   const [isSearching, setIsSearching] = useState(false);
@@ -148,7 +151,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
       if (new Date(filters.dropoffDate) <= new Date(filters.pickupDate)) {
         setFilteredVehicles([]);
         setIsSearching(false);
-        addNotification('error', 'Dates invalides', 'La date de retour doit être postérieure à la date de départ.');
+        addNotification('error', t('invalidDatesTitle'), t('invalidDatesMessage'));
         return;
       }
     }
@@ -177,10 +180,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
       const rawResults: unknown = await response.json();
       const searchResults = toArray(rawResults);
       setFilteredVehicles(searchResults);
-      if (searchResults.length === 0) addNotification('info', 'Aucun résultat', 'Aucun véhicule ne correspond.');
+      if (searchResults.length === 0) addNotification('info', t('noResultsTitle'), t('noResultsMessage'));
     } catch (error) {
       console.error("Erreur lors de la recherche :", error);
-      addNotification('error', 'Erreur', 'Impossible de contacter le serveur.');
+      addNotification('error', t('searchErrorTitle'), t('searchErrorMessage'));
       setFilteredVehicles([]);
     } finally {
       setIsSearching(false);
@@ -218,7 +221,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     return (
       <div className={`flex items-center justify-center space-x-2 ${className}`}>
         <button onClick={goToPreviousPage} disabled={currentPage === 1} className={`flex items-center px-3 py-2 rounded-lg transition-colors ${currentPage === 1 ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground hover:bg-muted hover:text-primary'}`}>
-          <ChevronLeft className="h-4 w-4 mr-1" /> Précédent
+          <ChevronLeft className="h-4 w-4 mr-1" /> {t('previous')}
         </button>
         <div className="flex items-center space-x-1">
           {getPageNumbers().map((page, index) => (
@@ -230,7 +233,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
           ))}
         </div>
         <button onClick={goToNextPage} disabled={currentPage === totalPages} className={`flex items-center px-3 py-2 rounded-lg transition-colors ${currentPage === totalPages ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground hover:bg-muted hover:text-primary'}`}>
-          Suivant <ChevronRight className="h-4 w-4 ml-1" />
+          {t('next')} <ChevronRight className="h-4 w-4 ml-1" />
         </button>
       </div>
     );
@@ -280,8 +283,8 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                 });
                   if (cityVehicles.length === 0) return null;
                   return (
-                    <VehicleCarousel 
-                      key={city} title="Véhicules recommandés" city={city} vehicles={cityVehicles}
+                    <VehicleCarousel
+                      key={city} title={t('recommendedVehicles')} city={city} vehicles={cityVehicles}
                       onViewAll={() => {
                         router.push(`/search?city=${encodeURIComponent(city)}`);
                       }}
@@ -294,33 +297,37 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
             <div id="all-vehicles-grid" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pt-4">
               <div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {hasActiveFilters ? "Résultats de recherche" : "Tous les véhicules disponibles"}
+                  {hasActiveFilters ? t('searchResultsTitle') : t('allVehiclesTitle')}
                 </h2>
                 <p className="text-muted-foreground">
                   {filteredVehicles.length !== allVehicles.length ? (
                     <>
-                      <span className="font-medium">{filteredVehicles.length}</span> véhicules sur {allVehicles.length}
+                      {t('vehiclesCountOf', { count: filteredVehicles.length, total: allVehicles.length })}
                       {hasActiveFilters && (
-                        <button onClick={handleResetAllFilters} className="ml-3 text-primary hover:text-primary/80 text-sm underline">Voir tous les véhicules</button>
+                        <button onClick={handleResetAllFilters} className="ml-3 text-primary hover:text-primary/80 text-sm underline">{t('viewAllVehicles')}</button>
                       )}
                     </>
-                  ) : <><span className="font-medium">{allVehicles.length}</span> véhicules disponibles</>}
+                  ) : (
+                    allVehicles.length === 1
+                      ? t('vehiclesAvailableSingular', { count: allVehicles.length })
+                      : t('vehiclesAvailablePlural', { count: allVehicles.length })
+                  )}
                 </p>
               </div>
               
               <div className="flex items-center gap-3">
                 <div className="flex items-center bg-muted p-1 rounded-lg">
                   <button onClick={() => setViewMode('list')} className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                    <LayoutGrid className="w-4 h-4" /> <span className="hidden sm:inline">Liste</span>
+                    <LayoutGrid className="w-4 h-4" /> <span className="hidden sm:inline">{t('listView')}</span>
                   </button>
                   <button onClick={() => setViewMode('map')} className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${viewMode === 'map' ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                    <MapIcon className="w-4 h-4" /> <span className="hidden sm:inline">Carte</span>
+                    <MapIcon className="w-4 h-4" /> <span className="hidden sm:inline">{t('mapView')}</span>
                   </button>
                 </div>
 
                 <button onClick={() => setIsMobileFilterOpen(true)} className="lg:hidden bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
                   <Filter className="w-4 h-4" />
-                  <span className="sr-only sm:not-sr-only">Filtres</span>
+                  <span className="sr-only sm:not-sr-only">{t('filtersButton')}</span>
                   {hasActiveFilters && <span className="bg-primary-foreground text-primary px-2 py-1 rounded-full text-xs font-medium">{getActiveFiltersCount()}</span>}
                 </button>
               </div>
@@ -331,7 +338,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                 <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-border">
                   <div className="flex items-center justify-center space-x-3 mb-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <span className="text-card-foreground font-medium">Recherche en cours...</span>
+                    <span className="text-card-foreground font-medium">{t('searching')}</span>
                   </div>
                 </div>
               ) : filteredVehicles.length > 0 ? (
@@ -354,10 +361,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                   <div className="max-w-md mx-auto">
                     <Car className="w-14 h-14 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-card-foreground mb-2">
-                      Aucun véhicule disponible pour le moment
+                      {t('noVehiclesAtAllTitle')}
                     </h3>
                     <p className="text-muted-foreground">
-                      Revenez bientôt, de nouveaux véhicules seront disponibles prochainement.
+                      {t('noVehiclesAtAllDescription')}
                     </p>
                   </div>
                 </div>
@@ -366,15 +373,15 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                 <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-border">
                   <div className="max-w-md mx-auto">
                     <div className="text-6xl mb-6">🔍</div>
-                    <h3 className="text-xl font-semibold text-card-foreground mb-2">Aucun véhicule trouvé</h3>
+                    <h3 className="text-xl font-semibold text-card-foreground mb-2">{t('noVehiclesMatchTitle')}</h3>
                     <p className="text-muted-foreground mb-6">
-                      Aucun véhicule ne correspond à vos critères. Essayez de modifier vos filtres.
+                      {t('noVehiclesMatchDescription')}
                     </p>
                     <button
                       onClick={handleResetAllFilters}
                       className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg transition-colors shadow-sm hover:shadow-md font-medium"
                     >
-                      Voir tous les véhicules
+                      {t('viewAllVehicles')}
                     </button>
                   </div>
                 </div>

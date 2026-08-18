@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { UploadCloud, X, Loader2, AlertCircle } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
 
@@ -22,6 +23,7 @@ interface ImagePreview {
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsChange, existingImageUrls = [] }) => {
+  const t = useTranslations('inspection.imageUploader');
   const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   
@@ -59,7 +61,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
     const availableSlots = maxImages - imagePreviews.length;
 
     if (filesArray.length > availableSlots) {
-      alert(`Vous ne pouvez ajouter que ${availableSlots} image(s) supplémentaire(s).`);
+      alert(t('tooManyFiles', { count: availableSlots }));
       return;
     }
 
@@ -68,11 +70,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
 
     filesArray.forEach(file => {
       if (file.size > 10 * 1024 * 1024) { // 10MB limit
-        alert(`Le fichier ${file.name} est trop volumineux (max 10MB).`);
+        alert(t('fileTooLarge', { name: file.name }));
         return;
       }
       if (!file.type.startsWith('image/')) {
-        alert(`Le fichier ${file.name} n'est pas une image.`);
+        alert(t('invalidFileType', { name: file.name }));
         return;
       }
 
@@ -92,7 +94,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
         .catch(error => {
           console.error("Upload error:", error);
           setImagePreviews(prev => prev.map(p =>
-            p.id === id ? { ...p, status: 'error', errorMessage: "Échec de l'upload" } : p
+            p.id === id ? { ...p, status: 'error', errorMessage: t('uploadErrorLabel') } : p
           ));
         });
       uploadPromises.push(uploadPromise);
@@ -161,10 +163,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
         />
         <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
         <p className="mt-2 text-sm text-foreground">
-          Glissez-déposez des images ici ou cliquez pour sélectionner
+          {t('dropzoneText')}
         </p>
         <p className="text-xs text-muted-foreground">
-          Maximum {maxImages} images, 10MB par image
+          {t('maxImagesHint', { max: maxImages })}
         </p>
       </div>
 
@@ -175,7 +177,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={img.url}
-                alt="Aperçu"
+                alt={t('previewAlt')}
                 className={`w-full h-full object-cover rounded-md border ${img.status === 'error' ? 'border-red-500' : 'border-border'}`}
               />
               {/* Overlay for status */}
@@ -192,14 +194,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
                 type="button"
                 onClick={() => removeImage(img.id)}
                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md hover:bg-red-600"
-                title="Supprimer"
+                title={t('removeTitle')}
               >
                 <X size={14} />
               </button>
                {/* Error Message Tooltip */}
               {img.status === 'error' && img.errorMessage && (
                   <div className="absolute bottom-0 left-0 right-0 bg-red-700 text-white text-xs p-1 text-center rounded-b-md opacity-90 truncate" title={img.errorMessage}>
-                      Erreur
+                      {t('uploadErrorLabel')}
                   </div>
               )}
             </div>

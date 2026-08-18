@@ -6,11 +6,14 @@ import { Loader2, CheckCircle, Zap, TrendingUp, Crown, Calendar, Sparkles } from
 import toast from 'react-hot-toast';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { useAuth } from '@/context/AuthContext';
+import { useTranslations } from 'next-intl';
+import { ApiError } from '@/lib/apiClient';
+import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
 
 interface BoostModalProps {
   vehicle: Vehicle;
   onClose: () => void;
-  onBoostSuccess: () => void;
+  onBoostSuccess: (vehicleId: number) => void;
 }
 
 type Step = 'SELECT_BOOST' | 'SELECT_PAYMENT' | 'SUCCESS';
@@ -22,6 +25,8 @@ interface PaymentData {
 }
 
 export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostModalProps) {
+  const t = useTranslations('vehicles.boost');
+  const tToast = useTranslations('toast.errors');
   const { user } = useAuth();
   const isPremiumUser = user?.isPremium;
 
@@ -51,7 +56,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
     const token = localStorage.getItem('jwt_token');
     if (!token) {
-      setError('Vous devez être connecté pour effectuer cette action.');
+      setError(t('notLoggedInError'));
       setIsLoading(false);
       return;
     }
@@ -72,7 +77,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Erreur lors de la création du boost.');
+        throw new ApiError(errorData.message || t('genericBoostError'), response.status, errorData.code);
       }
 
       const data = await response.json();
@@ -85,10 +90,18 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
         });
         setStep('SELECT_PAYMENT');
       } else {
-        throw new Error('ID de paiement non reçu du serveur.');
+        throw new Error(t('missingPaymentId'));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+      // ✅ Les erreurs avec un code connu (ex. TOO_MANY_PENDING_BOOST_PAYMENTS) sont
+      // traduites dans la langue active au lieu d'afficher le message brut du backend
+      // (toujours en anglais).
+      if (err instanceof ApiError) {
+        const key = getApiErrorMessageKey(err);
+        setError(key === 'generic' && err.message ? err.message : tToast(key));
+      } else {
+        setError(err instanceof Error ? err.message : t('genericBoostError'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -115,16 +128,19 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
         }
       );
 
-      if (!response.ok) throw new Error("Impossible d'initier le paiement en ligne.");
+      if (!response.ok) throw new Error(t('onlinePaymentInitError'));
       const data = await response.json();
 
       if (data.redirectUrl) {
+        // Le paiement Stripe quitte la page : payment/callback lit cette valeur pour savoir
+        // qu'il s'agissait d'un boost et rediriger au bon endroit au retour.
+        sessionStorage.setItem('paymentSource', 'boost');
         window.location.href = data.redirectUrl;
       } else {
-        throw new Error('URL de redirection non reçue.');
+        throw new Error(t('missingRedirectUrl'));
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erreur de paiement.');
+      setError(err instanceof Error ? err.message : t('onlinePaymentError'));
       setIsLoading(false);
     }
   };
@@ -153,14 +169,14 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Erreur lors du paiement mobile.');
+        throw new Error(errorData.message || t('mobilePaymentError'));
       }
 
-      onBoostSuccess();
+      onBoostSuccess(vehicle.id);
       setStep('SUCCESS');
 
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur de paiement mobile.';
+      const errorMessage = err instanceof Error ? err.message : t('mobilePaymentError');
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -176,7 +192,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                <TrendingUp className="mr-2 text-blue-600" /> Booster ce véhicule
+                <TrendingUp className="mr-2 text-blue-600" /> {t('title')}
               </h2>
               <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl font-bold">
                 ×
@@ -197,7 +213,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                   duration === 1 ? 'bg-white dark:bg-gray-800 shadow text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
               >
-                1 Mois
+                {t('durationMonth')}
               </button>
               <button
                 onClick={() => setDuration(12)}
@@ -205,7 +221,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                   duration === 12 ? 'bg-blue-600 shadow text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
               >
-                <Calendar size={16} /> 1 An <span className="text-[10px] ml-1 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full">-2 mois</span>
+                <Calendar size={16} /> {t('durationYear')} <span className="text-[10px] ml-1 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full">{t('yearDiscountBadge')}</span>
               </button>
             </div>
 
@@ -215,7 +231,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               {isPremiumUser && (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 text-yellow-800 dark:text-yellow-300 p-3 rounded-lg text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 flex-shrink-0" />
-                  En tant que membre Premium, vous bénéficiez de -20% sur tous les Boosts !
+                  {t('premiumBanner')}
                 </div>
               )}
 
@@ -230,8 +246,8 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                     <Zap size={20} className="text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-600">Standard</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">+40% de visibilité</p>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-600">{t('standardTitle')}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('standardDesc')}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -249,15 +265,15 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                 className="w-full group p-4 border-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all text-left flex justify-between items-center relative overflow-hidden disabled:opacity-50"
               >
                 <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
-                  POPULAIRE
+                  {t('popularBadge')}
                 </div>
                 <div className="flex items-center">
                   <div className="bg-blue-600 p-2 rounded-lg mr-3">
                     <Crown size={20} className="text-white" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-700">Premium</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Mise en avant, +80% de vues</p>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-700">{t('premiumTitle')}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('premiumDesc')}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -279,8 +295,8 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                     <Zap size={20} className="text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-purple-600">Ultra</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Position #1, +150% de vues</p>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-purple-600">{t('ultraTitle')}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('ultraDesc')}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -308,6 +324,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
           amount={paymentData.amount}
           currency={paymentData.currency}
           isLoading={isLoading}
+          errorMessage={error}
           onLocalPaymentSubmit={handleLocalPaymentSubmit}
           onStripePaymentSubmit={handleOnlinePayment}
         />
@@ -319,15 +336,15 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
             <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Paiement validé !</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('successTitle')}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-8">
-              Félicitations ! Votre véhicule bénéficie maintenant de sa visibilité pour {duration} mois.
+              {t('successMessage', { months: duration })}
             </p>
             <button
               onClick={onClose}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-bold transition-colors shadow-lg"
             >
-              Retourner au tableau de bord
+              {t('backToDashboard')}
             </button>
           </div>
         </div>

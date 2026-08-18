@@ -2,19 +2,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { 
-  UserCog, 
-  Megaphone, 
-  LayoutDashboard, 
-  Menu, 
+import {
+  UserCog,
+  Megaphone,
+  LayoutDashboard,
+  Menu,
   X,
   ChevronRight,
   Shield,
   AlertTriangle,
-  Car // ✅ AJOUT DE L'ICÔNE VOITURE
+  Car, // ✅ AJOUT DE L'ICÔNE VOITURE
+  Star
 } from 'lucide-react';
 
 interface NavItem {
@@ -25,6 +27,7 @@ interface NavItem {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations('admin.layout');
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -40,27 +43,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems: NavItem[] = [
     {
       icon: LayoutDashboard,
-      label: 'Dashboard',
+      label: t('nav.dashboard'),
       href: '/admin',
     },
     {
       icon: UserCog,
-      label: 'Gestion Utilisateurs',
+      label: t('nav.users'),
       href: '/admin/users',
     },
     { // ✅ NOUVELLE SECTION VÉHICULES
       icon: Car,
-      label: 'Gestion Véhicules',
+      label: t('nav.vehicles'),
       href: '/admin/vehicles',
     },
     {
       icon: Megaphone,
-      label: 'Gestion Promotions',
+      label: t('nav.promotions'),
       href: '/admin/promotions',
     },
     {
+      icon: Star,
+      label: t('nav.reviews'),
+      href: '/admin/reviews',
+    },
+    {
       icon: AlertTriangle,
-      label: 'Gestion Incidents',
+      label: t('nav.incidents'),
       href: '/admin/incidents',
     },
   ];
@@ -70,7 +78,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Vérification des permissions...</p>
+          <p className="text-muted-foreground">{t('verifyingPermissions')}</p>
         </div>
       </div>
     );
@@ -103,8 +111,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Shield className="h-8 w-8 text-primary flex-shrink-0" />
             {isSidebarOpen && (
               <div>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-white">Admin Panel</h2>
-                <p className="text-xs text-muted-foreground">BudaxDrive</p>
+                <h2 className="font-bold text-lg text-gray-900 dark:text-white">{t('panelTitle')}</h2>
+                <p className="text-xs text-muted-foreground">{t('brand')}</p>
               </div>
             )}
           </div>
@@ -170,7 +178,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
                   {user.firstName || user.sub.split('@')[0]}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">Administrateur</p>
+                <p className="text-xs text-muted-foreground truncate">{t('administrator')}</p>
               </div>
             </div>
           </div>
@@ -182,7 +190,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Shield className="h-6 w-6 text-primary" />
-              <h1 className="font-bold text-lg">Admin Panel</h1>
+              <h1 className="font-bold text-lg">{t('panelTitle')}</h1>
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(true)}

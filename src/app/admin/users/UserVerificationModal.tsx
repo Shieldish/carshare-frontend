@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { Loader2 } from 'lucide-react';
 import ProtectedImage from '@/app/components/ProtectedImage';
@@ -17,6 +18,7 @@ interface UserVerificationModalProps {
 }
 
 export default function UserVerificationModal({ user, isOpen, onClose, onSuccess }: UserVerificationModalProps) {
+  const t = useTranslations('admin.verificationModal');
   const [adminNotes, setAdminNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,7 +35,7 @@ export default function UserVerificationModal({ user, isOpen, onClose, onSuccess
       onSuccess();
       onClose();
     } catch {
-      alert('Erreur lors de la mise à jour du statut');
+      alert(t('genericError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -49,10 +51,10 @@ export default function UserVerificationModal({ user, isOpen, onClose, onSuccess
         <div className="p-6 border-b dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-gray-800/50">
           <div>
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-              Vérification KYC : {user.firstName} {user.lastName}
+              {t('title', { name: `${user.firstName} ${user.lastName}` })}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Examinez les pièces d&apos;identité originales.
+              {t('subtitle')}
             </p>
           </div>
           <button
@@ -67,17 +69,17 @@ export default function UserVerificationModal({ user, isOpen, onClose, onSuccess
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <DocumentCard
-              title="Carte d'Identité / Passeport"
+              title={t('identityDoc')}
               userId={user.id}
               docType="identity"
             />
             <DocumentCard
-              title="Permis de Conduire"
+              title={t('licenseDoc')}
               userId={user.id}
               docType="license"
             />
             <DocumentCard
-              title="Selfie de Vérification"
+              title={t('selfieDoc')}
               userId={user.id}
               docType="selfie"
             />
@@ -86,12 +88,12 @@ export default function UserVerificationModal({ user, isOpen, onClose, onSuccess
           {/* Zone de décision */}
           <div className="bg-gray-50 dark:bg-gray-800/30 p-6 rounded-xl border dark:border-gray-800">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Notes de l&apos;Administrateur (Visible par l&apos;utilisateur en cas de rejet)
+              {t('notesLabel')}
             </label>
             <textarea
               className="w-full p-4 rounded-lg border dark:bg-gray-900 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-orange-500 outline-none transition-all"
               rows={3}
-              placeholder="Ex: Photo trop floue, document expiré..."
+              placeholder={t('notesPlaceholder')}
               value={adminNotes}
               onChange={(e) => setAdminNotes(e.target.value)}
             />
@@ -104,20 +106,20 @@ export default function UserVerificationModal({ user, isOpen, onClose, onSuccess
             onClick={onClose}
             className="px-6 py-2 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 font-medium"
           >
-            Annuler
+            {t('cancel')}
           </button>
           <button
             onClick={() => handleAction('REJECTED')}
             className="px-6 py-2 bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 rounded-lg hover:bg-red-100 font-medium border border-red-200 dark:border-red-800"
           >
-            Rejeter
+            {t('reject')}
           </button>
           <button
             onClick={() => handleAction('VERIFIED')}
             disabled={isSubmitting}
             className="px-8 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-bold shadow-lg shadow-green-900/20 disabled:opacity-50 flex items-center justify-center"
           >
-            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Approuver tout'}
+            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : t('approveAll')}
           </button>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Image as ImageIcon, Building2, User, Flame } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import type { Vehicle } from '../types/vehicle';
 
 interface VehicleCardProps {
@@ -10,6 +11,8 @@ interface VehicleCardProps {
 }
 
 export default function VehicleCard({ vehicle }: VehicleCardProps) {
+  const t = useTranslations('vehicleCard');
+  const locale = useLocale();
   // Image principale avec fallback amélioré
   const primaryImageUrl = vehicle.images && vehicle.images.length > 0
     ? vehicle.images[0].url
@@ -38,14 +41,14 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       return uniqueParts.join(', ');
     }
 
-    return 'Localisation non disponible';
+    return t('locationUnavailable');
   };
 
   const displayLocation = getLocationDisplay(vehicle);
 
   // Formatage du prix avec séparateurs
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('fr-FR');
+    return price.toLocaleString(locale);
   };
 
   return (
@@ -70,19 +73,19 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           {vehicle.isBoosted ? (
             <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10 animate-pulse">
               <Flame className="w-3 h-3" />
-              <span>En vedette</span>
+              <span>{t('featured')}</span>
             </div>
           ) : vehicle.isOwnerPremium ? (
             <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md border border-slate-700/50 text-yellow-500 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10">
               <span className="text-[10px]">👑</span>
-              <span className="text-white">Propriétaire Premium</span>
+              <span className="text-white">{t('premiumOwner')}</span>
             </div>
           ) : null}
 
           {/* Badge prix */}
           <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm z-10">
             <div className="text-sm font-bold">{formatPrice(vehicle.ratePerDay)} FBu</div>
-            <div className="text-xs opacity-90">/jour</div>
+            <div className="text-xs opacity-90">{t('perDay')}</div>
           </div>
 
           {/* Indicateur du nombre d'images */}
@@ -100,7 +103,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
                 : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
             }`}>
-              {vehicle.isAvailable ? 'Disponible' : 'Non disponible'}
+              {vehicle.isAvailable ? t('available') : t('notAvailable')}
             </div>
           )}
         </div>
@@ -126,7 +129,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             <div className="mb-3">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
                 <User className="w-3 h-3 mr-1" />
-                Chauffeur inclus
+                {t('driverIncluded')}
               </span>
             </div>
           )}
@@ -134,7 +137,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           {/* Prix */}
           <div className="mb-3">
             <p className="font-semibold text-primary text-lg">
-              {formatPrice(vehicle.ratePerDay)} FBu/jour
+              {formatPrice(vehicle.ratePerDay)} FBu{t('perDay')}
             </p>
           </div>
           
@@ -149,10 +152,10 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           {/* Call to action */}
           <div className="flex items-center justify-between pt-3 border-t border-border">
             <div className="text-sm text-muted-foreground">
-              Cliquez pour voir plus
+              {t('clickForMore')}
             </div>
             <div className="text-sm font-medium text-primary group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors flex items-center">
-              <span>Voir détails</span>
+              <span>{t('seeDetails')}</span>
               <svg 
                 className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" 
                 fill="none" 

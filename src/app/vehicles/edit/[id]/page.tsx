@@ -6,12 +6,14 @@ import { apiClient } from '@/lib/apiClient';
 import { Vehicle } from '@/types/vehicle';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
+import toast from 'react-hot-toast';
 
 const LocationPickerMap = dynamic(() => import('@/app/components/LocationPickerMap'), {
   ssr: false,
   loading: () => (
     <div className="h-[350px] w-full bg-gray-100 dark:bg-gray-800 animate-pulse rounded-xl flex items-center justify-center text-gray-500">
-      Chargement de la carte interactive...
+      ...
     </div>
   )
 });
@@ -45,19 +47,22 @@ interface ExistingImage { id: number; url: string; }
 
 const MAX_IMAGES = 6;
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']; 
+const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_EQUIPMENT_LENGTH = 255;
 const MAX_DESCRIPTION_LENGTH = 2000;
 
-const validateImageFile = (file: File): string | null => {
-  if (!file) return "Fichier invalide.";
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) return `Le fichier "${file.name}" n'est pas un format d'image accepté.`;
-  if (file.size > MAX_FILE_SIZE) return `Le fichier "${file.name}" est trop volumineux (max 5MB).`;
-  return null;
-};
+const FUEL_TYPE_VALUES = ['Essence', 'Diesel', 'Hybride', 'Électrique', 'GPL'];
+const TRANSMISSION_TYPE_VALUES = ['Manuelle', 'Automatique', 'Semi-automatique'];
+const VEHICLE_TYPE_VALUES = [
+  'sedan', 'suv', 'suv_coupe', 'hatchback', 'minibus', 'pickup', 'van',
+  'minivan', 'truck', 'motorcycle', 'tricycle', 'coupe', 'convertible', 'wagon', 'other',
+] as const;
 
 export default function VehicleEditPage() {
+  const t = useTranslations('vehicles.form');
+  const tEdit = useTranslations('vehicles.edit');
+  const tFilters = useTranslations('filters.vehicleTypes');
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
@@ -89,19 +94,6 @@ export default function VehicleEditPage() {
   const [selectedCommune, setSelectedCommune] = useState('');
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
   const [isLoadingCommunes, setIsLoadingCommunes] = useState(false);
-
-  const FUEL_TYPES = ['Essence', 'Diesel', 'Hybride', 'Électrique', 'GPL'];
-  const TRANSMISSION_TYPES = ['Manuelle', 'Automatique', 'Semi-automatique'];
-  
-  const VEHICLE_TYPES = [
-    { value: 'sedan', label: 'Berline (Voiture classique)' }, { value: 'suv', label: 'SUV / 4x4' },
-    { value: 'suv_coupe', label: 'SUV Coupé' }, { value: 'hatchback', label: 'Citadine (Petite)' },
-    { value: 'minibus', label: 'Minibus (Hiace, Coaster...)' }, { value: 'pickup', label: 'Pick-up' },
-    { value: 'van', label: 'Fourgonnette' }, { value: 'minivan', label: 'Monospace' },
-    { value: 'truck', label: 'Camion' }, { value: 'motorcycle', label: 'Moto' },
-    { value: 'tricycle', label: 'Tricycle (Bajaj / Tuk-Tuk)' }, { value: 'coupe', label: 'Coupé (2 portes)' },
-    { value: 'convertible', label: 'Cabriolet' }, { value: 'wagon', label: 'Break' }, { value: 'other', label: 'Autre' }
-  ];
 
   const todayDateStr = new Date().toISOString().split('T')[0];
 
@@ -135,7 +127,7 @@ export default function VehicleEditPage() {
     const fetchVehicle = async () => {
       // ✅ BOUCLIER ANTI-CRASH : On stoppe tout si l'ID est invalide (ex: notification mal configurée)
       if (!id || id === 'undefined' || id === 'null') {
-        setError("Lien de véhicule invalide. Veuillez accéder à ce véhicule depuis la liste.");
+        setError(tEdit('invalidLink'));
         setIsLoading(false);
         return;
       }
@@ -164,13 +156,20 @@ export default function VehicleEditPage() {
         }
        } catch (err: unknown) {
         console.error('Erreur lors du chargement du véhicule:', err);
-        setError(err instanceof Error ? err.message : 'Véhicule non trouvé.');
+        setError(err instanceof Error ? err.message : tEdit('notFound'));
       } finally {
         setIsLoading(false);
       }
     };
     fetchVehicle();
-  }, [id]);
+  }, [id, tEdit]);
+
+  const validateImageFile = useCallback((file: File): string | null => {
+    if (!file) return t('errors.invalidFile');
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) return t('errors.unacceptedFormat', { name: file.name });
+    if (file.size > MAX_FILE_SIZE) return t('errors.fileTooLarge', { name: file.name });
+    return null;
+  }, [t]);
 
   const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -180,7 +179,7 @@ export default function VehicleEditPage() {
     const totalImages = safeExistingImages.length + safeImageFiles.length + filesArray.length;
 
     if (totalImages > MAX_IMAGES) {
-      setError(`Vous ne pouvez télécharger que ${MAX_IMAGES} images au maximum.`); return;
+      setError(t('errors.tooManyImages', { max: MAX_IMAGES })); return;
     }
     for (const file of filesArray) {
       const validationError = validateImageFile(file);
@@ -191,7 +190,7 @@ export default function VehicleEditPage() {
     const newPreviews = filesArray.map(file => URL.createObjectURL(file));
     setImagePreviews(prev => [...(prev || []), ...newPreviews]);
     e.target.value = ''; setError(null);
-  }, [existingImages, imageFiles]);
+  }, [existingImages, imageFiles, validateImageFile, t]);
 
   const removeExistingImage = async (imageId: number) => {
     try {
@@ -203,7 +202,7 @@ export default function VehicleEditPage() {
       }
     } catch (err: unknown) {
       console.error('Erreur lors de la suppression de l\'image:', err);
-      setError(err instanceof Error ? err.message : 'Erreur lors de la suppression de l\'image');
+      setError(err instanceof Error ? err.message : t('errors.genericSubmitError'));
     }
   };
 
@@ -245,7 +244,7 @@ export default function VehicleEditPage() {
         setMapCenter([lat, lon]); setLocationGps(`${lat}, ${lon}`); setError(null);
         setTimeout(() => { mapRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
       } else {
-        setError("Adresse introuvable sur la carte. Veuillez placer le marqueur manuellement.");
+        setError(tEdit('addressNotFoundManual'));
       }
     } catch (err) { console.error("Erreur lors de la recherche sur la carte", err); } 
     finally { setIsSearchingMap(false); }
@@ -254,15 +253,38 @@ export default function VehicleEditPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); setIsSubmitting(true); setError(null);
 
-    if (!vehicle) { setError('Véhicule non chargé'); setIsSubmitting(false); return; }
-    if (!locationGps) { setError("Veuillez indiquer l'emplacement de votre véhicule sur la carte."); setIsSubmitting(false); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    // ✅ Le formulaire est long et l'erreur classique en haut de page peut passer inaperçue si
+    // l'utilisateur est déjà scrollé près du bouton "Enregistrer" : le toast attire l'attention
+    // où qu'il se trouve, en plus du bandeau qui reste visible tant que ce n'est pas corrigé.
+    const fail = (message: string, scrollTop = false) => {
+      toast.error(message);
+      setError(message);
+      setIsSubmitting(false);
+      if (scrollTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    if (!vehicle) { fail(tEdit('notLoaded')); return; }
+    if (!locationGps) { fail(t('errors.mustIndicateLocation'), true); return; }
 
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const makeValue = (formData.get('make') as string || '').trim();
+    const modelValue = (formData.get('model') as string || '').trim();
+    const manufacturingYearValue = Number(formData.get('manufacturingYear'));
+    const ratePerDayValue = Number(formData.get('ratePerDay'));
+
+    if (!makeValue) { fail(t('errors.missingMake')); return; }
+    if (!modelValue) { fail(t('errors.missingModel')); return; }
+    if (manufacturingYearValue < 1900 || manufacturingYearValue > new Date().getFullYear() + 1) {
+      fail(t('errors.invalidYear')); return;
+    }
+    if (ratePerDayValue < 1) {
+      fail(t('errors.invalidPrice')); return;
+    }
 
     const vehicleData: VehicleData = {
-      make: formData.get('make') as string, model: formData.get('model') as string,
-      manufacturingYear: Number(formData.get('manufacturingYear')), ratePerDay: Number(formData.get('ratePerDay')),
+      make: makeValue, model: modelValue,
+      manufacturingYear: manufacturingYearValue, ratePerDay: ratePerDayValue,
       provinceId: selectedProvince ? Number(selectedProvince) : null, communeId: selectedCommune ? Number(selectedCommune) : null,
       address: addressText || undefined, description: descriptionText || undefined, locationGps: locationGps,
       mileage: formData.get('mileage') ? Number(formData.get('mileage')) : undefined, fuelType: formData.get('fuelType') as string || undefined,
@@ -270,17 +292,10 @@ export default function VehicleEditPage() {
       equipment: equipmentText || undefined, seats: formData.get('seats') ? Number(formData.get('seats')) : undefined,
       ratePerWeek: formData.get('ratePerWeek') ? Number(formData.get('ratePerWeek')) : undefined,
       supportsDriver: formData.get('supportsDriver') === 'on',
-      
+
       insuranceExpiryDate: (formData.get('insuranceExpiryDate') as string) || undefined,
       technicalControlExpiryDate: (formData.get('technicalControlExpiryDate') as string) || undefined,
     };
-
-    if (vehicleData.manufacturingYear < 1900 || vehicleData.manufacturingYear > new Date().getFullYear() + 1) {
-      setError("L'année de fabrication n'est pas valide."); setIsSubmitting(false); return;
-    }
-    if (vehicleData.ratePerDay < 1) {
-      setError("Le prix par jour doit être supérieur à 0."); setIsSubmitting(false); return;
-    }
 
     try {
       await apiClient.put(`/api/vehicles/${vehicle.id}`, vehicleData);
@@ -304,7 +319,9 @@ export default function VehicleEditPage() {
       router.push('/vehicles'); router.refresh();
     } catch (err: unknown) {
       console.error('Erreur lors de la modification du véhicule:', err);
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue lors de la modification du véhicule.');
+      const message = err instanceof Error ? err.message : tEdit('updateError');
+      toast.error(message);
+      setError(message);
     } finally { setIsSubmitting(false); }
   };
 
@@ -313,7 +330,7 @@ export default function VehicleEditPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Chargement...</p>
+          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">{tEdit('loading')}</p>
         </div>
       </div>
     );
@@ -327,7 +344,7 @@ export default function VehicleEditPage() {
             <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <p className="text-xl text-red-600 dark:text-red-400">{error}</p>
-          <button onClick={() => router.back()} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Retour</button>
+          <button onClick={() => router.back()} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">{tEdit('back')}</button>
         </div>
       </div>
     );
@@ -340,7 +357,7 @@ export default function VehicleEditPage() {
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button onClick={() => router.back()} className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors group">
-            <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>Retour
+            <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>{tEdit('back')}
           </button>
         </div>
       </div>
@@ -350,14 +367,14 @@ export default function VehicleEditPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full mb-4">
             <svg className="w-8 h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">Modifier le Véhicule</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{tEdit('title')}</h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">{vehicle.make} {vehicle.model}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-8 py-6">
-            <h2 className="text-2xl font-bold text-white">Informations du véhicule</h2>
-            <p className="text-orange-100 mt-1">Modifiez les détails de votre véhicule</p>
+            <h2 className="text-2xl font-bold text-white">{tEdit('sectionTitle')}</h2>
+            <p className="text-orange-100 mt-1">{tEdit('sectionSubtitle')}</p>
           </div>
 
           <div className="p-8">
@@ -368,60 +385,60 @@ export default function VehicleEditPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} noValidate className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Marque *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('makeLabel')}</label>
                   <input type="text" name="make" defaultValue={vehicle.make || ''} required className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Modèle *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('modelLabel')}</label>
                   <input type="text" name="model" defaultValue={vehicle.model || ''} required className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Année *</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('yearLabel')}</label>
                   <input type="number" name="manufacturingYear" defaultValue={vehicle.manufacturingYear || ''} required min="1900" max={new Date().getFullYear() + 1} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Kilométrage</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('mileageLabelShort')}</label>
                   <input type="number" name="mileage" defaultValue={vehicle.mileage || ''} min="0" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Type de véhicule</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('typeVehicleLabel')}</label>
                   <select name="type" defaultValue={vehicle.type || ''} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3">
-                    <option value="">Sélectionnez le type</option>
-                    {VEHICLE_TYPES.map((type) => (<option key={type.value} value={type.value}>{type.label}</option>))}
+                    <option value="">{t('selectTypePlaceholder')}</option>
+                    {VEHICLE_TYPE_VALUES.map((v) => (<option key={v} value={v}>{tFilters(v)}</option>))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Carburant</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('fuelLabel')}</label>
                   <select name="fuelType" defaultValue={vehicle.fuelType || ''} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3">
-                    <option value="">Sélectionner</option>
-                    {FUEL_TYPES.map((fuel) => (<option key={fuel} value={fuel}>{fuel}</option>))}
+                    <option value="">{t('selectPlaceholder')}</option>
+                    {FUEL_TYPE_VALUES.map((fuel) => (<option key={fuel} value={fuel}>{t(`fuelTypes.${fuel}`)}</option>))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Transmission</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('transmissionLabel')}</label>
                   <select name="transmission" defaultValue={vehicle.transmission || ''} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3">
-                    <option value="">Sélectionner</option>
-                    {TRANSMISSION_TYPES.map((trans) => (<option key={trans} value={trans}>{trans}</option>))}
+                    <option value="">{t('selectPlaceholder')}</option>
+                    {TRANSMISSION_TYPE_VALUES.map((trans) => (<option key={trans} value={trans}>{t(`transmissionTypes.${trans}`)}</option>))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nombre de sièges</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('seatsLabelFull')}</label>
                   <input type="number" name="seats" defaultValue={vehicle.seats || ''} min="1" max="50" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                 </div>
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Tarification</h3>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{t('pricingSectionTitle')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prix par jour (FBu) *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('ratePerDayLabel')}</label>
                     <input type="number" name="ratePerDay" defaultValue={vehicle.ratePerDay || ''} required min="1" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Prix par semaine (FBu)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('ratePerWeekLabel')}</label>
                     <input type="number" name="ratePerWeek" defaultValue={vehicle.ratePerWeek || ''} min="1" className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3" />
                   </div>
                 </div>
@@ -432,51 +449,51 @@ export default function VehicleEditPage() {
                       <input id="supportsDriver" name="supportsDriver" type="checkbox" defaultChecked={vehicle.supportsDriver || false} className="focus:ring-orange-500 h-4 w-4 text-orange-600 border-gray-300 rounded cursor-pointer" />
                     </div>
                     <div className="ml-3 text-sm">
-                      <label htmlFor="supportsDriver" className="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">Inclus un chauffeur ?</label>
-                      <p className="text-gray-500 dark:text-gray-400">Cochez si le prix journalier inclut déjà la prestation d&apos;un chauffeur.</p>
+                      <label htmlFor="supportsDriver" className="font-medium text-gray-700 dark:text-gray-300 cursor-pointer">{t('supportsDriverLabel')}</label>
+                      <p className="text-gray-500 dark:text-gray-400">{t('supportsDriverHelpEdit')}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="border-t pt-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Localisation</h3>
-                
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">{t('locationSectionTitle')}</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Province</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('provinceLabel')}</label>
                     <select name="provinceId" value={selectedProvince} onChange={handleProvinceChange} disabled={isLoadingProvinces} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                      <option value="">{isLoadingProvinces ? "Chargement..." : "-- Non spécifié --"}</option>
+                      <option value="">{isLoadingProvinces ? t('loadingOption') : t('provinceNotSpecified')}</option>
                       {provinces.map((province) => (<option key={province.id} value={province.id}>{province.name}</option>))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Commune / Ville</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('communeLabelFull')}</label>
                     <select name="communeId" id="communeId" value={selectedCommune} onChange={(e) => setSelectedCommune(e.target.value)} disabled={!selectedProvince || isLoadingCommunes || communes.length === 0} className="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm focus:border-orange-500 focus:ring-orange-500 px-4 py-3 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                      <option value="">{isLoadingCommunes ? "Chargement..." : !selectedProvince ? "Sélectionnez d'abord une province" : "-- Non spécifié --"}</option>
+                      <option value="">{isLoadingCommunes ? t('loadingOption') : !selectedProvince ? tEdit('communeNoProvinceOption') : t('provinceNotSpecified')}</option>
                       {communes.map((commune) => (<option key={commune.id} value={commune.id}>{commune.name}</option>))}
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="mt-6 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700">
                   <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Adresse précise (Optionnel mais recommandé)
+                    {t('addressOptionalLabel')}
                   </label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Tapez le nom de la rue ou un repère connu pour rapprocher la carte.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{tEdit('addressHelp')}</p>
                   <div className="flex space-x-2">
-                    <input type="text" name="address" id="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Ex: Avenue de l'Uprona, n°12..." />
+                    <input type="text" name="address" id="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder={tEdit('addressPlaceholder')} />
                     <button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap || (!selectedProvince && !addressText)} className="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-md hover:bg-orange-200 dark:hover:bg-orange-800/60 disabled:opacity-50 transition-colors flex items-center text-sm font-semibold border border-orange-200 dark:border-orange-800">
-                      {isSearchingMap ? 'Recherche...' : 'Centrer la carte'}
+                      {isSearchingMap ? t('centering') : tEdit('centerMapButton')}
                     </button>
                   </div>
                 </div>
 
                 <div className="mt-6" ref={mapRef}>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Emplacement sur la carte *</label>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Vérifiez et ajustez si besoin l&apos;emplacement exact de votre véhicule.</p>
-                  <LocationPickerMap 
-                    onLocationSelect={(lat, lng) => setLocationGps(`${lat}, ${lng}`)} 
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{t('mapLabelFull')}</label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{tEdit('mapVerifyHelp')}</p>
+                  <LocationPickerMap
+                    onLocationSelect={(lat, lng) => setLocationGps(`${lat}, ${lng}`)}
                     centerPosition={mapCenter}
                     forceMarkerPosition={locationGps ? [parseFloat(locationGps.split(',')[0]), parseFloat(locationGps.split(',')[1])] : null}
                   />
@@ -484,12 +501,12 @@ export default function VehicleEditPage() {
                   {locationGps ? (
                     <p className="mt-2 text-sm text-green-600 dark:text-green-400 font-medium flex items-center">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                      Emplacement enregistré ! ({locationGps})
+                      {tEdit('locationSaved', { location: locationGps })}
                     </p>
                   ) : (
                     <p className="mt-2 text-sm text-orange-500 dark:text-orange-400 flex items-center">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      En attente : Veuillez cliquer sur la carte...
+                      {tEdit('locationPending')}
                     </p>
                   )}
                 </div>
@@ -497,82 +514,82 @@ export default function VehicleEditPage() {
 
               <div className="border-t pt-6">
                 <div className="flex justify-between items-end mb-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Équipements</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('equipmentLabel')}</label>
                   <span className={`text-xs transition-colors ${equipmentText.length >= MAX_EQUIPMENT_LENGTH ? 'text-red-500 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-                    {MAX_EQUIPMENT_LENGTH - equipmentText.length} restants
+                    {tEdit('charactersRemaining', { count: MAX_EQUIPMENT_LENGTH - equipmentText.length })}
                   </span>
                 </div>
-                <textarea 
-                  name="equipment" value={equipmentText} onChange={(e) => setEquipmentText(e.target.value)} maxLength={MAX_EQUIPMENT_LENGTH} rows={3} placeholder="Climatisation, GPS, Bluetooth..." 
-                  className={`w-full rounded-lg border shadow-sm px-4 py-3 resize-none transition-colors dark:bg-gray-700 dark:text-gray-100 ${equipmentText.length >= MAX_EQUIPMENT_LENGTH ? 'border-red-400 focus:ring-red-500 focus:border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500'}`} 
+                <textarea
+                  name="equipment" value={equipmentText} onChange={(e) => setEquipmentText(e.target.value)} maxLength={MAX_EQUIPMENT_LENGTH} rows={3} placeholder={t('equipmentPlaceholder')}
+                  className={`w-full rounded-lg border shadow-sm px-4 py-3 resize-none transition-colors dark:bg-gray-700 dark:text-gray-100 ${equipmentText.length >= MAX_EQUIPMENT_LENGTH ? 'border-red-400 focus:ring-red-500 focus:border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500'}`}
                 />
               </div>
 
               <div>
                 <div className="flex justify-between items-end mb-2">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('descriptionLabel')}</label>
                   <span className={`text-xs transition-colors ${descriptionText.length >= MAX_DESCRIPTION_LENGTH ? 'text-red-500 font-bold' : 'text-gray-500 dark:text-gray-400'}`}>
-                    {MAX_DESCRIPTION_LENGTH - descriptionText.length} restants
+                    {tEdit('charactersRemaining', { count: MAX_DESCRIPTION_LENGTH - descriptionText.length })}
                   </span>
                 </div>
-                <textarea 
-                  name="description" value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} maxLength={MAX_DESCRIPTION_LENGTH} rows={4} placeholder="Décrivez votre véhicule..." 
-                  className={`w-full rounded-lg border shadow-sm px-4 py-3 resize-none transition-colors dark:bg-gray-700 dark:text-gray-100 ${descriptionText.length >= MAX_DESCRIPTION_LENGTH ? 'border-red-400 focus:ring-red-500 focus:border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500'}`} 
+                <textarea
+                  name="description" value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} maxLength={MAX_DESCRIPTION_LENGTH} rows={4} placeholder={t('descriptionPlaceholder')}
+                  className={`w-full rounded-lg border shadow-sm px-4 py-3 resize-none transition-colors dark:bg-gray-700 dark:text-gray-100 ${descriptionText.length >= MAX_DESCRIPTION_LENGTH ? 'border-red-400 focus:ring-red-500 focus:border-red-500 dark:border-red-500' : 'border-gray-300 dark:border-gray-600 focus:border-orange-500 focus:ring-orange-500'}`}
                 />
               </div>
 
               {/* ✅ NOUVELLE SECTION : Documents Légaux avec affichage "Intelligent" */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
-                  Documents Légaux 
+                  {t('legalDocsTitle')}
                   <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800">
-                    Optionnel (Mise à jour)
+                    {tEdit('optionalUpdateBadge')}
                   </span>
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Pour réactiver votre véhicule suite à une expiration (ou de manière préventive), téléversez votre nouveau document et renseignez sa nouvelle date d&apos;expiration. Laissez vide pour conserver le document actuel.
+                  {tEdit('legalDocsUpdateHelp')}
                 </p>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  
+
                   {/* Carte Rose */}
                   <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Carte Rose</label>
-                      
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('registrationLabelShort')}</label>
+
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
                       {vehicle.registrationDocumentUrl && !registrationFile && (
                         <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">Doc actuel sauvegardé</span>
-                          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">Voir</a>
+                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
                         </div>
                       )}
 
                       <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setRegistrationFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400" />
-                      {registrationFile && <p className="text-xs text-green-600 dark:text-green-400 mt-2">✓ Remplacement : {registrationFile.name}</p>}
+                      {registrationFile && <p className="text-xs text-green-600 dark:text-green-400 mt-2">✓ {tEdit('replacementLabel', { name: registrationFile.name })}</p>}
                     </div>
                   </div>
 
                   {/* Assurance */}
                   <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Assurance</label>
-                      
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('insuranceLabelShort')}</label>
+
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
                       {vehicle.insuranceDocumentUrl && !insuranceFile && (
                         <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">Doc actuel sauvegardé</span>
-                          <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">Voir</a>
+                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
                         </div>
                       )}
 
                       <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setInsuranceFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
-                      {insuranceFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ Remplacement : {insuranceFile.name}</p>}
+                      {insuranceFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: insuranceFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">
-                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Date d&apos;expiration</label>
+                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabelShort')}</label>
                       {/* Affichage sécurisé de la date de la base de données */}
                       <input type="date" name="insuranceExpiryDate" defaultValue={vehicle.insuranceExpiryDate ? new Date(vehicle.insuranceExpiryDate).toISOString().split('T')[0] : ''} min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
                     </div>
@@ -581,22 +598,22 @@ export default function VehicleEditPage() {
                   {/* Contrôle Technique */}
                   <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Contrôle Tech.</label>
-                      
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('technicalControlLabelShort')}</label>
+
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
                       {vehicle.technicalControlDocumentUrl && !technicalControlFile && (
                         <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">Doc actuel sauvegardé</span>
-                          <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">Voir</a>
+                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
                         </div>
                       )}
 
                       <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setTechnicalControlFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
-                      {technicalControlFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ Remplacement : {technicalControlFile.name}</p>}
+                      {technicalControlFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: technicalControlFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">
-                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">Date d&apos;expiration</label>
+                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabelShort')}</label>
                       {/* Affichage sécurisé de la date de la base de données */}
                       <input type="date" name="technicalControlExpiryDate" defaultValue={vehicle.technicalControlExpiryDate ? new Date(vehicle.technicalControlExpiryDate).toISOString().split('T')[0] : ''} min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
                     </div>
@@ -605,19 +622,19 @@ export default function VehicleEditPage() {
               </div>
 
               <div className="border-t pt-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Photos du véhicule (max {MAX_IMAGES})</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">{tEdit('imagesMaxLabel', { max: MAX_IMAGES })}</label>
                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors">
                   <input type="file" accept={ACCEPTED_IMAGE_TYPES.join(',')} onChange={handleImageChange} className="hidden" id="image-upload" multiple disabled={existingImages.length + imageFiles.length >= MAX_IMAGES} />
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + imageFiles.length}/{MAX_IMAGES} images</span>
                     <label htmlFor="image-upload" className={`inline-flex items-center px-4 py-2 rounded-lg cursor-pointer transition-colors ${existingImages.length + imageFiles.length >= MAX_IMAGES ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-600 text-white hover:bg-orange-700'}`}>
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                      Ajouter des images
+                      {tEdit('addImagesButton')}
                     </label>
                   </div>
                   {imagePreviews.length > 0 && (
                     <div className="mt-6">
-                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Images du véhicule ({imagePreviews.length})</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">{tEdit('imagesCountLabel', { count: imagePreviews.length })}</h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => {
                           const isExisting = index < existingImages.length;
@@ -625,12 +642,12 @@ export default function VehicleEditPage() {
                           return (
                             <div key={index} className="relative group">
                               <div className="relative w-full h-24">
-                              <Image 
-                                src={preview} alt={`Image ${index + 1}`} fill unoptimized
+                              <Image
+                                src={preview} alt="" fill unoptimized
                                 className="object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600 shadow-sm"
                               />
                             </div>
-                              <button type="button" onClick={() => isExisting ? removeExistingImage(imageId!) : removeNewImage(index - existingImages.length)} className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" title="Supprimer cette image">×</button>
+                              <button type="button" onClick={() => isExisting ? removeExistingImage(imageId!) : removeNewImage(index - existingImages.length)} className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" title={tEdit('removeImageTitle')}>×</button>
                               <div className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{index + 1}</div>
                             </div>
                           );
@@ -643,8 +660,8 @@ export default function VehicleEditPage() {
                       <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
                         <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" /></svg>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-400 mb-2">Cliquez pour ajouter des photos</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-500">PNG, JPG, JPEG, WebP (max. 5MB par image)</p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-2">{tEdit('clickToAddPhotos')}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-500">{tEdit('imageFormatsHelp')}</p>
                     </div>
                   )}
                 </div>
@@ -653,13 +670,13 @@ export default function VehicleEditPage() {
               <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button type="submit" disabled={isSubmitting} className="flex-1 bg-gradient-to-r from-orange-600 to-orange-700 text-white py-4 px-6 rounded-lg hover:from-orange-700 hover:to-orange-800 disabled:from-orange-300 disabled:to-orange-400 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:hover:shadow-lg flex items-center justify-center">
                   {isSubmitting ? (
-                    <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>Mise à jour...</>
+                    <><div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>{tEdit('submitting')}</>
                   ) : (
-                    <><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>Mettre à jour</>
+                    <><svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>{tEdit('submit')}</>
                   )}
                 </button>
                 <button type="button" onClick={() => router.back()} className="px-6 py-4 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium flex items-center justify-center">
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>Annuler
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>{tEdit('cancel')}
                 </button>
               </div>
             </form>

@@ -1,18 +1,21 @@
 import React from 'react';
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import TermsPage from './TermsPage';
 
-export const metadata: Metadata = {
-  title: 'Conditions d\'utilisation - CarShare Burundi',
-  description: 'Conditions générales d\'utilisation de CarShare Burundi. Consultez nos termes et conditions pour la location de voitures entre particuliers.',
-  keywords: ['conditions utilisation', 'termes légaux', 'CarShare Burundi', 'location voiture'],
-  openGraph: {
-    title: 'Conditions d\'utilisation - CarShare Burundi',
-    description: 'Termes et conditions d\'utilisation de la plateforme CarShare Burundi',
-    type: 'website',
-    locale: 'fr_FR',
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('terms');
+  return {
+    title: t('metaTitle'),
+    description: t('metaDescription'),
+    keywords: ['conditions utilisation', 'termes légaux', 'CarShare Burundi', 'location voiture'],
+    openGraph: {
+      title: t('metaTitle'),
+      description: t('metaDescription'),
+      type: 'website',
+    }
+  };
+}
 
 export default function Terms() {
   return <TermsPage />;

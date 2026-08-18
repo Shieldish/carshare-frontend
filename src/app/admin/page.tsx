@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { Users, Megaphone, TrendingUp, DollarSign, Car, Calendar, CreditCard } from 'lucide-react';
 import Link from 'next/link';
@@ -14,9 +15,21 @@ interface DashboardStats {
   activePromotions: number;
   monthlyRevenue: number;
   pendingVerifications: number;
+  usersTrendPercent: number | null;
+  vehiclesTrendPercent: number | null;
+  bookingsTrendPercent: number | null;
+  revenueTrendPercent: number | null;
 }
 
+// ✅ null = pas assez d'historique pour comparer (ex. le mois dernier n'a eu aucune
+// activité) — dans ce cas on n'affiche pas de badge plutôt qu'un pourcentage trompeur.
+const formatTrend = (percent: number | null | undefined): string | null => {
+  if (percent === null || percent === undefined) return null;
+  return `${percent > 0 ? '+' : ''}${percent}%`;
+};
+
 export default function AdminDashboardPage() {
+  const t = useTranslations('admin.dashboard');
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,7 +40,7 @@ export default function AdminDashboardPage() {
         const data = await apiClient.get('/api/admin/dashboard-stats');
         setStats(data);
       } catch (error) {
-        console.error('Erreur chargement stats:', error);
+        console.error(t('loadError'), error);
         // Données mockées pour démo si l'endpoint n'existe pas encore
         setStats({
           totalUsers: 0,
@@ -36,6 +49,10 @@ export default function AdminDashboardPage() {
           activePromotions: 0,
           monthlyRevenue: 0,
           pendingVerifications: 0,
+          usersTrendPercent: null,
+          vehiclesTrendPercent: null,
+          bookingsTrendPercent: null,
+          revenueTrendPercent: null,
         });
       } finally {
         setIsLoading(false);
@@ -62,31 +79,31 @@ export default function AdminDashboardPage() {
 
   const statCards = [
     {
-      title: 'Utilisateurs Totaux',
+      title: t('statCards.totalUsers'),
       value: stats?.totalUsers || 0,
       icon: Users,
       color: 'blue',
       link: '/admin/users',
-      change: '+12%',
+      change: formatTrend(stats?.usersTrendPercent),
     },
     {
-      title: 'Véhicules',
+      title: t('statCards.totalVehicles'),
       value: stats?.totalVehicles || 0,
       icon: Car,
       color: 'green',
       link: '/vehicles',
-      change: '+8%',
+      change: formatTrend(stats?.vehiclesTrendPercent),
     },
     {
-      title: 'Réservations',
+      title: t('statCards.totalBookings'),
       value: stats?.totalBookings || 0,
       icon: Calendar,
       color: 'purple',
       link: '/bookings',
-      change: '+15%',
+      change: formatTrend(stats?.bookingsTrendPercent),
     },
     {
-      title: 'Promotions Actives',
+      title: t('statCards.activePromotions'),
       value: stats?.activePromotions || 0,
       icon: Megaphone,
       color: 'orange',
@@ -94,15 +111,15 @@ export default function AdminDashboardPage() {
       change: null,
     },
     {
-      title: 'Revenus Mensuels',
-      value: `${stats?.monthlyRevenue || 0} €`,
+      title: t('statCards.monthlyRevenue'),
+      value: `${(stats?.monthlyRevenue || 0).toLocaleString('fr-FR')} FBu`,
       icon: DollarSign,
       color: 'emerald',
       link: '/dashboard/financial',
-      change: '+23%',
+      change: formatTrend(stats?.revenueTrendPercent),
     },
     {
-      title: 'Vérifications en Attente',
+      title: t('statCards.pendingVerifications'),
       value: stats?.pendingVerifications || 0,
       icon: TrendingUp,
       color: 'red',
@@ -129,10 +146,10 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Dashboard Administrateur
+          {t('pageTitle')}
         </h1>
         <p className="text-muted-foreground">
-          Vue d&apos;ensemble de la plateforme OurCarShare
+          {t('subtitle')}
         </p>
       </div>
 
@@ -155,7 +172,7 @@ export default function AdminDashboardPage() {
                   </div>
                   {card.badge && (
                     <span className="px-2 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full animate-pulse">
-                      Nouveau
+                      {t('newBadge')}
                     </span>
                   )}
                 </div>
@@ -169,7 +186,7 @@ export default function AdminDashboardPage() {
                   </p>
                   {card.change && (
                     <p className={`text-sm font-medium ${colors.badge} inline-block px-2 py-0.5 rounded`}>
-                      {card.change} ce mois
+                      {card.change} {t('changeSuffix')}
                     </p>
                   )}
                 </div>
@@ -184,7 +201,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center mb-4">
           <CreditCard className="w-6 h-6 text-orange-600 dark:text-orange-400 mr-3" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Paiements en attente de validation
+            {t('paymentHistoryTitle')}
           </h2>
         </div>
         <AdminPaymentTable />
@@ -193,7 +210,7 @@ export default function AdminDashboardPage() {
       {/* Quick Actions */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-          Actions Rapides
+          {t('quickActionsTitle')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
@@ -202,8 +219,8 @@ export default function AdminDashboardPage() {
           >
             <Users className="h-6 w-6 text-primary" />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Gérer les utilisateurs</p>
-              <p className="text-sm text-muted-foreground">Vérifications et permissions</p>
+              <p className="font-medium text-gray-900 dark:text-white">{t('manageUsersTitle')}</p>
+              <p className="text-sm text-muted-foreground">{t('manageUsersDesc')}</p>
             </div>
           </Link>
 
@@ -213,8 +230,8 @@ export default function AdminDashboardPage() {
           >
             <Megaphone className="h-6 w-6 text-primary" />
             <div>
-              <p className="font-medium text-gray-900 dark:text-white">Gérer les promotions</p>
-              <p className="text-sm text-muted-foreground">Hero images et boosts</p>
+              <p className="font-medium text-gray-900 dark:text-white">{t('managePromotionsTitle')}</p>
+              <p className="text-sm text-muted-foreground">{t('managePromotionsDesc')}</p>
             </div>
           </Link>
         </div>

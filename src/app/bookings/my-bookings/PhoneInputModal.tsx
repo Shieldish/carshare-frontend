@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import toast from 'react-hot-toast';
 
 interface MobileMoneyModalProps {
   isOpen: boolean;
@@ -15,6 +17,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
   isLoading,
   amount
 }) => {
+  const t = useTranslations('bookings.phoneModal');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [transactionRef, setTransactionRef] = useState('');
   const [error, setError] = useState('');
@@ -28,13 +31,15 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
     e.preventDefault();
     
     if (!phoneNumber.trim() || !transactionRef.trim()) {
-      setError('Tous les champs sont obligatoires');
+      toast.error(t('errors.requiredFields'));
+      setError(t('errors.requiredFields'));
       return;
     }
-    
+
     // Validation du code de transaction
     if (transactionRef.length < 4) {
-      setError("Le code de transaction semble invalide (minimum 4 caractères)");
+      toast.error(t('errors.invalidTransactionCode'));
+      setError(t('errors.invalidTransactionCode'));
       return;
     }
     
@@ -92,10 +97,10 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">
-              Paiement Mobile Money
+              {t('title')}
             </h2>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
-              Suivez les instructions ci-dessous
+              {t('subtitle')}
             </p>
           </div>
           {!isLoading && (
@@ -115,19 +120,19 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
               1
             </div>
             <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-              Envoyez l&apos;argent via Mobile Money
+              {t('step1Title')}
             </h3>
           </div>
-          
+
           <div className="space-y-3 text-sm">
             <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded p-2">
-              <span className="text-gray-600 dark:text-gray-400">Numéro :</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('numberLabel')}</span>
               <div className="flex items-center gap-2">
                 <span className="font-mono font-bold text-gray-900 dark:text-gray-100">{MERCHANT_NUMBER}</span>
                 <button
                   onClick={() => copyToClipboard(MERCHANT_NUMBER)}
                   className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                  title="Copier"
+                  title={t('copyTitle')}
                 >
                   {copied ? (
                     <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,19 +148,19 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
             </div>
             
             <div className="flex justify-between items-center bg-white dark:bg-gray-800 rounded p-2">
-              <span className="text-gray-600 dark:text-gray-400">Nom :</span>
+              <span className="text-gray-600 dark:text-gray-400">{t('nameLabel')}</span>
               <span className="font-medium text-gray-900 dark:text-gray-100">{MERCHANT_NAME}</span>
             </div>
-            
+
             {/* ✅ AFFICHAGE DU MONTANT */}
             <div className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 rounded p-2 border border-green-200 dark:border-green-800">
-              <span className="text-gray-700 dark:text-gray-300 font-medium">Montant :</span>
+              <span className="text-gray-700 dark:text-gray-300 font-medium">{t('amountLabel')}</span>
               <span className="font-bold text-lg text-green-700 dark:text-green-400">{amount.toLocaleString()} FBu</span>
             </div>
           </div>
 
           <div className="mt-3 text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 rounded p-2">
-            💡 <strong>Astuce :</strong> Après l&apos;envoi, vous recevrez un SMS avec un code de transaction. Notez-le bien !
+            💡 <strong>{t('tip')}</strong> {t('tipText')}
           </div>
         </div>
 
@@ -167,21 +172,21 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
                 2
               </div>
               <h3 className="text-sm font-semibold text-orange-800 dark:text-orange-300">
-                Confirmez votre paiement
+                {t('step2Title')}
               </h3>
             </div>
 
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Votre numéro (envoyeur)
+                  {t('yourNumberLabel')}
                 </label>
                 <input
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   disabled={isLoading}
-                  placeholder="Ex: +257 79 123 456"
+                  placeholder={t('yourNumberPlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-all"
                   required
                 />
@@ -189,19 +194,19 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Code de transaction <span className="text-red-500">*</span>
+                  {t('transactionCodeLabel')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={transactionRef}
                   onChange={(e) => setTransactionRef(e.target.value.toUpperCase())}
                   disabled={isLoading}
-                  placeholder="Ex: LUMI8H3K9L2 ou ECO456789"
+                  placeholder={t('transactionCodePlaceholder')}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent disabled:bg-gray-100 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-all font-mono uppercase placeholder:normal-case placeholder:font-sans"
                   required
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  📱 C&apos;est le code reçu par SMS après votre envoi Mobile Money
+                  📱 {t('transactionCodeHint')}
                 </p>
               </div>
             </div>
@@ -223,7 +228,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
               disabled={isLoading}
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
-              Annuler
+              {t('cancel')}
             </button>
             <button
               type="submit"
@@ -233,14 +238,14 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
               {isLoading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                  Vérification...
+                  {t('verifying')}
                 </>
               ) : (
                 <>
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  J&apos;ai payé
+                  {t('paidButton')}
                 </>
               )}
             </button>
@@ -249,7 +254,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
 
         {/* Info opérateurs */}
         <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Opérateurs supportés :</p>
+          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">{t('operatorsSupported')}</p>
           <div className="flex gap-3">
             <div className="flex items-center text-xs text-gray-700 dark:text-gray-300">
               <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>

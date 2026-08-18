@@ -123,7 +123,18 @@ html {
 }
 
 .react-calendar__navigation button {
-  @apply text-foreground hover:bg-muted rounded;
+  @apply text-foreground rounded;
+}
+
+.react-calendar__navigation button:disabled {
+  background-color: rgb(var(--muted) / 0.4);
+}
+
+/* Higher specificity than react-calendar's own :enabled:hover default
+   (background-color: #e6e6e6) so the theme-aware color actually wins. */
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: rgb(var(--muted));
 }
 
 .react-calendar__month-view__weekdays__weekday {
@@ -132,8 +143,28 @@ html {
 }
 
 .react-calendar__tile {
-  @apply text-foreground rounded hover:bg-muted;
+  @apply text-foreground rounded;
   padding: 10px 6px;
+}
+
+/* Higher specificity than react-calendar's own :enabled:hover default
+   (background-color: #e6e6e6) so the theme-aware color actually wins. */
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: rgb(var(--muted));
+}
+
+/* Past/disabled dates: override the library's hardcoded #f0f0f0, which shows
+   as a stark light block spanning whole rows in dark mode. */
+.react-calendar__tile:disabled {
+  background-color: rgb(var(--muted) / 0.4);
+  color: rgb(var(--muted-foreground));
+}
+
+/* Hover preview of the in-progress range during selectRange — react-calendar
+   ships no theme-aware default for this, only a hardcoded light gray. */
+.react-calendar--selectRange .react-calendar__tile--hover {
+  background-color: rgb(var(--muted));
 }
 
 .react-calendar__tile--now {
@@ -146,6 +177,20 @@ html {
 
 .react-calendar__tile--hasActive {
   @apply bg-primary text-primary-foreground font-bold;
+}
+
+/* Same specificity fix as above, for the today/active tiles: react-calendar's
+   own :enabled:hover defaults (#ffffa9, #a9d4ff, #1087ff) otherwise win. */
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  @apply bg-primary/20;
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus,
+.react-calendar__tile--hasActive:enabled:hover,
+.react-calendar__tile--hasActive:enabled:focus {
+  @apply bg-primary/90;
 }
 
 .react-calendar__tile abbr {

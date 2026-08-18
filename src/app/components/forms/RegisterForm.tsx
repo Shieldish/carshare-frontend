@@ -5,12 +5,16 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/apiClient';
 import { Eye, EyeOff } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
 
 interface RegisterFormProps {
   redirectTo?: string;
 }
 
 export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
+  const t = useTranslations('auth.register');
+  const tToast = useTranslations('toast.errors');
   const router = useRouter();
 
   // --- ÉTATS DU COMPOSANT ---
@@ -41,7 +45,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
 
     // Vérification de la correspondance des mots de passe
     if (formData.password !== formData.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('passwordMismatch'));
       return;
     }
 
@@ -64,8 +68,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       router.push(`/login${loginRedirect}`);
 
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'La création du compte a échoué.';
-      setError(errorMessage);
+      setError(tToast(getApiErrorMessageKey(err)));
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +86,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
-            Prénom <span className="text-red-500">*</span>
+            {t('firstNameLabel')} <span className="text-red-500">*</span>
           </label>
           <input 
             type="text" 
@@ -97,7 +100,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
         </div>
         <div>
           <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
-            Nom <span className="text-red-500">*</span>
+            {t('lastNameLabel')} <span className="text-red-500">*</span>
           </label>
           <input 
             type="text" 
@@ -113,7 +116,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-          Email <span className="text-red-500">*</span>
+          {t('emailLabel')} <span className="text-red-500">*</span>
         </label>
         <input 
           type="email" 
@@ -129,7 +132,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       {/* Champ Mot de passe avec notre propre œil */}
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-          Mot de passe <span className="text-red-500">*</span>
+          {t('passwordLabel')} <span className="text-red-500">*</span>
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <input 
@@ -165,7 +168,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       {/* Champ Confirmation Mot de passe (SANS ŒIL) */}
       <div>
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-          Confirmer le mot de passe <span className="text-red-500">*</span>
+          {t('confirmPasswordLabel')} <span className="text-red-500">*</span>
         </label>
         <input 
           type="password" 
@@ -181,26 +184,26 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       
       <div>
         <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700">
-          Numéro de téléphone <span className="text-red-500">*</span>
+          {t('phoneLabel')} <span className="text-red-500">*</span>
         </label>
-        <input 
-          type="tel" 
-          name="phoneNumber" 
-          id="phoneNumber" 
+        <input
+          type="tel"
+          name="phoneNumber"
+          id="phoneNumber"
           required
           placeholder="Ex: +257 79 12 34 56"
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
-          value={formData.phoneNumber} 
-          onChange={handleChange} 
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          value={formData.phoneNumber}
+          onChange={handleChange}
         />
         <p className="mt-1 text-xs text-gray-500">
-          Nécessaire pour la communication entre locataires et propriétaires
+          {t('phoneHelp')}
         </p>
       </div>
 
       <div className="text-center text-sm mb-4">
         <Link href="/register/company" className="font-medium text-blue-600 hover:text-blue-500">
-          Vous êtes une agence ? Créez un compte professionnel
+          {t('companyLink')}
         </Link>
       </div>
 
@@ -210,7 +213,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
           disabled={isLoading}
           className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
         >
-          {isLoading ? 'Création en cours...' : 'Créer mon compte'}
+          {isLoading ? t('submitting') : t('submitButton')}
         </button>
       </div>
     </form>

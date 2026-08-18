@@ -4,9 +4,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useChat, ChatMessage } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { Send, X, Loader2, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function ChatWindow() {
+  const t = useTranslations('chat');
   const {
     isOpen,
     closeChat,
@@ -17,8 +20,18 @@ export default function ChatWindow() {
     error
   } = useChat();
   const { user } = useAuth();
+  const { markConversationAsRead } = useNotifications();
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // ✅ Ouvrir cette conversation (ou recevoir un nouveau message dedans pendant qu'elle est
+  // déjà ouverte) marque comme lues les notifications de chat correspondantes — jamais celles
+  // d'autres conversations ou d'autres types (incident, statut...).
+  useEffect(() => {
+    if (isOpen && currentBookingId) {
+      markConversationAsRead(currentBookingId);
+    }
+  }, [isOpen, currentBookingId, messages.length, markConversationAsRead]);
 
   // Récupérer la marque du véhicule depuis le premier message (si disponible)
   const vehicleBrand = messages.length > 0 ? messages[0].vehicleBrand : '';
@@ -32,6 +45,12 @@ export default function ChatWindow() {
       setTimeout(scrollToBottom, 100);
     }
   }, [messages, isOpen]);
+
+  const resolveSenderRole = (senderRole: string | undefined) => {
+    if (senderRole === 'Propriétaire') return t('roleOwner');
+    if (senderRole === 'Locataire') return t('roleRenter');
+    return senderRole || t('defaultSender');
+  };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,12 +69,14 @@ export default function ChatWindow() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-blue-600 dark:bg-blue-500 text-white border-b border-gray-200 dark:border-gray-700">
         <h3 className="font-semibold">
-          {vehicleBrand ? `${vehicleBrand} - Réservation #${currentBookingId}` : `Réservation #${currentBookingId}`}
+          {vehicleBrand
+            ? t('reservationTitleWithVehicle', { vehicle: vehicleBrand, id: currentBookingId ?? '' })
+            : t('reservationTitle', { id: currentBookingId ?? '' })}
         </h3>
         <button
           onClick={closeChat}
           className="p-1 rounded-full hover:bg-white/20 transition-colors"
-          title="Fermer le chat"
+          title={t('closeChat')}
         >
           <X className="w-5 h-5" />
         </button>
@@ -70,12 +91,12 @@ export default function ChatWindow() {
         ) : error && messages.length === 0 ? (
           <div className="flex flex-col justify-center items-center h-full text-center px-4">
             <AlertCircle className="w-10 h-10 text-red-500 mb-3"/>
-            <p className="text-red-600 font-medium mb-1">Erreur de chargement</p>
+            <p className="text-red-600 font-medium mb-1">{t('loadError')}</p>
             <p className="text-gray-500 dark:text-gray-400 text-sm">{error}</p>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex justify-center items-center h-full">
-            <p className="text-gray-500 dark:text-gray-400">Aucun message pour l&apos;instant.</p>
+            <p className="text-gray-500 dark:text-gray-400">{t('noMessages')}</p>
           </div>
         ) : (
           messages.map((msg) => {
@@ -94,7 +115,7 @@ export default function ChatWindow() {
                 >
                   {!isSender && (
                     <p className="text-xs font-semibold mb-1 text-blue-600 dark:text-blue-400">
-                      {msg.senderRole || 'Utilisateur'}
+                      {resolveSenderRole(msg.senderRole)}
                     </p>
                   )}
                   <p className="text-sm break-words">{msg.content}</p>
@@ -123,7 +144,7 @@ export default function ChatWindow() {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Écrivez votre message..."
+            placeholder={t('messagePlaceholder')}
             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             autoComplete="off"
           />
@@ -131,7 +152,7 @@ export default function ChatWindow() {
             type="submit"
             disabled={!newMessage.trim()}
             className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-            title="Envoyer"
+            title={t('send')}
           >
             <Send className="w-5 h-5" />
           </button>

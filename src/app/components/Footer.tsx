@@ -1,9 +1,11 @@
 'use client'; // ✅ Composant client pour détecter la route
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'; // ✅ Import usePathname
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
   const pathname = usePathname();
+  const t = useTranslations('footer');
 
   // ✅ Sur les pages /admin, le footer ne s'affiche pas (dashboard pleine page)
   if (pathname?.startsWith('/admin')) {
@@ -19,33 +21,33 @@ export default function Footer() {
               BudaxDrive
             </h3>
             <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed">
-              Location de voitures entre particuliers au Burundi. Simple, sécurisé et abordable.
+              {t('tagline')}
             </p>
           </div>
-          
+
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-100 dark:text-gray-200">Navigation</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-100 dark:text-gray-200">{t('navigationTitle')}</h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link href="/about" className="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 hover:translate-x-1 inline-block hover:underline">
-                  À propos
+                  {t('about')}
                 </Link>
               </li>
               <li>
                 <Link href="/faq" className="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 hover:translate-x-1 inline-block hover:underline">
-                  Aide
+                  {t('help')}
                 </Link>
               </li>
               <li>
                 <Link href="/terms" className="text-gray-300 dark:text-gray-400 hover:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 hover:translate-x-1 inline-block hover:underline">
-                  Conditions d&apos;utilisation
+                  {t('terms')}
                 </Link>
               </li>
             </ul>
           </div>
-          
+
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-100 dark:text-gray-200">Suivez-nous</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-100 dark:text-gray-200">{t('followUsTitle')}</h3>
             <div className="flex space-x-4 mb-4">
               <a href="#" className="text-gray-400 dark:text-gray-500 hover:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 hover:scale-110" aria-label="Twitter">
                 <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
@@ -64,7 +66,7 @@ export default function Footer() {
               </a>
             </div>
             <div className="text-sm text-gray-400 dark:text-gray-500">
-              <p>Rejoignez notre communauté</p>
+              <p>{t('joinCommunity')}</p>
             </div>
           </div>
         </div>
@@ -73,10 +75,10 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4">
               <p className="text-gray-400 dark:text-gray-500">
-                © 2025 CarShare Burundi. Tous droits réservés.
+                {t('copyright')}
               </p>
               <div className="flex items-center space-x-2 text-gray-400 dark:text-gray-500">
-                <span>Contact:</span>
+                <span>{t('contactLabel')}</span>
                 <a href="mailto:orl.ndonse@gmail.com" className="text-blue-400 hover:text-blue-300 transition-colors hover:underline">
                   orl.ndonse@gmail.com
                 </a>
@@ -84,10 +86,10 @@ export default function Footer() {
             </div>
             <div className="flex space-x-6 text-gray-400 dark:text-gray-500">
               <Link href="/privacy" className="hover:text-blue-400 dark:hover:text-blue-300 transition-colors hover:underline">
-                Confidentialité
+                {t('privacy')}
               </Link>
               <Link href="/terms" className="hover:text-blue-400 dark:hover:text-blue-300 transition-colors hover:underline">
-                Mentions légales
+                {t('legalNotice')}
               </Link>
             </div>
           </div>

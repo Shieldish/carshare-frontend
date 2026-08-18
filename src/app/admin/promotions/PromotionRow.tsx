@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import NextImage from 'next/image';
-import { Image as ImageIcon, XCircle, CheckCircle, Loader2, Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Image as ImageIcon, XCircle, CheckCircle, Loader2, Trash2, ImagePlus, Pencil } from 'lucide-react';
 import type { BoostAdminData } from './page';
 import { apiClient } from '@/lib/apiClient';
 
@@ -11,6 +12,7 @@ interface PromotionRowProps {
 }
 
 export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }: PromotionRowProps) {
+  const t = useTranslations('admin.promotions');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -26,7 +28,7 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        setError("L'image ne doit pas dépasser 10MB.");
+        setError(t('imageTooLarge'));
         return;
       }
       setError(null);
@@ -52,7 +54,7 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
       onUploadSuccess(boost.boostId, response.heroImageUrl);
       clearSelection();
     } catch {
-      setError("L'upload a échoué. Réessayez.");
+      setError(t('uploadFailed'));
     } finally {
       setIsUploading(false);
     }
@@ -66,7 +68,7 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
       await apiClient.delete(`/api/promotions/admin/boost/${boost.boostId}/image`);
       onDeleteSuccess(boost.boostId);
     } catch {
-      setError("La suppression a échoué. Réessayez.");
+      setError(t('deleteFailed'));
     } finally {
       setIsDeleting(false);
     }
@@ -98,10 +100,10 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
             onClick={() => boost.vehicleImageUrl && setZoomedImage(boost.vehicleImageUrl)}
           >
             {boost.vehicleImageUrl ? (
-              <NextImage 
-                src={boost.vehicleImageUrl} 
-                alt="Véhicule" 
-                fill 
+              <NextImage
+                src={boost.vehicleImageUrl}
+                alt={t('vehicleAlt')}
+                fill
                 className="object-cover group-hover:scale-110 transition-transform duration-300" 
                 unoptimized 
               />
@@ -132,10 +134,10 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
             onClick={() => (previewUrl || boost.heroImageUrl) && setZoomedImage(previewUrl || boost.heroImageUrl!)}
           >
             {previewUrl || boost.heroImageUrl ? (
-              <NextImage 
-                src={previewUrl || boost.heroImageUrl!} 
-                alt="Aperçu" 
-                fill 
+              <NextImage
+                src={previewUrl || boost.heroImageUrl!}
+                alt={t('previewAlt')}
+                fill
                 className="object-cover group-hover:scale-110 transition-transform duration-300" 
                 unoptimized 
               />
@@ -159,12 +161,18 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
 
               {!imageFile && (
                 <>
-                  <button onClick={() => fileInputRef.current?.click()} disabled={isDeleting} className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors disabled:opacity-50">
-                    {boost.heroImageUrl ? 'Changer' : 'Ajouter'} une image
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isDeleting}
+                    title={boost.heroImageUrl ? t('changeImage') : t('addImage')}
+                    aria-label={boost.heroImageUrl ? t('changeImage') : t('addImage')}
+                    className="p-2 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-full disabled:opacity-50 transition-colors"
+                  >
+                    {boost.heroImageUrl ? <Pencil size={18} /> : <ImagePlus size={18} />}
                   </button>
 
                   {boost.heroImageUrl && (
-                    <button onClick={handleDelete} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors" title="Supprimer l'image">
+                    <button onClick={handleDelete} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors" title={t('deleteImageTitle')}>
                       {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 size={18} />}
                     </button>
                   )}
@@ -199,9 +207,9 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
                   <XCircle size={40} />
                 </button>
                 
-                <NextImage 
-                  src={zoomedImage} 
-                  alt="Zoom Plein Écran" 
+                <NextImage
+                  src={zoomedImage}
+                  alt={t('zoomAlt')}
                   fill
                   className="object-contain drop-shadow-2xl rounded-xl"
                   unoptimized

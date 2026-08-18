@@ -1,10 +1,199 @@
 'use client';
 /* eslint-disable react/no-unescaped-entities */
 
-import React from 'react';
-import { Shield, Eye, Database, Lock, Users, Cookie, FileText, Mail, Phone, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { Shield, Eye, Database, Lock, Users, Cookie, FileText, Mail, Phone, AlertCircle, Globe } from 'lucide-react';
+
+type DocLang = 'fr' | 'en';
+
+const content: Record<DocLang, {
+  lastUpdated: string;
+  intro: { title: string; p1: string; p2: string; p3: string };
+  collection: { title: string; sub1Title: string; sub1Items: string[]; sub2Title: string; sub2Items: string[]; sub3Title: string; sub3Items: string[] };
+  usage: { title: string; coreTitle: string; coreItems: string[]; improveTitle: string; improveItems: string[] };
+  sharing: { title: string; sub1Title: string; sub1Desc: string; sub1Items: string[]; sub2Title: string; partnersTitle: string; partnersItems: string[]; authoritiesTitle: string; authoritiesItems: string[] };
+  security: { title: string; encryptionTitle: string; encryptionDesc: string; accessTitle: string; accessDesc: string; backupTitle: string; backupDesc: string; extraTitle: string; extraItems: string[] };
+  cookies: { title: string; intro: string; headerType: string; headerPurpose: string; headerDuration: string; rows: [string, string, string][] };
+  rights: { title: string; accessTitle: string; rightAccessBadge: string; rightAccessLabel: string; rightEditBadge: string; rightEditLabel: string; rightDeleteBadge: string; rightDeleteLabel: string; rightPortBadge: string; rightPortLabel: string; howTitle: string; byEmailTitle: string; fromAccountTitle: string; fromAccountDesc: string; responseTimeTitle: string; responseTimeDesc: string };
+  retention: { title: string; activeTitle: string; activeDesc: string; activeValue: string; deletedTitle: string; deletedDesc: string; deletedValue: string; legalTitle: string; legalDesc: string; legalValue: string; anonTitle: string; anonDesc: string; anonValue: string };
+  contact: { title: string; questionsTitle: string; responseGuarantee: string; emergencyTitle: string; emergencyHours: string; breachNotice: string };
+  updates: { title: string; p1: string; p2: string; versionLabel: string; historyLink: string };
+}> = {
+  fr: {
+    lastUpdated: "Dernière mise à jour : 15 septembre 2025",
+    intro: {
+      title: "1. Introduction",
+      p1: "CarShare Burundi s'engage à protéger votre vie privée et vos données personnelles. Cette politique explique comment nous collectons, utilisons, stockons et protégeons vos informations personnelles.",
+      p2: "En utilisant nos services, vous acceptez les pratiques décrites dans cette politique de confidentialité. Nous nous conformons aux lois burundaises et internationales sur la protection des données.",
+      p3: "Cette politique s'applique à tous nos services : site web, application mobile et services associés."
+    },
+    collection: {
+      title: "2. Données Collectées",
+      sub1Title: "2.1 Informations personnelles",
+      sub1Items: ["Nom, prénom, date de naissance", "Adresse email et numéro de téléphone", "Adresse postale", "Informations du permis de conduire", "Données bancaires (cryptées)", "Photos de profil et documents d'identité"],
+      sub2Title: "2.2 Données d'utilisation",
+      sub2Items: ["Historique des réservations", "Préférences de véhicules", "Évaluations et commentaires", "Communications sur la plateforme", "Données de géolocalisation (avec consentement)"],
+      sub3Title: "2.3 Données techniques",
+      sub3Items: ["Adresse IP et données de connexion", "Type d'appareil et navigateur", "Données de navigation (cookies)", "Logs de sécurité"]
+    },
+    usage: {
+      title: "3. Utilisation des Données",
+      coreTitle: "Services principaux",
+      coreItems: ["Création et gestion de comptes", "Mise en relation propriétaires/locataires", "Traitement des réservations", "Support client personnalisé", "Vérification d'identité"],
+      improveTitle: "Amélioration",
+      improveItems: ["Analyses et statistiques", "Développement de nouvelles fonctionnalités", "Prévention de la fraude", "Sécurisation de la plateforme", "Personnalisation de l'expérience"]
+    },
+    sharing: {
+      title: "4. Partage des Données",
+      sub1Title: "4.1 Avec d'autres utilisateurs",
+      sub1Desc: "Nous partageons certaines informations entre propriétaires et locataires pour faciliter les transactions :",
+      sub1Items: ["Nom, photo de profil et évaluations", "Informations de contact (masquées jusqu'à confirmation)", "Historique de location (nombre de voyages)"],
+      sub2Title: "4.2 Avec des tiers",
+      partnersTitle: "Partenaires autorisés",
+      partnersItems: ["Processeurs de paiement", "Compagnies d'assurance", "Services de vérification d'identité", "Prestataires techniques"],
+      authoritiesTitle: "Autorités légales",
+      authoritiesItems: ["Demandes judiciaires", "Enquêtes policières", "Obligations légales", "Protection des droits"]
+    },
+    security: {
+      title: "5. Sécurité des Données",
+      encryptionTitle: "Chiffrement", encryptionDesc: "Données sensibles chiffrées avec AES-256",
+      accessTitle: "Accès Contrôlé", accessDesc: "Authentification multi-facteurs obligatoire",
+      backupTitle: "Sauvegarde", backupDesc: "Sauvegardes quotidiennes automatisées",
+      extraTitle: "Mesures supplémentaires",
+      extraItems: ["Monitoring 24h/7j des accès", "Tests de pénétration réguliers", "Formation sécurité des employés", "Mise à jour continue des systèmes"]
+    },
+    cookies: {
+      title: "6. Cookies et Technologies Similaires",
+      intro: "Nous utilisons des cookies pour améliorer votre expérience et analyser l'utilisation de nos services.",
+      headerType: "Type de Cookie", headerPurpose: "Objectif", headerDuration: "Durée",
+      rows: [["Essentiels", "Fonctionnement du site", "Session"], ["Préférences", "Mémoriser vos choix", "1 an"], ["Analytiques", "Statistiques d'usage", "2 ans"], ["Publicitaires", "Annonces personnalisées", "13 mois"]]
+    },
+    rights: {
+      title: "7. Vos Droits",
+      accessTitle: "Droits d'accès et de contrôle",
+      rightAccessBadge: "ACCÈS", rightAccessLabel: "Consulter vos données personnelles",
+      rightEditBadge: "MODIF", rightEditLabel: "Corriger ou mettre à jour vos informations",
+      rightDeleteBadge: "SUPPR", rightDeleteLabel: "Demander la suppression de vos données",
+      rightPortBadge: "PORT", rightPortLabel: "Récupérer vos données dans un format portable",
+      howTitle: "Comment exercer vos droits",
+      byEmailTitle: "Par email",
+      fromAccountTitle: "Depuis votre compte", fromAccountDesc: "Section \"Paramètres de confidentialité\"",
+      responseTimeTitle: "Délai de réponse", responseTimeDesc: "Maximum 30 jours"
+    },
+    retention: {
+      title: "8. Conservation des Données",
+      activeTitle: "Données de compte actif", activeDesc: "Tant que votre compte est actif", activeValue: "Illimitée",
+      deletedTitle: "Après suppression du compte", deletedDesc: "Données personnelles supprimées", deletedValue: "30 jours",
+      legalTitle: "Données légales", legalDesc: "Transactions, factures", legalValue: "7 ans",
+      anonTitle: "Données anonymisées", anonDesc: "Statistiques, analyses", anonValue: "Permanent"
+    },
+    contact: {
+      title: "9. Contact - Délégué à la Protection des Données",
+      questionsTitle: "Questions sur vos données", responseGuarantee: "Réponse sous 48h garantie",
+      emergencyTitle: "Urgence Confidentialité", emergencyHours: "7j/7 - 24h/24",
+      breachNotice: "Important : En cas de violation de données, nous nous engageons à vous notifier dans les 72 heures suivant la découverte de l'incident."
+    },
+    updates: {
+      title: "Mises à jour de cette Politique",
+      p1: "Cette politique peut être mise à jour périodiquement pour refléter les changements dans nos pratiques ou pour des raisons légales et réglementaires.",
+      p2: "Nous vous informerons de tout changement significatif par email et via une notification sur la plateforme au moins 30 jours avant l'entrée en vigueur.",
+      versionLabel: "Version actuelle : 2.1 - Septembre 2025",
+      historyLink: "Voir l'historique des versions →"
+    }
+  },
+  en: {
+    lastUpdated: "Last updated: September 15, 2025",
+    intro: {
+      title: "1. Introduction",
+      p1: "CarShare Burundi is committed to protecting your privacy and personal data. This policy explains how we collect, use, store and protect your personal information.",
+      p2: "By using our services, you agree to the practices described in this privacy policy. We comply with Burundian and international data protection laws.",
+      p3: "This policy applies to all our services: website, mobile app and related services."
+    },
+    collection: {
+      title: "2. Data Collected",
+      sub1Title: "2.1 Personal information",
+      sub1Items: ["First name, last name, date of birth", "Email address and phone number", "Postal address", "Driving license information", "Bank data (encrypted)", "Profile photos and ID documents"],
+      sub2Title: "2.2 Usage data",
+      sub2Items: ["Booking history", "Vehicle preferences", "Ratings and reviews", "Communications on the platform", "Geolocation data (with consent)"],
+      sub3Title: "2.3 Technical data",
+      sub3Items: ["IP address and connection data", "Device and browser type", "Browsing data (cookies)", "Security logs"]
+    },
+    usage: {
+      title: "3. Use of Data",
+      coreTitle: "Core services",
+      coreItems: ["Account creation and management", "Connecting owners/renters", "Booking processing", "Personalized customer support", "Identity verification"],
+      improveTitle: "Improvement",
+      improveItems: ["Analytics and statistics", "Development of new features", "Fraud prevention", "Platform security", "Personalizing your experience"]
+    },
+    sharing: {
+      title: "4. Data Sharing",
+      sub1Title: "4.1 With other users",
+      sub1Desc: "We share certain information between owners and renters to facilitate transactions:",
+      sub1Items: ["Name, profile photo and ratings", "Contact information (hidden until confirmation)", "Rental history (number of trips)"],
+      sub2Title: "4.2 With third parties",
+      partnersTitle: "Authorized partners",
+      partnersItems: ["Payment processors", "Insurance companies", "Identity verification services", "Technical service providers"],
+      authoritiesTitle: "Legal authorities",
+      authoritiesItems: ["Judicial requests", "Police investigations", "Legal obligations", "Protection of rights"]
+    },
+    security: {
+      title: "5. Data Security",
+      encryptionTitle: "Encryption", encryptionDesc: "Sensitive data encrypted with AES-256",
+      accessTitle: "Controlled Access", accessDesc: "Mandatory multi-factor authentication",
+      backupTitle: "Backup", backupDesc: "Automated daily backups",
+      extraTitle: "Additional measures",
+      extraItems: ["24/7 access monitoring", "Regular penetration testing", "Employee security training", "Continuous system updates"]
+    },
+    cookies: {
+      title: "6. Cookies and Similar Technologies",
+      intro: "We use cookies to improve your experience and analyze the use of our services.",
+      headerType: "Cookie Type", headerPurpose: "Purpose", headerDuration: "Duration",
+      rows: [["Essential", "Site functionality", "Session"], ["Preferences", "Remember your choices", "1 year"], ["Analytics", "Usage statistics", "2 years"], ["Advertising", "Personalized ads", "13 months"]]
+    },
+    rights: {
+      title: "7. Your Rights",
+      accessTitle: "Access and control rights",
+      rightAccessBadge: "ACCESS", rightAccessLabel: "View your personal data",
+      rightEditBadge: "EDIT", rightEditLabel: "Correct or update your information",
+      rightDeleteBadge: "DELETE", rightDeleteLabel: "Request deletion of your data",
+      rightPortBadge: "EXPORT", rightPortLabel: "Retrieve your data in a portable format",
+      howTitle: "How to exercise your rights",
+      byEmailTitle: "By email",
+      fromAccountTitle: "From your account", fromAccountDesc: "\"Privacy settings\" section",
+      responseTimeTitle: "Response time", responseTimeDesc: "Maximum 30 days"
+    },
+    retention: {
+      title: "8. Data Retention",
+      activeTitle: "Active account data", activeDesc: "As long as your account is active", activeValue: "Unlimited",
+      deletedTitle: "After account deletion", deletedDesc: "Personal data deleted", deletedValue: "30 days",
+      legalTitle: "Legal data", legalDesc: "Transactions, invoices", legalValue: "7 years",
+      anonTitle: "Anonymized data", anonDesc: "Statistics, analytics", anonValue: "Permanent"
+    },
+    contact: {
+      title: "9. Contact - Data Protection Officer",
+      questionsTitle: "Questions about your data", responseGuarantee: "48h response guaranteed",
+      emergencyTitle: "Privacy Emergency", emergencyHours: "7 days a week - 24 hours a day",
+      breachNotice: "Important: In the event of a data breach, we are committed to notifying you within 72 hours of discovering the incident."
+    },
+    updates: {
+      title: "Updates to this Policy",
+      p1: "This policy may be updated periodically to reflect changes in our practices or for legal and regulatory reasons.",
+      p2: "We will inform you of any significant change by email and via a notification on the platform at least 30 days before it takes effect.",
+      versionLabel: "Current version: 2.1 - September 2025",
+      historyLink: "View version history →"
+    }
+  }
+};
 
 const PrivacyPage = () => {
+  const siteLocale = useLocale();
+  const tLegal = useTranslations('legal');
+  const tPage = useTranslations('privacy');
+  const [docLang, setDocLang] = useState<DocLang>(siteLocale === 'en' ? 'en' : 'fr');
+  const c = content[docLang];
+  const needsNotice = siteLocale === 'sw' || siteLocale === 'rn';
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
@@ -12,11 +201,8 @@ const PrivacyPage = () => {
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-green-100 bg-clip-text text-transparent">
-              Politique de Confidentialité
+              {tPage('metaTitle')}
             </h1>
-            <p className="text-xl text-green-100 max-w-2xl mx-auto leading-relaxed">
-              Votre vie privée est importante pour nous. Découvrez comment nous protégeons vos données personnelles.
-            </p>
           </div>
         </div>
       </div>
@@ -24,10 +210,37 @@ const PrivacyPage = () => {
       {/* Privacy Content */}
       <div className="container mx-auto px-6 py-16">
         <div className="max-w-4xl mx-auto">
+          {/* Language notice for sw/rn site locales */}
+          {needsNotice && (
+            <div className="mb-8 p-5 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+              <div className="flex items-start gap-3">
+                <Globe className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-amber-800 dark:text-amber-300 mb-1">{tLegal('languageNoticeTitle')}</p>
+                  <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">{tLegal('languageNoticeDescription')}</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setDocLang('fr')}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'fr' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                    >
+                      {tLegal('viewInFrench')}
+                    </button>
+                    <button
+                      onClick={() => setDocLang('en')}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'en' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                    >
+                      {tLegal('viewInEnglish')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Last Updated */}
           <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
             <p className="text-sm text-green-700 dark:text-green-300">
-              <strong>Dernière mise à jour :</strong> 15 septembre 2025
+              <strong>{c.lastUpdated}</strong>
             </p>
           </div>
 
@@ -35,20 +248,12 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Shield className="w-8 h-8 mr-3 text-green-600" />
-              1. Introduction
+              {c.intro.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                CarShare Burundi s'engage à protéger votre vie privée et vos données personnelles. Cette politique 
-                explique comment nous collectons, utilisons, stockons et protégeons vos informations personnelles.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                En utilisant nos services, vous acceptez les pratiques décrites dans cette politique de confidentialité. 
-                Nous nous conformons aux lois burundaises et internationales sur la protection des données.
-              </p>
-              <p className="text-muted-foreground leading-relaxed">
-                Cette politique s'applique à tous nos services : site web, application mobile et services associés.
-              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p1}</p>
+              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p2}</p>
+              <p className="text-muted-foreground leading-relaxed">{c.intro.p3}</p>
             </div>
           </section>
 
@@ -56,34 +261,20 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Database className="w-8 h-8 mr-3 text-blue-600" />
-              2. Données Collectées
+              {c.collection.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">2.1 Informations personnelles</h3>
+              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub1Title}</h3>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                <li>Nom, prénom, date de naissance</li>
-                <li>Adresse email et numéro de téléphone</li>
-                <li>Adresse postale</li>
-                <li>Informations du permis de conduire</li>
-                <li>Données bancaires (cryptées)</li>
-                <li>Photos de profil et documents d'identité</li>
+                {c.collection.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
-
-              <h3 className="font-semibold text-xl mb-4 text-foreground">2.2 Données d'utilisation</h3>
+              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub2Title}</h3>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                <li>Historique des réservations</li>
-                <li>Préférences de véhicules</li>
-                <li>Évaluations et commentaires</li>
-                <li>Communications sur la plateforme</li>
-                <li>Données de géolocalisation (avec consentement)</li>
+                {c.collection.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
-
-              <h3 className="font-semibold text-xl mb-4 text-foreground">2.3 Données techniques</h3>
+              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub3Title}</h3>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>Adresse IP et données de connexion</li>
-                <li>Type d'appareil et navigateur</li>
-                <li>Données de navigation (cookies)</li>
-                <li>Logs de sécurité</li>
+                {c.collection.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
             </div>
           </section>
@@ -92,28 +283,20 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Eye className="w-8 h-8 mr-3 text-purple-600" />
-              3. Utilisation des Données
+              {c.usage.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">Services principaux</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.coreTitle}</h3>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
-                    <li>Création et gestion de comptes</li>
-                    <li>Mise en relation propriétaires/locataires</li>
-                    <li>Traitement des réservations</li>
-                    <li>Support client personnalisé</li>
-                    <li>Vérification d'identité</li>
+                    {c.usage.coreItems.map((item, i) => <li key={i}>{item}</li>)}
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">Amélioration</h3>
+                  <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.improveTitle}</h3>
                   <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
-                    <li>Analyses et statistiques</li>
-                    <li>Développement de nouvelles fonctionnalités</li>
-                    <li>Prévention de la fraude</li>
-                    <li>Sécurisation de la plateforme</li>
-                    <li>Personnalisation de l'expérience</li>
+                    {c.usage.improveItems.map((item, i) => <li key={i}>{item}</li>)}
                   </ul>
                 </div>
               </div>
@@ -124,37 +307,27 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Users className="w-8 h-8 mr-3 text-orange-600" />
-              4. Partage des Données
+              {c.sharing.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">4.1 Avec d'autres utilisateurs</h3>
-              <p className="text-muted-foreground mb-4">
-                Nous partageons certaines informations entre propriétaires et locataires pour faciliter les transactions :
-              </p>
+              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub1Title}</h3>
+              <p className="text-muted-foreground mb-4">{c.sharing.sub1Desc}</p>
               <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                <li>Nom, photo de profil et évaluations</li>
-                <li>Informations de contact (masquées jusqu'à confirmation)</li>
-                <li>Historique de location (nombre de voyages)</li>
+                {c.sharing.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
               </ul>
 
-              <h3 className="font-semibold text-xl mb-4 text-foreground">4.2 Avec des tiers</h3>
+              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub2Title}</h3>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2 text-foreground">Partenaires autorisés</h4>
+                  <h4 className="font-medium mb-2 text-foreground">{c.sharing.partnersTitle}</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Processeurs de paiement</li>
-                    <li>• Compagnies d'assurance</li>
-                    <li>• Services de vérification d'identité</li>
-                    <li>• Prestataires techniques</li>
+                    {c.sharing.partnersItems.map((item, i) => <li key={i}>• {item}</li>)}
                   </ul>
                 </div>
                 <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2 text-foreground">Autorités légales</h4>
+                  <h4 className="font-medium mb-2 text-foreground">{c.sharing.authoritiesTitle}</h4>
                   <ul className="text-sm text-muted-foreground space-y-1">
-                    <li>• Demandes judiciaires</li>
-                    <li>• Enquêtes policières</li>
-                    <li>• Obligations légales</li>
-                    <li>• Protection des droits</li>
+                    {c.sharing.authoritiesItems.map((item, i) => <li key={i}>• {item}</li>)}
                   </ul>
                 </div>
               </div>
@@ -165,7 +338,7 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Lock className="w-8 h-8 mr-3 text-red-600" />
-              5. Sécurité des Données
+              {c.security.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="grid md:grid-cols-3 gap-6">
@@ -173,28 +346,22 @@ const PrivacyPage = () => {
                   <div className="bg-red-100 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Lock className="w-8 h-8 text-red-600" />
                   </div>
-                  <h3 className="font-semibold mb-2 text-foreground">Chiffrement</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Données sensibles chiffrées avec AES-256
-                  </p>
+                  <h3 className="font-semibold mb-2 text-foreground">{c.security.encryptionTitle}</h3>
+                  <p className="text-sm text-muted-foreground">{c.security.encryptionDesc}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-blue-100 dark:bg-blue-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Shield className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="font-semibold mb-2 text-foreground">Accès Contrôlé</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Authentification multi-facteurs obligatoire
-                  </p>
+                  <h3 className="font-semibold mb-2 text-foreground">{c.security.accessTitle}</h3>
+                  <p className="text-sm text-muted-foreground">{c.security.accessDesc}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-green-100 dark:bg-green-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Database className="w-8 h-8 text-green-600" />
                   </div>
-                  <h3 className="font-semibold mb-2 text-foreground">Sauvegarde</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Sauvegardes quotidiennes automatisées
-                  </p>
+                  <h3 className="font-semibold mb-2 text-foreground">{c.security.backupTitle}</h3>
+                  <p className="text-sm text-muted-foreground">{c.security.backupDesc}</p>
                 </div>
               </div>
 
@@ -202,12 +369,9 @@ const PrivacyPage = () => {
                 <div className="flex items-start">
                   <AlertCircle className="w-5 h-5 text-yellow-600 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Mesures supplémentaires</h4>
+                    <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">{c.security.extraTitle}</h4>
                     <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
-                      <li>• Monitoring 24h/7j des accès</li>
-                      <li>• Tests de pénétration réguliers</li>
-                      <li>• Formation sécurité des employés</li>
-                      <li>• Mise à jour continue des systèmes</li>
+                      {c.security.extraItems.map((item, i) => <li key={i}>• {item}</li>)}
                     </ul>
                   </div>
                 </div>
@@ -219,43 +383,28 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <Cookie className="w-8 h-8 mr-3 text-amber-600" />
-              6. Cookies et Technologies Similaires
+              {c.cookies.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <p className="text-muted-foreground leading-relaxed mb-6">
-                Nous utilisons des cookies pour améliorer votre expérience et analyser l'utilisation de nos services.
-              </p>
-              
+              <p className="text-muted-foreground leading-relaxed mb-6">{c.cookies.intro}</p>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="py-3 text-foreground font-semibold">Type de Cookie</th>
-                      <th className="py-3 text-foreground font-semibold">Objectif</th>
-                      <th className="py-3 text-foreground font-semibold">Durée</th>
+                      <th className="py-3 text-foreground font-semibold">{c.cookies.headerType}</th>
+                      <th className="py-3 text-foreground font-semibold">{c.cookies.headerPurpose}</th>
+                      <th className="py-3 text-foreground font-semibold">{c.cookies.headerDuration}</th>
                     </tr>
                   </thead>
                   <tbody className="text-muted-foreground">
-                    <tr className="border-b border-border">
-                      <td className="py-3">Essentiels</td>
-                      <td className="py-3">Fonctionnement du site</td>
-                      <td className="py-3">Session</td>
-                    </tr>
-                    <tr className="border-b border-border">
-                      <td className="py-3">Préférences</td>
-                      <td className="py-3">Mémoriser vos choix</td>
-                      <td className="py-3">1 an</td>
-                    </tr>
-                    <tr className="border-b border-border">
-                      <td className="py-3">Analytiques</td>
-                      <td className="py-3">Statistiques d'usage</td>
-                      <td className="py-3">2 ans</td>
-                    </tr>
-                    <tr>
-                      <td className="py-3">Publicitaires</td>
-                      <td className="py-3">Annonces personnalisées</td>
-                      <td className="py-3">13 mois</td>
-                    </tr>
+                    {c.cookies.rows.map((row, i) => (
+                      <tr key={i} className={i < c.cookies.rows.length - 1 ? "border-b border-border" : ""}>
+                        <td className="py-3">{row[0]}</td>
+                        <td className="py-3">{row[1]}</td>
+                        <td className="py-3">{row[2]}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -266,45 +415,45 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
               <FileText className="w-8 h-8 mr-3 text-indigo-600" />
-              7. Vos Droits
+              {c.rights.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold text-lg mb-4 text-foreground">Droits d'accès et de contrôle</h3>
+                  <h3 className="font-semibold text-lg mb-4 text-foreground">{c.rights.accessTitle}</h3>
                   <ul className="space-y-3">
                     <li className="flex items-start">
-                      <span className="bg-green-100 dark:bg-green-900/20 text-green-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">ACCÈS</span>
-                      <span className="text-muted-foreground text-sm">Consulter vos données personnelles</span>
+                      <span className="bg-green-100 dark:bg-green-900/20 text-green-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightAccessBadge}</span>
+                      <span className="text-muted-foreground text-sm">{c.rights.rightAccessLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-blue-100 dark:bg-blue-900/20 text-blue-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">MODIF</span>
-                      <span className="text-muted-foreground text-sm">Corriger ou mettre à jour vos informations</span>
+                      <span className="bg-blue-100 dark:bg-blue-900/20 text-blue-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightEditBadge}</span>
+                      <span className="text-muted-foreground text-sm">{c.rights.rightEditLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-red-100 dark:bg-red-900/20 text-red-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">SUPPR</span>
-                      <span className="text-muted-foreground text-sm">Demander la suppression de vos données</span>
+                      <span className="bg-red-100 dark:bg-red-900/20 text-red-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightDeleteBadge}</span>
+                      <span className="text-muted-foreground text-sm">{c.rights.rightDeleteLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-purple-100 dark:bg-purple-900/20 text-purple-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">PORT</span>
-                      <span className="text-muted-foreground text-sm">Récupérer vos données dans un format portable</span>
+                      <span className="bg-purple-100 dark:bg-purple-900/20 text-purple-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightPortBadge}</span>
+                      <span className="text-muted-foreground text-sm">{c.rights.rightPortLabel}</span>
                     </li>
                   </ul>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-4 text-foreground">Comment exercer vos droits</h3>
+                  <h3 className="font-semibold text-lg mb-4 text-foreground">{c.rights.howTitle}</h3>
                   <div className="space-y-3">
                     <div className="bg-muted p-3 rounded-lg">
-                      <h4 className="font-medium text-sm mb-1 text-foreground">Par email</h4>
+                      <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.byEmailTitle}</h4>
                       <p className="text-xs text-muted-foreground">orl.ndonse@gmail.com</p>
                     </div>
                     <div className="bg-muted p-3 rounded-lg">
-                      <h4 className="font-medium text-sm mb-1 text-foreground">Depuis votre compte</h4>
-                      <p className="text-xs text-muted-foreground">Section "Paramètres de confidentialité"</p>
+                      <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.fromAccountTitle}</h4>
+                      <p className="text-xs text-muted-foreground">{c.rights.fromAccountDesc}</p>
                     </div>
                     <div className="bg-muted p-3 rounded-lg">
-                      <h4 className="font-medium text-sm mb-1 text-foreground">Délai de réponse</h4>
-                      <p className="text-xs text-muted-foreground">Maximum 30 jours</p>
+                      <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.responseTimeTitle}</h4>
+                      <p className="text-xs text-muted-foreground">{c.rights.responseTimeDesc}</p>
                     </div>
                   </div>
                 </div>
@@ -315,37 +464,37 @@ const PrivacyPage = () => {
           {/* Data Retention */}
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground">
-              8. Conservation des Données
+              {c.retention.title}
             </h2>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h3 className="font-medium text-foreground">Données de compte actif</h3>
-                    <p className="text-sm text-muted-foreground">Tant que votre compte est actif</p>
+                    <h3 className="font-medium text-foreground">{c.retention.activeTitle}</h3>
+                    <p className="text-sm text-muted-foreground">{c.retention.activeDesc}</p>
                   </div>
-                  <span className="text-green-600 font-medium">Illimitée</span>
+                  <span className="text-green-600 font-medium">{c.retention.activeValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h3 className="font-medium text-foreground">Après suppression du compte</h3>
-                    <p className="text-sm text-muted-foreground">Données personnelles supprimées</p>
+                    <h3 className="font-medium text-foreground">{c.retention.deletedTitle}</h3>
+                    <p className="text-sm text-muted-foreground">{c.retention.deletedDesc}</p>
                   </div>
-                  <span className="text-blue-600 font-medium">30 jours</span>
+                  <span className="text-blue-600 font-medium">{c.retention.deletedValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h3 className="font-medium text-foreground">Données légales</h3>
-                    <p className="text-sm text-muted-foreground">Transactions, factures</p>
+                    <h3 className="font-medium text-foreground">{c.retention.legalTitle}</h3>
+                    <p className="text-sm text-muted-foreground">{c.retention.legalDesc}</p>
                   </div>
-                  <span className="text-orange-600 font-medium">7 ans</span>
+                  <span className="text-orange-600 font-medium">{c.retention.legalValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
-                    <h3 className="font-medium text-foreground">Données anonymisées</h3>
-                    <p className="text-sm text-muted-foreground">Statistiques, analyses</p>
+                    <h3 className="font-medium text-foreground">{c.retention.anonTitle}</h3>
+                    <p className="text-sm text-muted-foreground">{c.retention.anonDesc}</p>
                   </div>
-                  <span className="text-purple-600 font-medium">Permanent</span>
+                  <span className="text-purple-600 font-medium">{c.retention.anonValue}</span>
                 </div>
               </div>
             </div>
@@ -354,31 +503,30 @@ const PrivacyPage = () => {
           {/* Contact */}
           <section className="mb-12">
             <h2 className="text-3xl font-bold mb-6 text-foreground">
-              9. Contact - Délégué à la Protection des Données
+              {c.contact.title}
             </h2>
             <div className="bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-800 dark:to-teal-800 rounded-2xl p-8 text-white shadow-lg">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <Mail className="w-5 h-5 mr-2" />
-                    Questions sur vos données
+                    {c.contact.questionsTitle}
                   </h3>
                   <p className="mb-2">orl.ndonse@gmail.com</p>
-                  <p className="text-green-100 text-sm">Réponse sous 48h garantie</p>
+                  <p className="text-green-100 text-sm">{c.contact.responseGuarantee}</p>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <Phone className="w-5 h-5 mr-2" />
-                    Urgence Confidentialité
+                    {c.contact.emergencyTitle}
                   </h3>
                   <p className="mb-2">+257 XX XX XX XX</p>
-                  <p className="text-green-100 text-sm">7j/7 - 24h/24</p>
+                  <p className="text-green-100 text-sm">{c.contact.emergencyHours}</p>
                 </div>
               </div>
               <div className="mt-6 p-4 bg-green-700 dark:bg-green-900 rounded-lg">
                 <p className="text-sm">
-                  <strong>Important :</strong> En cas de violation de données, nous nous engageons à vous notifier 
-                  dans les 72 heures suivant la découverte de l'incident.
+                  <strong>{c.contact.breachNotice}</strong>
                 </p>
               </div>
             </div>
@@ -388,25 +536,17 @@ const PrivacyPage = () => {
           <section className="mb-12">
             <div className="bg-muted rounded-2xl p-8 shadow-lg border border-border">
               <h3 className="text-xl font-bold mb-4 text-foreground">
-                Mises à jour de cette Politique
+                {c.updates.title}
               </h3>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Cette politique peut être mise à jour périodiquement pour refléter les changements dans nos 
-                pratiques ou pour des raisons légales et réglementaires.
-              </p>
-              <p className="text-muted-foreground leading-relaxed mb-4">
-                Nous vous informerons de tout changement significatif par email et via une notification sur 
-                la plateforme au moins 30 jours avant l'entrée en vigueur.
-              </p>
+              <p className="text-muted-foreground leading-relaxed mb-4">{c.updates.p1}</p>
+              <p className="text-muted-foreground leading-relaxed mb-4">{c.updates.p2}</p>
               <div className="flex items-center justify-between flex-wrap gap-4">
-                <p className="text-muted-foreground text-sm">
-                  Version actuelle : 2.1 - Septembre 2025
-                </p>
-                <a 
-                  href="#" 
+                <p className="text-muted-foreground text-sm">{c.updates.versionLabel}</p>
+                <a
+                  href="#"
                   className="text-green-600 hover:text-green-700 text-sm font-medium hover:underline"
                 >
-                  Voir l'historique des versions →
+                  {c.updates.historyLink}
                 </a>
               </div>
             </div>

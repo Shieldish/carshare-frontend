@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { HeroSliderData } from '../page';
 
@@ -11,20 +12,22 @@ interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
+  const t = useTranslations('home.hero');
+
   const defaultSlides: HeroSliderData[] = [
     {
       vehicleId: 0,
-      title: 'Tesla Model X 90D — L\'électrique haute performance',
+      title: t('defaultSlide1Title'),
       imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142825/budaxdrive/banners/nf0lwyvgxxzwykaxtn6o.png',
     },
     {
       vehicleId: 0,
-      title: 'Aston Martin DBS — L\'excellence britannique à l\'état pur',
+      title: t('defaultSlide2Title'),
       imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142827/budaxdrive/banners/d9rrxqkduw92y5hea9os.png',
     },
     {
       vehicleId: 0,
-      title: 'Chevrolet Suburban — L\'ultime véhicule de survie',
+      title: t('defaultSlide3Title'),
       imageUrl: 'https://res.cloudinary.com/dzwfox4id/image/upload/v1785142823/budaxdrive/banners/icsixryqh3zhqpxpuykz.jpg',
     },
   ];
@@ -135,7 +138,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      aria-label="Promotions en vedette"
+      aria-label={t('ariaFeatured')}
     >
       <div
         className="flex h-full"
@@ -167,7 +170,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
                        group shadow-lg ${
                          isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
                        }`}
-            aria-label="Promotion précédente"
+            aria-label={t('ariaPrevious')}
           >
             <ChevronLeft className="w-5 h-5 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
           </button>
@@ -181,7 +184,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
                        group shadow-lg ${
                          isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
                        }`}
-            aria-label="Promotion suivante"
+            aria-label={t('ariaNext')}
           >
             <ChevronRight className="w-5 h-5 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
           </button>
@@ -202,7 +205,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
                   className={`h-2 rounded-full transition-all duration-300 shadow-md ${
                     activeIdx === idx ? 'w-8 bg-white' : 'w-2 bg-white/50 hover:bg-white/90'
                   }`}
-                  aria-label={`Aller au slide ${idx + 1}`}
+                  aria-label={t('ariaGoToSlide', { index: idx + 1 })}
                 />
               );
             })}
@@ -217,6 +220,7 @@ const HeroSlide: React.FC<{
   slide: HeroSliderData;
   priority?: boolean;
 }> = ({ slide, priority = false }) => {
+  const t = useTranslations('home.hero');
   const isDefault = slide.vehicleId === 0;
 
   const content = (
@@ -237,7 +241,7 @@ const HeroSlide: React.FC<{
           {/* pt-24 md:pt-32 assure que le texte n'est pas caché sous la TopAppBar */}
           <div className="max-w-xl text-right animate-in slide-in-from-top-8 duration-700">
             <span className="inline-block px-3 py-1 bg-primary text-white text-xs font-bold rounded-full mb-3 shadow-lg tracking-wide uppercase">
-              CarShare Burundi
+              {t('brandBadge')}
             </span>
             {/* Titre rendu plus petit (text-2xl / text-3xl) */}
             <h1 className="text-2xl md:text-3xl font-extrabold text-white mb-3 leading-tight drop-shadow-lg">
@@ -245,7 +249,7 @@ const HeroSlide: React.FC<{
             </h1>
             {/* Description rendue plus petite (text-sm / text-base) et alignée à droite */}
             <p className="text-sm md:text-base text-gray-200 drop-shadow-md font-medium max-w-md ml-auto">
-              Découvrez la liberté de vous déplacer facilement, que ce soit pour affaires ou pour le plaisir, partout au Burundi.
+              {t('defaultDescription')}
             </p>
           </div>
         </div>
@@ -258,7 +262,7 @@ const HeroSlide: React.FC<{
       <Link
         href={`/vehicles/${slide.vehicleId}`}
         className="block w-full h-full cursor-pointer"
-        aria-label={`Voir les détails de ${slide.title}`}
+        aria-label={t('ariaViewDetails', { title: slide.title })}
       >
         {content}
       </Link>

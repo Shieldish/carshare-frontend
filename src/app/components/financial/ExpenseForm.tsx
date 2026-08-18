@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import type { CreateExpenseData, UpdateExpenseData, Expense, ExpenseCategory } from '@/types/financial';
 import { DollarSign, Calendar, Tag, FileText, Paperclip, Loader2, Send, X, Car, AlertCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface Vehicle {
   id: number;
@@ -23,17 +24,9 @@ const categories: ExpenseCategory[] = [
   'FUEL', 'MAINTENANCE', 'CLEANING', 'INSURANCE', 'TAXES', 'PARKING', 'OTHER'
 ];
 
-const categoryLabels: Record<ExpenseCategory, string> = {
-  FUEL: 'Carburant',
-  MAINTENANCE: 'Entretien',
-  CLEANING: 'Nettoyage',
-  INSURANCE: 'Assurance',
-  TAXES: 'Taxes/Vignettes',
-  PARKING: 'Parking',
-  OTHER: 'Autre'
-};
-
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onCancel }) => {
+  const t = useTranslations('financial');
+  const tForm = useTranslations('financial.form');
   const [formData, setFormData] = useState<Partial<CreateExpenseData | UpdateExpenseData>>({});
   const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
@@ -100,7 +93,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       return result.secure_url;
     } catch (err: unknown) {
       console.error("Erreur upload reçu:", err);
-      setError(`Erreur upload reçu: ${err instanceof Error ? err.message : String(err)}`);
+      setError(tForm('receiptUploadError', { error: err instanceof Error ? err.message : String(err) }));
       setIsUploadingReceipt(false);
       throw err;
     }
@@ -111,7 +104,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
     setError(null);
 
     if (!formData.amount || !formData.expenseDate || !formData.category) {
-      setError("Montant, Date et Catégorie sont requis.");
+      setError(tForm('requiredFieldsError'));
       return;
     }
 
@@ -130,7 +123,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       onSuccess(result);
     } catch (err: unknown) {
       if (!error) {
-        setError(err instanceof Error ? err.message : `Échec de ${isEditMode ? 'la mise à jour' : 'l\'ajout'}.`);
+        setError(err instanceof Error ? err.message : (isEditMode ? tForm('updateError') : tForm('addError')));
       }
     } finally {
       setIsLoading(false);
@@ -154,7 +147,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="amount" className="block text-sm font-medium text-foreground mb-1">
-            <DollarSign size={14} className="inline mr-1" /> Montant (FBu) *
+            <DollarSign size={14} className="inline mr-1" /> {tForm('amountLabel')}
           </label>
           <input
             id="amount"
@@ -171,7 +164,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
 
         <div>
           <label htmlFor="expenseDate" className="block text-sm font-medium text-foreground mb-1">
-            <Calendar size={14} className="inline mr-1" /> Date *
+            <Calendar size={14} className="inline mr-1" /> {tForm('dateLabel')}
           </label>
           <input
             id="expenseDate"
@@ -189,7 +182,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="category" className="block text-sm font-medium text-foreground mb-1">
-            <Tag size={14} className="inline mr-1" /> Catégorie *
+            <Tag size={14} className="inline mr-1" /> {tForm('categoryLabel')}
           </label>
           <select
             id="category"
@@ -199,16 +192,16 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
             onChange={handleChange}
             className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
           >
-            <option value="" disabled>-- Sélectionner --</option>
+            <option value="" disabled>{tForm('categoryPlaceholder')}</option>
             {categories.map(cat => (
-              <option key={cat} value={cat}>{categoryLabels[cat]}</option>
+              <option key={cat} value={cat}>{t(`categories.${cat}`)}</option>
             ))}
           </select>
         </div>
 
         <div>
           <label htmlFor="vehicleId" className="block text-sm font-medium text-foreground mb-1">
-            <Car size={14} className="inline mr-1" /> Véhicule (Optionnel)
+            <Car size={14} className="inline mr-1" /> {tForm('vehicleOptionalLabel')}
           </label>
           <select
             id="vehicleId"
@@ -218,7 +211,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
             disabled={isLoadingVehicles}
             className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary appearance-none"
           >
-            <option value="">{isLoadingVehicles ? 'Chargement...' : '-- Aucun --'}</option>
+            <option value="">{isLoadingVehicles ? tForm('vehicleLoading') : tForm('vehicleNone')}</option>
             {userVehicles.map(v => (
               <option key={v.id} value={v.id}>{v.make} {v.model} ({v.manufacturingYear})</option>
             ))}
@@ -228,7 +221,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-foreground mb-1">
-          <FileText size={14} className="inline mr-1" /> Description (Optionnel)
+          <FileText size={14} className="inline mr-1" /> {tForm('descriptionLabel')}
         </label>
         <textarea
           id="description"
@@ -236,14 +229,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
           rows={2}
           value={formData.description || ''}
           onChange={handleChange}
-          placeholder="Ex: Vidange moteur + filtre à huile"
+          placeholder={tForm('descriptionPlaceholder')}
           className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
       </div>
 
       <div>
         <label htmlFor="receipt" className="block text-sm font-medium text-foreground mb-1">
-          <Paperclip size={14} className="inline mr-1" /> Reçu (Optionnel)
+          <Paperclip size={14} className="inline mr-1" /> {tForm('receiptLabel')}
         </label>
         <input
           id="receipt"
@@ -254,7 +247,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
         />
         {isUploadingReceipt && <Loader2 size={16} className="animate-spin text-primary inline-block ml-2"/>}
         {formData.receiptUrl && !receiptFile && (
-          <a href={formData.receiptUrl as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline ml-2">Voir reçu actuel</a>
+          <a href={formData.receiptUrl as string} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline ml-2">{tForm('viewCurrentReceipt')}</a>
         )}
       </div>
 
@@ -266,7 +259,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
             disabled={isLoading || isUploadingReceipt}
             className="px-4 py-2 border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50"
           >
-            Annuler
+            {tForm('cancel')}
           </button>
         )}
         <button
@@ -275,7 +268,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
           className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center"
         >
           {isLoading || isUploadingReceipt ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-          {isEditMode ? 'Mettre à jour' : 'Ajouter Dépense'}
+          {isEditMode ? tForm('update') : tForm('add')}
         </button>
       </div>
     </form>

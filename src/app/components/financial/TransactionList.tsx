@@ -7,6 +7,7 @@ import type { PaginatedResponse } from '@/lib/apiClient';
 import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle, RefreshCcw, ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
+import { useLocale, useTranslations } from 'next-intl';
 
 interface Props {
   startDate?: Date;
@@ -14,6 +15,8 @@ interface Props {
 }
 
 const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
+  const t = useTranslations('financial');
+  const locale = useLocale();
   const { user } = useAuth();
   const [transactionPage, setTransactionPage] = useState<PaginatedResponse<TransactionDetail> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +38,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
       } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Impossible de charger les transactions.");
+        setError(t('transactionsLoadError'));
       }
       
       setTransactionPage(null);
@@ -57,21 +60,21 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(dateString).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   const formatTime = (dateString?: string) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return new Date(dateString).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   };
 
   const getStatusInfo = (status: TransactionDetail['status']) => {
     switch (status) {
-      case 'CAPTURED': return { icon: <CheckCircle className="w-4 h-4 text-green-500" />, text: 'Confirmé' };
-      case 'PENDING': return { icon: <Clock className="w-4 h-4 text-orange-500" />, text: 'En attente' };
-      case 'PROCESSING': return { icon: <Clock className="w-4 h-4 text-blue-500" />, text: 'En validation' };
-      case 'FAILED': return { icon: <XCircle className="w-4 h-4 text-red-500" />, text: 'Échoué' };
-      case 'REFUNDED': return { icon: <RefreshCcw className="w-4 h-4 text-blue-500" />, text: 'Remboursé' };
+      case 'CAPTURED': return { icon: <CheckCircle className="w-4 h-4 text-green-500" />, text: t('statusConfirmed') };
+      case 'PENDING': return { icon: <Clock className="w-4 h-4 text-orange-500" />, text: t('statusPending') };
+      case 'PROCESSING': return { icon: <Clock className="w-4 h-4 text-blue-500" />, text: t('statusProcessing') };
+      case 'FAILED': return { icon: <XCircle className="w-4 h-4 text-red-500" />, text: t('statusFailed') };
+      case 'REFUNDED': return { icon: <RefreshCcw className="w-4 h-4 text-blue-500" />, text: t('statusRefunded') };
       default: return { icon: <Clock className="w-4 h-4 text-gray-500" />, text: status };
     }
   };
@@ -80,21 +83,21 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     if (user && tx.ownerId === user.id && tx.amountOwner !== undefined && tx.amountOwner !== null) {
       return (
         <span className="text-green-600 font-semibold flex items-center">
-          <ArrowUpRight size={16} className="mr-1" /> +{tx.amountOwner.toLocaleString('fr-FR')} FBu
-          <span className="text-xs text-muted-foreground ml-1">(Votre part)</span>
+          <ArrowUpRight size={16} className="mr-1" /> +{tx.amountOwner.toLocaleString(locale)} FBu
+          <span className="text-xs text-muted-foreground ml-1">{t('yourShareLabel')}</span>
         </span>
       );
     }
     if (user && tx.renterId === user.id) {
       return (
         <span className="text-red-600 font-semibold flex items-center">
-          <ArrowDownLeft size={16} className="mr-1" /> -{tx.amountTotal.toLocaleString('fr-FR')} FBu
+          <ArrowDownLeft size={16} className="mr-1" /> -{tx.amountTotal.toLocaleString(locale)} FBu
         </span>
       );
     }
     return (
       <span className="text-foreground font-semibold">
-        {tx.amountTotal.toLocaleString('fr-FR')} FBu
+        {tx.amountTotal.toLocaleString(locale)} FBu
       </span>
     );
   };
@@ -122,7 +125,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     return (
       <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-start" role="alert">
         <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
-        <span>Erreur: {error}</span>
+        <span>{t('transactionsError')}: {error}</span>
       </div>
     );
   }
@@ -131,7 +134,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     return (
       <div className="text-center py-10 bg-muted rounded-lg">
         <p className="text-muted-foreground">
-          Aucune transaction trouvée {startDate || endDate ? 'pour cette période' : ''}.
+          {startDate || endDate ? t('transactionsEmptyPeriod') : t('transactionsEmpty')}
         </p>
       </div>
     );
@@ -142,11 +145,14 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
   return (
     <div className="bg-card p-6 rounded-lg shadow border border-border relative">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-2">
-        <h2 className="text-xl font-semibold text-foreground">Historique des Transactions</h2>
+        <h2 className="text-xl font-semibold text-foreground">{t('transactionsTitle')}</h2>
         {totalElements > 0 && (
           <span className="text-sm text-muted-foreground">
-            {transactions.length > 0 ? `Affichage ${currentPage * pageSize + 1}-${currentPage * pageSize + transactions.length} sur ` : ''}
-            {totalElements} transaction{totalElements > 1 ? 's' : ''}
+            {transactions.length > 0
+              ? t('transactionsShowing', { from: currentPage * pageSize + 1, to: currentPage * pageSize + transactions.length })
+              : ''}
+            {' '}
+            {totalElements > 1 ? t('transactionsCountPlural', { count: totalElements }) : t('transactionsCount', { count: totalElements })}
           </span>
         )}
       </div>
@@ -162,10 +168,10 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
           const status = getStatusInfo(tx.status);
           const amountDisplay = renderAmount(tx);
           const description = tx.bookingId
-            ? `Réservation #${tx.bookingId} (${tx.vehicleInfo || 'Véhicule'})`
+            ? t('bookingLabel', { id: tx.bookingId, vehicle: tx.vehicleInfo || t('vehicleFallback') })
             : tx.purpose === 'COMPANY_REGISTRATION_FEE'
-            ? "Frais d'inscription entreprise"
-            : 'Transaction';
+            ? t('companyRegistrationFee')
+            : t('transactionLabel');
           const party = user && tx.ownerId === user.id ? tx.renterName : (user && tx.renterId === user.id ? tx.ownerName : 'N/A');
 
           return (
@@ -173,8 +179,8 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
               <div className="mb-2 sm:mb-0">
                 <p className="text-sm font-medium text-foreground">{description}</p>
                 <p className="text-xs text-muted-foreground">
-                  {party && `Avec: ${party} | `}
-                  Le {formatDate(tx.createdAt)} à {formatTime(tx.createdAt)}
+                  {party && t('withPartyLabel', { name: party })}
+                  {t('onDateLabel', { date: formatDate(tx.createdAt), time: formatTime(tx.createdAt) })}
                 </p>
               </div>
               <div className="text-right">
@@ -198,12 +204,12 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
-            Précédent
+            {t('pagePrevious')}
           </button>
 
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
-              Page {currentPage + 1} sur {totalPages}
+              {t('pageOf', { current: currentPage + 1, total: totalPages })}
             </span>
           </div>
 
@@ -212,7 +218,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
             disabled={currentPage >= totalPages - 1 || isLoading}
             className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Suivant
+            {t('pageNext')}
             <ChevronRight className="w-4 h-4 ml-1" />
           </button>
         </div>

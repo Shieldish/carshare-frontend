@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -211,9 +212,9 @@ export default function MapComponent({ vehicles = [], onBoundsChange, selectedVe
                 <div className="text-sm text-center min-w-[160px] p-2 bg-white">
                   <strong className="text-base text-gray-800 block mb-1">{vehicle.make} {vehicle.model}</strong>
                   <span className="text-primary font-bold block mb-3">{formatPrice(vehicle.ratePerDay)} BIF / jour</span>
-                  <a href={`/vehicles/${vehicle.id}`} className="block w-full text-center bg-[#0f172a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-black transition shadow-sm">
+                  <Link href={`/vehicles/${vehicle.id}`} className="block w-full text-center bg-[#0f172a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-black transition shadow-sm">
                     Voir l&apos;offre
-                  </a>
+                  </Link>
                 </div>
               </Popup>
             </Marker>

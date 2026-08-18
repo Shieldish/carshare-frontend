@@ -17,14 +17,11 @@ export interface VehicleWithOwner extends BaseVehicle {
   owner: User;
 }
 
-// ✅ MISE À JOUR : Ajout de PENDING_CONFIRMATION
-export type BookingStatus = 
-  | 'PENDING' 
-  | 'CONTACT_INITIATED' 
-  | 'PENDING_CONFIRMATION'  // ✅ NOUVEAU : En attente de validation du paiement
-  | 'CONFIRMED' 
-  | 'CANCELLED' 
-  | 'IN_PROGRESS' 
+export type BookingStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'CANCELLED'
+  | 'IN_PROGRESS'
   | 'COMPLETED';
 
 export interface Booking {

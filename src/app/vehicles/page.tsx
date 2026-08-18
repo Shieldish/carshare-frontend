@@ -5,8 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Vehicle } from '../types/vehicle';
 import MyVehicleCard from './VehicleCard';
 import BoostModal from '../components/BoostModal';
+import { useTranslations } from 'next-intl';
+import { apiClient } from '@/lib/apiClient';
 
 function MyVehiclesContent() {
+  const t = useTranslations('vehicles.myVehicles');
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightedVehicleId = searchParams.get('highlight') ? Number(searchParams.get('highlight')) : null;
@@ -35,32 +38,35 @@ function MyVehiclesContent() {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
-      if (response.status === 403) throw new Error('Accès non autorisé.');
-      if (!response.ok) throw new Error('Impossible de récupérer vos véhicules.');
+      if (response.status === 403) throw new Error(t('unauthorized'));
+      if (!response.ok) throw new Error(t('loadError'));
 
       const data: Vehicle[] = await response.json();
       console.log('Données des véhicules reçues:', data);
       setAllVehicles(data);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
+      setError(err instanceof Error ? err.message : t('loadError'));
     } finally {
       setIsLoading(false);
     }
-  }, [router]);
+  }, [router, t]);
 
   useEffect(() => {
     fetchVehicles();
   }, [fetchVehicles]);
 
-  const handleDeleteVehicle = async (vehicleId: number) => {
-    await fetchVehicles();
+  const handleDeleteVehicle = (vehicleId: number) => {
+    setAllVehicles(prev => {
+      const remaining = prev.filter(v => v.id !== vehicleId);
 
-    // Si la page actuelle devient vide après suppression, revenir à la page précédente
-    const remainingVehicles = allVehicles.filter(v => v.id !== vehicleId).length;
-    const newTotalPages = Math.ceil(remainingVehicles / vehiclesPerPage);
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
-    }
+      // Si la page actuelle devient vide après suppression, revenir à la page précédente
+      const newTotalPages = Math.ceil(remaining.length / vehiclesPerPage);
+      if (currentPage > newTotalPages && newTotalPages > 0) {
+        setCurrentPage(newTotalPages);
+      }
+
+      return remaining;
+    });
   };
 
   // ✅ CORRECTION ICI : Utilisation de isActive (boolean) au lieu de status (string)
@@ -82,8 +88,17 @@ function MyVehiclesContent() {
     setIsModalOpen(false);
   };
 
-  const handleBoostSuccess = () => {
-    fetchVehicles();
+  const handleBoostSuccess = async (vehicleId: number) => {
+    // ✅ On ne recharge que le véhicule boosté (pas toute la liste) pour éviter un
+    // flash de chargement complet de la page pour une seule ligne modifiée.
+    try {
+      const updated: Vehicle = await apiClient.get(`/api/vehicles/${vehicleId}`);
+      setAllVehicles(prev => prev.map(v => (v.id === vehicleId ? updated : v)));
+    } catch {
+      // Repli sûr : si le refetch ciblé échoue, on recharge toute la liste plutôt
+      // que de laisser l'affichage désynchronisé du vrai statut de boost.
+      fetchVehicles();
+    }
   };
 
   // Calculs de pagination côté frontend
@@ -118,7 +133,7 @@ function MyVehiclesContent() {
         disabled={currentPage === 1}
         className="px-3 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-l-md hover:bg-card/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        Précédent
+        {t('previous')}
       </button>
     );
 
@@ -183,24 +198,24 @@ function MyVehiclesContent() {
         disabled={currentPage === totalPages}
         className="px-3 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-r-md hover:bg-card/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
-        Suivant
+        {t('next')}
       </button>
     );
 
     return buttons;
   };
 
-  if (isLoading) return <p className="text-center py-12 text-foreground">Chargement de vos véhicules...</p>;
+  if (isLoading) return <p className="text-center py-12 text-foreground">{t('loading')}</p>;
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
 
   return (
     <div className="container mx-auto p-8 bg-background min-h-screen">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">Mes Véhicules</h1>
+          <h1 className="text-4xl font-bold text-foreground">{t('title')}</h1>
           {totalVehicles > 0 && (
             <p className="text-foreground/70 mt-2">
-              {totalVehicles} véhicule{totalVehicles > 1 ? 's' : ''} au total
+              {totalVehicles > 1 ? t('countPlural', { count: totalVehicles }) : t('countSingular', { count: totalVehicles })}
             </p>
           )}
         </div>
@@ -208,7 +223,7 @@ function MyVehiclesContent() {
           onClick={() => router.push('/vehicles/add')}
           className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
         >
-          + Ajouter un véhicule
+          {t('addButton')}
         </button>
       </div>
 
@@ -247,16 +262,17 @@ function MyVehiclesContent() {
           {totalPages > 1 && (
             <div className="mt-4 flex justify-center text-sm text-foreground/70">
               <p>
-                Page {currentPage} sur {totalPages}
-                ({((currentPage - 1) * vehiclesPerPage) + 1} à {Math.min(currentPage * vehiclesPerPage, totalVehicles)} sur {totalVehicles} véhicules)
+                {t('pageOf', { current: currentPage, total: totalPages })}
+                {' '}
+                {t('pageRange', { from: ((currentPage - 1) * vehiclesPerPage) + 1, to: Math.min(currentPage * vehiclesPerPage, totalVehicles), total: totalVehicles })}
               </p>
             </div>
           )}
         </>
       ) : (
         <div className="text-center py-16 bg-card rounded-lg shadow border border-border">
-          <p className="text-foreground/70 text-lg">Vous n&apos;avez ajouté aucun véhicule pour le moment.</p>
-          <p className="text-foreground/50 mt-2">Cliquez sur &quot;Ajouter un véhicule&quot; pour commencer.</p>
+          <p className="text-foreground/70 text-lg">{t('emptyTitle')}</p>
+          <p className="text-foreground/50 mt-2">{t('emptyDescription')}</p>
         </div>
       )}
 
@@ -274,10 +290,11 @@ function MyVehiclesContent() {
 
 // ✅ CORRECTION NEXT.JS : Envelopper le composant principal avec Suspense
 export default function MyVehiclesPage() {
+  const t = useTranslations('vehicles.myVehicles');
   return (
     <Suspense fallback={
       <div className="container mx-auto p-8 min-h-screen flex justify-center items-center">
-        <p className="text-lg text-foreground/70">Chargement de la page...</p>
+        <p className="text-lg text-foreground/70">{t('loadingPage')}</p>
       </div>
     }>
       <MyVehiclesContent />
