@@ -16,7 +16,7 @@ export default function OfflinePage() {
       <div className="flex flex-wrap justify-center gap-3">
         <button
           onClick={() => window.location.reload()}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          className="px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors"
         >
           {t('retryButton')}
         </button>

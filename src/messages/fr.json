@@ -31,7 +31,7 @@
     "rn": "Ikirundi"
   },
   "nav": {
-    "whyOurCarShare": "Pourquoi OurCarShare",
+    "whyOurCarShare": "Pourquoi BudaxDrive",
     "profile": "Mon Profil",
     "myVehicles": "Mes véhicules",
     "myBookings": "Mes réservations",
@@ -1354,7 +1354,7 @@
     },
     "dashboard": {
       "pageTitle": "Dashboard Administrateur",
-      "subtitle": "Vue d'ensemble de la plateforme OurCarShare",
+      "subtitle": "Vue d'ensemble de la plateforme BudaxDrive",
       "newBadge": "Nouveau",
       "changeSuffix": "ce mois",
       "paymentHistoryTitle": "Historique des paiements",
@@ -1421,6 +1421,9 @@
       "incidentLabel": "Incident #{id} (Réservation #{bookingId})",
       "incidentDateLabel": "Date de l'incident : ",
       "noIncidents": "Aucun incident trouvé",
+      "pagePrevious": "Précédent",
+      "pageNext": "Suivant",
+      "pageOf": "Page {current} sur {total}",
       "judgeManage": "Juger / Gérer",
       "modal": {
         "detailsTitle": "Détails de l'incident #{id}",
@@ -1461,6 +1464,9 @@
         "sliderImage": "Image pour le Slider"
       },
       "noPromotions": "Aucune promotion active pour le moment.",
+      "pagePrevious": "Précédent",
+      "pageNext": "Suivant",
+      "pageOf": "Page {current} sur {total}",
       "vehicleAlt": "Véhicule",
       "previewAlt": "Aperçu",
       "changeImage": "Changer une image",
@@ -1538,6 +1544,9 @@
         "actions": "Actions"
       },
       "noUsersFound": "Aucun utilisateur trouvé avec ces filtres.",
+      "pagePrevious": "Précédent",
+      "pageNext": "Suivant",
+      "pageOf": "Page {current} sur {total}",
       "notProvided": "Non renseigné",
       "neverLoggedIn": "Jamais connecté",
       "premiumBadge": "Premium",
@@ -1600,6 +1609,9 @@
       "subtitle": "Administrez le parc automobile, validez les documents et gérez la sécurité.",
       "loading": "Chargement des véhicules...",
       "loadError": "Impossible de charger les véhicules.",
+      "pagePrevious": "Précédent",
+      "pageNext": "Suivant",
+      "pageOf": "Page {current} sur {total}",
       "tabs": {
         "pending": "En attente",
         "active": "Actifs",

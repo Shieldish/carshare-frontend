@@ -106,7 +106,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
           {!isLoading && (
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               ×
             </button>
@@ -114,12 +114,12 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
         </div>
 
         {/* Étape 1 : Instructions de paiement */}
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div className="bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg p-4 mb-6">
           <div className="flex items-center mb-3">
-            <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">
+            <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold mr-3">
               1
             </div>
-            <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+            <h3 className="text-sm font-semibold text-primary">
               {t('step1Title')}
             </h3>
           </div>
@@ -131,7 +131,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
                 <span className="font-mono font-bold text-gray-900 dark:text-gray-100">{MERCHANT_NUMBER}</span>
                 <button
                   onClick={() => copyToClipboard(MERCHANT_NUMBER)}
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                  className="text-primary hover:text-primary/80"
                   title={t('copyTitle')}
                 >
                   {copied ? (
@@ -159,7 +159,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
             </div>
           </div>
 
-          <div className="mt-3 text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 rounded p-2">
+          <div className="mt-3 text-xs text-primary bg-primary/10 dark:bg-primary/30 rounded p-2">
             💡 <strong>{t('tip')}</strong> {t('tipText')}
           </div>
         </div>

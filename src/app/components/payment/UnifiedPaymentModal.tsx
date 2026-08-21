@@ -71,14 +71,15 @@ export default function UnifiedPaymentModal({
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               {t('amountLabel')}{' '}
-              <span className="font-bold text-blue-600 dark:text-blue-400">
+              <span className="font-bold text-primary">
                 {amount.toLocaleString()} {currency}
               </span>
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+            aria-label="Close"
+            className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-colors"
           >
             <X size={24} />
           </button>
@@ -166,7 +167,7 @@ export default function UnifiedPaymentModal({
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
                     placeholder={t('phoneNumberPlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -179,7 +180,7 @@ export default function UnifiedPaymentModal({
                     value={paymentCode}
                     onChange={(e) => setPaymentCode(e.target.value)}
                     placeholder={t('paymentCodePlaceholder')}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:outline-none"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                     {t('paymentCodeHint')}
@@ -188,7 +189,7 @@ export default function UnifiedPaymentModal({
                 <button
                   type="submit"
                   disabled={isLoading || !phoneNumber || !paymentCode}
-                  className="w-full mt-2 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-colors disabled:opacity-50 flex justify-center items-center"
+                  className="w-full mt-2 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-bold transition-colors disabled:opacity-50 flex justify-center items-center"
                 >
                   {isLoading && <Loader2 className="animate-spin mr-2" size={20} />}
                   {isLoading ? t('processing') : t('confirmPayment')}
@@ -231,7 +232,7 @@ export default function UnifiedPaymentModal({
 
             {isLoading &&
               (selectedProvider === 'STRIPE_VISA' || selectedProvider === 'STRIPE_MASTERCARD') && (
-                <p className="text-center text-sm text-blue-600 mt-4 animate-pulse">
+                <p className="text-center text-sm text-primary mt-4 animate-pulse">
                   {t('redirecting')}
                 </p>
               )}

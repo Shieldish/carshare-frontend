@@ -2,10 +2,11 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
+import AdminPagination from '../components/AdminPagination';
 import {
   Loader2,
   AlertCircle,
@@ -25,6 +26,8 @@ import {
   FileX
 } from 'lucide-react';
 import type { UpdateVerificationStatusDto } from '@/types/admin';
+
+const ITEMS_PER_PAGE = 10;
 
 // ✅ TYPE USER COMPLET
 type User = {
@@ -156,7 +159,7 @@ const VerificationStatus: React.FC<{
       <div className="flex flex-col gap-2">
         <button
           onClick={onView}
-          className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 transition-colors"
         >
           <ExternalLink className="w-3 h-3" /> {t('verification.view')}
         </button>
@@ -189,7 +192,8 @@ const UserRow: React.FC<{
   onToggleStatus: (userId: number, activate: boolean) => Promise<void>;
   onExtendPremium: (userId: number) => Promise<void>;
   onViewDocument: (userId: number, docType: 'identity' | 'license' | 'selfie', title: string) => void;
-}> = ({ user, onStatusChange, onToggleStatus, onExtendPremium, onViewDocument }) => {
+  isHighlighted?: boolean;
+}> = ({ user, onStatusChange, onToggleStatus, onExtendPremium, onViewDocument, isHighlighted }) => {
   const t = useTranslations('admin.users');
   const [isUpdatingIdentity, setIsUpdatingIdentity] = useState(false);
   const [isUpdatingLicense, setIsUpdatingLicense] = useState(false);
@@ -270,7 +274,10 @@ const UserRow: React.FC<{
     : null;
 
   return (
-    <tr className={`hover:bg-muted/30 transition-colors border-b border-border last:border-0 ${isSuspended ? 'bg-red-50/50 dark:bg-red-900/10 opacity-75' : ''}`}>
+    <tr
+      id={`user-${user.id}`}
+      className={`hover:bg-muted/30 transition-all duration-700 border-b border-border last:border-0 ${isSuspended ? 'bg-red-50/50 dark:bg-red-900/10 opacity-75' : ''} ${isHighlighted ? 'bg-primary/10 dark:bg-primary/20 ring-2 ring-inset ring-primary' : ''}`}
+    >
       <td className="px-6 py-4">
         <div className="flex items-start gap-3">
           <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isSuspended ? 'bg-red-100' : 'bg-primary/10'}`}>
@@ -464,7 +471,7 @@ const UserRow: React.FC<{
           {!isSuspended ? (
             <button
               onClick={() => setActionToConfirm('suspend')}
-              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+              className="p-2.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
               title={t('actionTitles.suspend')}
             >
               <Ban className="w-5 h-5" />
@@ -472,7 +479,7 @@ const UserRow: React.FC<{
           ) : (
             <button
               onClick={() => setActionToConfirm('activate')}
-              className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
+              className="p-2.5 text-green-500 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg transition-colors"
               title={t('actionTitles.activate')}
             >
               <PlayCircle className="w-5 h-5" />
@@ -481,7 +488,7 @@ const UserRow: React.FC<{
 
           <button
             onClick={() => setShowPremiumModal(true)}
-            className="p-2 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-lg transition-colors"
+            className="p-2.5 text-yellow-500 hover:text-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-lg transition-colors"
             title={t('actionTitles.premium')}
           >
             <Crown className="w-5 h-5" />
@@ -503,11 +510,15 @@ const UserRow: React.FC<{
 function AdminUsersContent() {
   const t = useTranslations('admin.users');
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get('highlight');
   const { user: adminUser, isLoading: isAuthLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedUserId, setHighlightedUserId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRole, setFilterRole] = useState<string>('ALL');
@@ -579,6 +590,43 @@ function AdminUsersContent() {
     setFilteredUsers(result);
   }, [searchTerm, filterRole, filterVerification, filterAccountStatus, users]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterRole, filterVerification, filterAccountStatus]);
+
+  // Arrivée depuis une notification admin "documents de vérification soumis" (?highlight=<userId>) :
+  // on saute sur la page où se trouve la ligne concernée, on y scrolle et on la met en évidence.
+  useEffect(() => {
+    if (highlightId && filteredUsers.length > 0) {
+      setHighlightedUserId(highlightId);
+
+      const targetIndex = filteredUsers.findIndex(u => u.id.toString() === highlightId);
+      if (targetIndex !== -1) {
+        setCurrentPage(Math.floor(targetIndex / ITEMS_PER_PAGE) + 1);
+      }
+
+      const scrollTimer = setTimeout(() => {
+        const element = document.getElementById(`user-${highlightId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+
+      const removeHighlightTimer = setTimeout(() => {
+        setHighlightedUserId(null);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('highlight');
+        window.history.replaceState({}, '', url.toString());
+      }, 5000);
+
+      return () => {
+        clearTimeout(scrollTimer);
+        clearTimeout(removeHighlightTimer);
+      };
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [highlightId, filteredUsers]);
+
   const handleVerificationChange = async (userId: number, statusUpdate: UpdateVerificationStatusDto) => {
     try {
       await apiClient.updateUserVerificationStatus(userId, statusUpdate);
@@ -627,6 +675,9 @@ function AdminUsersContent() {
     premium: users.filter(u => u.isPremium).length,
   };
 
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
+  const paginatedUsers = filteredUsers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   if (isAuthLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -660,14 +711,14 @@ function AdminUsersContent() {
       )}
 
       <div className="bg-card border-b border-border shadow-sm">
-        <div className="container mx-auto max-w-7xl px-6 py-6">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <UserCog className="w-7 h-7 text-primary" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
                 <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
               </div>
             </div>
@@ -760,7 +811,7 @@ function AdminUsersContent() {
               </thead>
               <tbody className="bg-card">
                 {filteredUsers.length > 0 ? (
-                  filteredUsers.map(user => (
+                  paginatedUsers.map(user => (
                     <UserRow
                       key={user.id}
                       user={user}
@@ -768,6 +819,7 @@ function AdminUsersContent() {
                       onToggleStatus={handleToggleStatus}
                       onExtendPremium={handleExtendPremium}
                       onViewDocument={(userId, docType, title) => setViewingDoc({ userId, type: docType, title })} // On passe l'ordre d'ouvrir la Lightbox
+                      isHighlighted={highlightedUserId === user.id.toString()}
                     />
                   ))
                 ) : (
@@ -782,6 +834,15 @@ function AdminUsersContent() {
             </table>
           </div>
         </div>
+
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+          previousLabel={t('pagePrevious')}
+          nextLabel={t('pageNext')}
+          pageLabel={t('pageOf', { current: currentPage, total: totalPages })}
+        />
       </div>
     </div>
   );

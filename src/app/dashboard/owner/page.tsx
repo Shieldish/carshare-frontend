@@ -127,7 +127,7 @@ function OwnerDashboardContent() {
       <div className="container mx-auto max-w-6xl py-8 px-4">
         {/* Titre et statistiques */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{t('title')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{t('title')}</h1>
           <p className="text-lg text-muted-foreground">{t('subtitle')}</p>
 
           {highlightId && (

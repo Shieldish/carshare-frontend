@@ -6,6 +6,9 @@ import { useTranslations, useLocale } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { CheckCircle, XCircle, FileText, Car, ShieldAlert, ExternalLink, Loader2, Ban, PlayCircle, CheckCircle2, Flame, Images, ImageOff } from 'lucide-react';
 import type { VehicleImage } from '@/types/vehicle';
+import AdminPagination from '../components/AdminPagination';
+
+const ITEMS_PER_PAGE = 9;
 
 interface Owner {
   firstName: string;
@@ -106,14 +109,14 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
       <div className="space-y-3">
         <p className="text-sm font-semibold">{t('documentsToVerify')}</p>
         {vehicle.registrationDocumentUrl ? (
-          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200">
+          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
             <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.registration')}</span><ExternalLink className="w-4 h-4" />
           </a>
         ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.registrationMissing')}</p>}
 
         <div>
           {vehicle.insuranceDocumentUrl ? (
-            <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200">
+            <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.insurance')}</span><ExternalLink className="w-4 h-4" />
             </a>
           ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.insuranceMissing')}</p>}
@@ -122,7 +125,7 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
 
         <div>
           {vehicle.technicalControlDocumentUrl ? (
-            <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200">
+            <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.technicalControl')}</span><ExternalLink className="w-4 h-4" />
             </a>
           ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.technicalControlMissing')}</p>}
@@ -141,6 +144,11 @@ export default function AdminVehiclesPage() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   
   const [activeTab, setActiveTab] = useState<'pending' | 'active' | 'suspended'>('pending');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   const [alertDialog, setAlertDialog] = useState({ isOpen: false, title: '', message: '', type: 'success' as 'success' | 'error' });
@@ -254,6 +262,15 @@ export default function AdminVehiclesPage() {
   const activeVehicles = vehicles.filter(v => v.status === 'APPROVED' || v.status === 'AVAILABLE' || v.status === 'RENTED');
   const suspendedVehicles = vehicles.filter(v => v.status === 'SUSPENDED_BY_ADMIN');
 
+  // Une seule page courante, partagée par les 3 onglets (un seul onglet est affiché à la
+  // fois) et remise à 1 au changement d'onglet, ci-dessus.
+  const currentTabVehicles = activeTab === 'pending' ? pendingVehicles : activeTab === 'active' ? activeVehicles : suspendedVehicles;
+  const totalPages = Math.ceil(currentTabVehicles.length / ITEMS_PER_PAGE);
+  const paginate = <T,>(arr: T[]) => arr.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const paginatedPendingVehicles = paginate(pendingVehicles);
+  const paginatedActiveVehicles = paginate(activeVehicles);
+  const paginatedSuspendedVehicles = paginate(suspendedVehicles);
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center p-8">
@@ -264,10 +281,10 @@ export default function AdminVehiclesPage() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto relative">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto relative">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
             <Car className="w-8 h-8 text-primary" />
             {t('pageTitle')}
           </h1>
@@ -284,7 +301,7 @@ export default function AdminVehiclesPage() {
       )}
 
       {/* SYSTÈME D'ONGLETS */}
-      <div className="flex space-x-2 mb-8 border-b border-gray-200 dark:border-gray-700 pb-px">
+      <div className="flex space-x-2 mb-8 border-b border-gray-200 dark:border-gray-700 pb-px overflow-x-auto">
         <button onClick={() => setActiveTab('pending')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'pending' ? 'bg-white dark:bg-gray-800 text-primary border-t border-l border-r border-gray-200 dark:border-gray-700 mb-[-1px]' : 'text-gray-500 hover:text-gray-700 bg-gray-50 dark:bg-gray-900/50'}`}>
           <ShieldAlert className="w-4 h-4" /> {t('tabs.pending')} ({pendingVehicles.length})
         </button>
@@ -306,7 +323,7 @@ export default function AdminVehiclesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pendingVehicles.map(vehicle => (
+              {paginatedPendingVehicles.map(vehicle => (
                 <div key={vehicle.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-5 flex flex-col">
                   <div className="mb-4">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{vehicle.make} {vehicle.model}</h3>
@@ -332,6 +349,14 @@ export default function AdminVehiclesPage() {
               ))}
             </div>
           )}
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            previousLabel={t('pagePrevious')}
+            nextLabel={t('pageNext')}
+            pageLabel={t('pageOf', { current: currentPage, total: totalPages })}
+          />
         </div>
       )}
 
@@ -342,7 +367,7 @@ export default function AdminVehiclesPage() {
             <p className="text-gray-500 dark:text-gray-400 italic">{t('noActiveVehicles')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeVehicles.map(vehicle => (
+              {paginatedActiveVehicles.map(vehicle => (
                 <div key={vehicle.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-bold">{vehicle.make} {vehicle.model}</h3>
@@ -380,6 +405,14 @@ export default function AdminVehiclesPage() {
               ))}
             </div>
           )}
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            previousLabel={t('pagePrevious')}
+            nextLabel={t('pageNext')}
+            pageLabel={t('pageOf', { current: currentPage, total: totalPages })}
+          />
         </div>
       )}
 
@@ -393,7 +426,7 @@ export default function AdminVehiclesPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {suspendedVehicles.map(vehicle => (
+              {paginatedSuspendedVehicles.map(vehicle => (
                 <div key={vehicle.id} className="bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-200 p-5 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-bold text-red-900 dark:text-red-400">{vehicle.make} {vehicle.model}</h3>
@@ -414,6 +447,14 @@ export default function AdminVehiclesPage() {
               ))}
             </div>
           )}
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+            previousLabel={t('pagePrevious')}
+            nextLabel={t('pageNext')}
+            pageLabel={t('pageOf', { current: currentPage, total: totalPages })}
+          />
         </div>
       )}
 

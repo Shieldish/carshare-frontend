@@ -31,7 +31,7 @@
     "rn": "Ikirundi"
   },
   "nav": {
-    "whyOurCarShare": "Why OurCarShare",
+    "whyOurCarShare": "Why BudaxDrive",
     "profile": "My Profile",
     "myVehicles": "My Vehicles",
     "myBookings": "My Bookings",
@@ -1354,7 +1354,7 @@
     },
     "dashboard": {
       "pageTitle": "Admin Dashboard",
-      "subtitle": "Overview of the OurCarShare platform",
+      "subtitle": "Overview of the BudaxDrive platform",
       "newBadge": "New",
       "changeSuffix": "this month",
       "paymentHistoryTitle": "Payment history",
@@ -1421,6 +1421,9 @@
       "incidentLabel": "Incident #{id} (Booking #{bookingId})",
       "incidentDateLabel": "Incident date: ",
       "noIncidents": "No incidents found",
+      "pagePrevious": "Previous",
+      "pageNext": "Next",
+      "pageOf": "Page {current} of {total}",
       "judgeManage": "Review / Manage",
       "modal": {
         "detailsTitle": "Incident details #{id}",
@@ -1461,6 +1464,9 @@
         "sliderImage": "Slider Image"
       },
       "noPromotions": "No active promotions at the moment.",
+      "pagePrevious": "Previous",
+      "pageNext": "Next",
+      "pageOf": "Page {current} of {total}",
       "vehicleAlt": "Vehicle",
       "previewAlt": "Preview",
       "changeImage": "Change image",
@@ -1538,6 +1544,9 @@
         "actions": "Actions"
       },
       "noUsersFound": "No users found with these filters.",
+      "pagePrevious": "Previous",
+      "pageNext": "Next",
+      "pageOf": "Page {current} of {total}",
       "notProvided": "Not provided",
       "neverLoggedIn": "Never logged in",
       "premiumBadge": "Premium",
@@ -1600,6 +1609,9 @@
       "subtitle": "Manage the vehicle fleet, validate documents and manage security.",
       "loading": "Loading vehicles...",
       "loadError": "Unable to load vehicles.",
+      "pagePrevious": "Previous",
+      "pageNext": "Next",
+      "pageOf": "Page {current} of {total}",
       "tabs": {
         "pending": "Pending",
         "active": "Active",

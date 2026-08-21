@@ -61,7 +61,7 @@ export default function LanguageSwitcher({ variant = 'desktop', onSelect }: Lang
         className={
           variant === 'desktop'
             ? 'flex items-center space-x-1.5 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400 disabled:opacity-50'
-            : 'flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium disabled:opacity-50'
+            : 'flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium disabled:opacity-50'
         }
       >
         <Globe className={variant === 'desktop' ? 'h-5 w-5' : 'h-5 w-5 text-gray-500 dark:text-gray-400'} />
@@ -90,7 +90,7 @@ export default function LanguageSwitcher({ variant = 'desktop', onSelect }: Lang
               className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <span>{localeNames[l]}</span>
-              {l === locale && <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+              {l === locale && <Check className="h-4 w-4 text-primary" />}
             </button>
           ))}
         </div>

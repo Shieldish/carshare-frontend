@@ -86,10 +86,24 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
 
   const goToNextImage = useCallback(() => {
     if (!vehicle?.images || vehicle.images.length <= 1) return;
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === vehicle.images!.length - 1 ? 0 : prev + 1
     );
   }, [vehicle?.images]);
+
+  // Swipe tactile sur la galerie principale (mobile) — même seuil/logique que HeroSection.
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
+  const handleTouchMove = (e: React.TouchEvent) => setTouchEnd(e.targetTouches[0].clientX);
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > 50) goToNextImage();
+    else if (distance < -50) goToPreviousImage();
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -190,7 +204,12 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Image Gallery */}
           <div className="lg:col-span-2">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl group bg-muted">
+            <div
+              className="relative rounded-2xl overflow-hidden shadow-2xl group bg-muted"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={currentImage.url}
@@ -208,7 +227,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                 <>
                   <button
                     onClick={goToPreviousImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300"
                     aria-label={t('prevImageAria')}
                   >
                     <ChevronLeft className="w-6 h-6" />
@@ -216,24 +235,29 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
 
                   <button
                     onClick={goToNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/20 hover:bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300"
                     aria-label={t('nextImageAria')}
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>
 
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center">
                     {availableImages.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          index === currentImageIndex 
-                            ? 'bg-white w-6' 
-                            : 'bg-white/50 hover:bg-white/80 w-2'
-                        }`}
                         aria-label={t('imageAria', { index: index + 1 })}
-                      />
+                        aria-current={index === currentImageIndex}
+                        className="p-2 flex items-center justify-center"
+                      >
+                        <span
+                          className={`block h-2 rounded-full transition-all duration-300 ${
+                            index === currentImageIndex
+                              ? 'bg-white w-6'
+                              : 'bg-white/50 w-2'
+                          }`}
+                        />
+                      </button>
                     ))}
                   </div>
                 </>
@@ -290,7 +314,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
             <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                     {vehicle.make} {vehicle.model}
                   </h1>
                   {ratingSummary && ratingSummary.reviewCount > 0 && (
@@ -401,7 +425,7 @@ export default function VehicleDetailPage({ params }: VehicleDetailPageProps) {
                 <button
                   onClick={handleBookingClick}
                   disabled={vehicle.isAvailable === false}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-500 dark:to-blue-600 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 dark:hover:from-blue-600 dark:hover:to-blue-700 transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {vehicle.isAvailable === false ? t('unavailableButton') : t('bookButton')}
                 </button>

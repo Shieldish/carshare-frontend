@@ -65,9 +65,9 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 w-full max-w-sm h-[60vh] sm:h-[70vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-transform duration-300 ease-out z-50">
+    <div className="fixed bottom-4 left-4 right-4 sm:bottom-8 sm:left-auto sm:right-8 w-full max-w-sm h-[60vh] sm:h-[70vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-transform duration-300 ease-out z-50">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-blue-600 dark:bg-blue-500 text-white border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground border-b border-gray-200 dark:border-gray-700">
         <h3 className="font-semibold">
           {vehicleBrand
             ? t('reservationTitleWithVehicle', { vehicle: vehicleBrand, id: currentBookingId ?? '' })
@@ -75,7 +75,7 @@ export default function ChatWindow() {
         </h3>
         <button
           onClick={closeChat}
-          className="p-1 rounded-full hover:bg-white/20 transition-colors"
+          className="p-2 -m-2 rounded-full hover:bg-white/20 transition-colors"
           title={t('closeChat')}
         >
           <X className="w-5 h-5" />
@@ -86,7 +86,7 @@ export default function ChatWindow() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900">
         {isLoadingMessages ? (
           <div className="flex justify-center items-center h-full">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         ) : error && messages.length === 0 ? (
           <div className="flex flex-col justify-center items-center h-full text-center px-4">
@@ -109,17 +109,17 @@ export default function ChatWindow() {
                 <div
                   className={`max-w-[75%] px-4 py-2 rounded-xl ${
                     isSender
-                      ? 'bg-blue-600 text-white rounded-br-none'
+                      ? 'bg-primary text-primary-foreground rounded-br-none'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-none'
                   }`}
                 >
                   {!isSender && (
-                    <p className="text-xs font-semibold mb-1 text-blue-600 dark:text-blue-400">
+                    <p className="text-xs font-semibold mb-1 text-primary">
                       {resolveSenderRole(msg.senderRole)}
                     </p>
                   )}
                   <p className="text-sm break-words">{msg.content}</p>
-                  <p className={`text-xs mt-1 ${isSender ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'} text-right`}>
+                  <p className={`text-xs mt-1 ${isSender ? 'text-primary-foreground/80' : 'text-gray-500 dark:text-gray-400'} text-right`}>
                     {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
@@ -145,13 +145,13 @@ export default function ChatWindow() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={t('messagePlaceholder')}
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             autoComplete="off"
           />
           <button
             type="submit"
             disabled={!newMessage.trim()}
-            className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
             title={t('send')}
           >
             <Send className="w-5 h-5" />

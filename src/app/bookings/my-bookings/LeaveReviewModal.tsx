@@ -80,6 +80,7 @@ const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
               onMouseLeave={() => setHoverRating(0)}
               disabled={isLoading}
               aria-label={t('starAria', { count: star })}
+              className="p-1"
             >
               <Star
                 size={32}

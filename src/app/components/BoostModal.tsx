@@ -187,14 +187,17 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
   return (
     <>
       {step === 'SELECT_BOOST' && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && onClose()}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
 
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                <TrendingUp className="mr-2 text-blue-600" /> {t('title')}
+                <TrendingUp className="mr-2 text-primary" /> {t('title')}
               </h2>
-              <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl font-bold">
+              <button onClick={onClose} aria-label="Close" className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors text-2xl font-bold leading-none">
                 ×
               </button>
             </div>
@@ -210,7 +213,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               <button
                 onClick={() => setDuration(1)}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                  duration === 1 ? 'bg-white dark:bg-gray-800 shadow text-blue-600' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                  duration === 1 ? 'bg-white dark:bg-gray-800 shadow text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
               >
                 {t('durationMonth')}
@@ -218,7 +221,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               <button
                 onClick={() => setDuration(12)}
                 className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1 ${
-                  duration === 12 ? 'bg-blue-600 shadow text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                  duration === 12 ? 'bg-primary shadow text-primary-foreground' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                 }`}
               >
                 <Calendar size={16} /> {t('durationYear')} <span className="text-[10px] ml-1 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full">{t('yearDiscountBadge')}</span>
@@ -239,19 +242,19 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               <button
                 onClick={() => handleInitiateBoost('STANDARD')}
                 disabled={isLoading}
-                className="w-full group p-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all text-left flex justify-between items-center disabled:opacity-50"
+                className="w-full group p-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left flex justify-between items-center disabled:opacity-50"
               >
                 <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mr-3 group-hover:bg-blue-200 transition-colors">
-                    <Zap size={20} className="text-blue-600" />
+                  <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
+                    <Zap size={20} className="text-gray-600 dark:text-gray-300" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-600">{t('standardTitle')}</h3>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary">{t('standardTitle')}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{t('standardDesc')}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="font-bold text-lg text-blue-600">{getPrice(5000).toLocaleString()} FBu</span>
+                  <span className="font-bold text-lg text-gray-700 dark:text-gray-300">{getPrice(5000).toLocaleString()} FBu</span>
                   {isPremiumUser && (
                     <p className="text-xs text-gray-400 line-through">{getOriginalPrice(5000).toLocaleString()} FBu</p>
                   )}
@@ -262,24 +265,24 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               <button
                 onClick={() => handleInitiateBoost('PREMIUM')}
                 disabled={isLoading}
-                className="w-full group p-4 border-2 border-blue-600 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all text-left flex justify-between items-center relative overflow-hidden disabled:opacity-50"
+                className="w-full group p-4 border-2 border-primary bg-primary/5 dark:bg-primary/10 rounded-xl hover:bg-primary/10 dark:hover:bg-primary/20 transition-all text-left flex justify-between items-center relative overflow-hidden disabled:opacity-50"
               >
-                <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg">
+                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-bl-lg">
                   {t('popularBadge')}
                 </div>
                 <div className="flex items-center">
-                  <div className="bg-blue-600 p-2 rounded-lg mr-3">
-                    <Crown size={20} className="text-white" />
+                  <div className="bg-primary p-2 rounded-lg mr-3">
+                    <Crown size={20} className="text-primary-foreground" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-blue-700">{t('premiumTitle')}</h3>
+                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary/80">{t('premiumTitle')}</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400">{t('premiumDesc')}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="font-bold text-lg text-blue-700">{getPrice(15000).toLocaleString()} FBu</span>
+                  <span className="font-bold text-lg text-primary">{getPrice(15000).toLocaleString()} FBu</span>
                   {isPremiumUser && (
-                    <p className="text-xs text-blue-400 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
+                    <p className="text-xs text-primary/60 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
                   )}
                 </div>
               </button>
@@ -309,7 +312,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
               {isLoading && (
                 <div className="flex justify-center mt-4">
-                  <Loader2 className="animate-spin text-blue-600" size={28} />
+                  <Loader2 className="animate-spin text-primary" size={28} />
                 </div>
               )}
             </div>
@@ -342,7 +345,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
             </p>
             <button
               onClick={onClose}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-xl font-bold transition-colors shadow-lg"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-xl font-bold transition-colors shadow-lg"
             >
               {t('backToDashboard')}
             </button>

@@ -83,7 +83,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
           ) : null}
 
           {/* Badge prix */}
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm z-10">
+          <div className="absolute top-3 right-3 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm z-10">
             <div className="text-sm font-bold">{formatPrice(vehicle.ratePerDay)} FBu</div>
             <div className="text-xs opacity-90">{t('perDay')}</div>
           </div>
@@ -154,7 +154,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             <div className="text-sm text-muted-foreground">
               {t('clickForMore')}
             </div>
-            <div className="text-sm font-medium text-primary group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors flex items-center">
+            <div className="text-sm font-medium text-primary group-hover:text-primary/80 transition-colors flex items-center">
               <span>{t('seeDetails')}</span>
               <svg 
                 className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" 

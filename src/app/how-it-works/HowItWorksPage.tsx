@@ -69,7 +69,7 @@ const HowItWorksPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
@@ -97,8 +97,8 @@ const HowItWorksPage = () => {
           {steps.map((step, index) => (
             <div key={step.id} className="relative">
               <div className="bg-card rounded-xl shadow-lg p-8 h-full border border-border">
-                <div className="flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full mb-6 mx-auto">
-                  <step.icon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center justify-center w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full mb-6 mx-auto">
+                  <step.icon className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold text-card-foreground mb-4 text-center">
                   {step.title}
@@ -222,8 +222,8 @@ const HowItWorksPage = () => {
             {safetyFeatures.map((feature, index) => (
               <div key={index} className="text-center">
                 <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-                  <div className="flex items-center justify-center w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full mb-4 mx-auto">
-                    <feature.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                  <div className="flex items-center justify-center w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-full mb-4 mx-auto">
+                    <feature.icon className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="text-lg font-semibold text-card-foreground mb-2">
                     {feature.title}
@@ -247,28 +247,28 @@ const HowItWorksPage = () => {
             </h2>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
-                <Smartphone className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                <Smartphone className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold text-foreground">{t('techMobileTitle')}</h3>
                   <p className="text-muted-foreground">{t('techMobileDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <CreditCard className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                <CreditCard className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold text-foreground">{t('techPaymentTitle')}</h3>
                   <p className="text-muted-foreground">{t('techPaymentDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <MapPin className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold text-foreground">{t('techGeoTitle')}</h3>
                   <p className="text-muted-foreground">{t('techGeoDesc')}</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
-                <Camera className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                <Camera className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                 <div>
                   <h3 className="font-semibold text-foreground">{t('techPhotoTitle')}</h3>
                   <p className="text-muted-foreground">{t('techPhotoDesc')}</p>
@@ -276,7 +276,7 @@ const HowItWorksPage = () => {
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-8 text-white">
+          <div className="bg-primary rounded-xl p-8 text-white">
             <h3 className="text-2xl font-bold mb-6">{t('whyChooseTitle')}</h3>
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
@@ -305,7 +305,7 @@ const HowItWorksPage = () => {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+      <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
             {t('ctaTitle')}
@@ -316,7 +316,7 @@ const HowItWorksPage = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
-              className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center space-x-2 group"
+              className="bg-white text-primary px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors inline-flex items-center justify-center space-x-2 group"
             >
               <Car className="h-5 w-5" />
               <span>{t('ctaFindCar')}</span>

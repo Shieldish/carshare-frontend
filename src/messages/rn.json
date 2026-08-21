@@ -33,7 +33,7 @@
     "rn": "Ikirundi"
   },
   "nav": {
-    "whyOurCarShare": "Igituma OurCarShare",
+    "whyOurCarShare": "Igituma BudaxDrive",
     "profile": "Umwidondoro wanje",
     "myVehicles": "Ibinyabiziga vyanje",
     "myBookings": "Amapangwa yanje",
@@ -1356,7 +1356,7 @@
     },
     "dashboard": {
       "pageTitle": "Dashibodi y'Umuyobozi",
-      "subtitle": "Incamake y'urubuga rwa OurCarShare",
+      "subtitle": "Incamake y'urubuga rwa BudaxDrive",
       "newBadge": "Gishasha",
       "changeSuffix": "muri uku kwezi",
       "paymentHistoryTitle": "Amateka y'amafaranga yishuwe",
@@ -1423,6 +1423,9 @@
       "incidentLabel": "Ikibazo #{id} (Ipangwa #{bookingId})",
       "incidentDateLabel": "Itariki y'ikibazo: ",
       "noIncidents": "Nta kibazo cabonetse",
+      "pagePrevious": "Inyuma",
+      "pageNext": "Imbere",
+      "pageOf": "Urupapuro {current} kuri {total}",
       "judgeManage": "Kacamanza / Kucunga",
       "modal": {
         "detailsTitle": "Amakuru y'ikibazo #{id}",
@@ -1463,6 +1466,9 @@
         "sliderImage": "Ifoto y'Urutonde"
       },
       "noPromotions": "Nta tangazo rikora ubu.",
+      "pagePrevious": "Inyuma",
+      "pageNext": "Imbere",
+      "pageOf": "Urupapuro {current} kuri {total}",
       "vehicleAlt": "Ikinyabiziga",
       "previewAlt": "Icegeranyo",
       "changeImage": "Hindura ifoto",
@@ -1540,6 +1546,9 @@
         "actions": "Ibikorwa"
       },
       "noUsersFound": "Nta mukoresha abonetse muri ibi biyunguruzo.",
+      "pagePrevious": "Inyuma",
+      "pageNext": "Imbere",
+      "pageOf": "Urupapuro {current} kuri {total}",
       "notProvided": "Ntivyatanzwe",
       "neverLoggedIn": "Ntiyigeze yinjira",
       "premiumBadge": "Premium",
@@ -1602,6 +1611,9 @@
       "subtitle": "Cunga umubare w'ibinyabiziga, wemeze inyandiko kandi ucunge umutekano.",
       "loading": "Birimwo gupakira ibinyabiziga...",
       "loadError": "Ntibishoboka gupakira ibinyabiziga.",
+      "pagePrevious": "Inyuma",
+      "pageNext": "Imbere",
+      "pageOf": "Urupapuro {current} kuri {total}",
       "tabs": {
         "pending": "Biracheza",
         "active": "Bikora",

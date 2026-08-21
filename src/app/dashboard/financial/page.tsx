@@ -224,7 +224,7 @@ export default function FinancialDashboardPage() {
 
       {/* Message pour non-propriétaires */}
       {!isOwner && (
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-md">
+        <div className="bg-muted border border-border text-muted-foreground px-4 py-3 rounded-md">
           <p className="text-sm">
             {t('nonOwnerMessage')}
           </p>

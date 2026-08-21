@@ -64,12 +64,12 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-x-hidden overflow-y-auto shadow-2xl">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
           <h3 className="font-bold text-lg flex items-center gap-2">
             <Camera className="w-5 h-5" /> {t('liveCaptureTitle')}
           </h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
+          <button onClick={onClose} aria-label="Close" className="p-2 -m-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -372,7 +372,7 @@ export default function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-lg text-foreground">{t('loadingProfile')}</p>
@@ -383,7 +383,7 @@ export default function ProfilePage() {
 
   if (!user && !isAuthLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-xl text-red-600 dark:text-red-400 font-semibold">
@@ -404,7 +404,7 @@ export default function ProfilePage() {
   const isPartiallyVerified = user?.isIdentityVerified || user?.isDrivingLicenseVerified || user?.isSelfieVerified;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
+    <div className="min-h-screen bg-primary/5 dark:bg-gray-900 py-8 px-4">
       {/* Modal Webcam pour le Selfie KYC */}
       {showWebcamModal && (
         <WebcamModal 
@@ -431,7 +431,7 @@ export default function ProfilePage() {
       <div className="container mx-auto max-w-5xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
               <User className="w-10 h-10 text-primary" />
               {t('title')}
             </h1>
@@ -515,7 +515,7 @@ export default function ProfilePage() {
                   user?.isIdentityVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.identityDocumentUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -524,7 +524,7 @@ export default function ProfilePage() {
                         {user?.isIdentityVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
                           {t('verification.identityLabel')}
@@ -534,7 +534,7 @@ export default function ProfilePage() {
                         user?.isIdentityVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.identityDocumentUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isIdentityVerified
@@ -575,7 +575,7 @@ export default function ProfilePage() {
                   user?.isDrivingLicenseVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.drivingLicenseUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -584,7 +584,7 @@ export default function ProfilePage() {
                         {user?.isDrivingLicenseVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
                           {t('verification.licenseLabel')}
@@ -594,7 +594,7 @@ export default function ProfilePage() {
                         user?.isDrivingLicenseVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.drivingLicenseUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isDrivingLicenseVerified
@@ -635,7 +635,7 @@ export default function ProfilePage() {
                   user?.isSelfieVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.selfieUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -644,7 +644,7 @@ export default function ProfilePage() {
                         {user?.isSelfieVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">{t('verification.selfieLabel')}</span>
                       </div>
@@ -652,7 +652,7 @@ export default function ProfilePage() {
                         user?.isSelfieVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.selfieUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isSelfieVerified
@@ -665,11 +665,11 @@ export default function ProfilePage() {
 
                     {!user?.isSelfieVerified && (
                       <div className="mt-2">
-                        <div className="mb-3 text-center bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-md border border-blue-100 dark:border-blue-800/30">
-                          <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
+                        <div className="mb-3 text-center bg-muted/50 p-3 rounded-md border border-border">
+                          <p className="text-xs font-medium text-foreground mb-1">
                             {t('verification.selfieHintTitle')}
                           </p>
-                          <p className="text-[11px] text-blue-600/80 dark:text-blue-400/80">
+                          <p className="text-[11px] text-primary/80">
                             {t('verification.selfieHintText')}
                           </p>
                         </div>
@@ -713,15 +713,15 @@ export default function ProfilePage() {
             </div>
 
             {!isFullyVerified && (
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl shadow-sm">
-                <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">
+              <div className="mt-4 p-4 bg-muted border border-border rounded-xl shadow-sm">
+                <p className="text-sm text-foreground mb-2">
                   <strong>{t('verification.whyVerifyTitle')}</strong><br />
                   {t('verification.whyVerifyText')}
                 </p>
 
-                <div className="flex items-start mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                <div className="flex items-start mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-border">
                   <Lock className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-blue-900 dark:text-blue-200">
+                  <p className="text-xs text-foreground">
                     <strong>{t('verification.kycTitle')}</strong><br />
                     {t('verification.kycText')}
                   </p>
@@ -776,7 +776,7 @@ export default function ProfilePage() {
                          <button
                            onClick={() => setShowProfileWebcamModal(true)}
                            disabled={isUploadingImage}
-                           className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
+                           className={`p-3 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
                              isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-primary hover:bg-primary/90'
                            }`}
                            title={t('takePhotoTitle')}
@@ -784,8 +784,8 @@ export default function ProfilePage() {
                            <Camera className="w-4 h-4" />
                          </button>
                          <label
-                           className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
-                             isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'
+                           className={`p-3 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
+                             isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-primary hover:bg-primary/90'
                            }`}
                            title={t('uploadPhotoTitle')}
                          >
@@ -804,7 +804,7 @@ export default function ProfilePage() {
                       onClick={() => {
                         handleEditClick();
                       }}
-                      className="absolute bottom-0 right-0 p-2 rounded-full text-white bg-primary hover:bg-primary/90 transition-transform hover:scale-110 shadow-md"
+                      className="absolute bottom-0 right-0 p-3 rounded-full text-white bg-primary hover:bg-primary/90 transition-transform hover:scale-110 shadow-md"
                       title={t('editPhotoTitle')}
                     >
                       <Camera className="w-4 h-4" />
@@ -943,7 +943,7 @@ export default function ProfilePage() {
                         </div>
                         <button
                           onClick={() => setPremiumStep('SELECT_DURATION')}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
                         >
                           {t('subscription.becomePremium')}
                         </button>
@@ -1056,13 +1056,16 @@ export default function ProfilePage() {
 
       {/* 1. Modale de choix de la durée */}
       {premiumStep === 'SELECT_DURATION' && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && setPremiumStep('NONE')}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold flex items-center text-gray-900 dark:text-white">
                 <Crown className="mr-2 text-yellow-500" /> {t('premiumModal.title')}
               </h2>
-              <button onClick={() => setPremiumStep('NONE')} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+              <button onClick={() => setPremiumStep('NONE')} aria-label="Close" className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-bold text-xl leading-none">×</button>
             </div>
 
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
@@ -1135,7 +1138,7 @@ export default function ProfilePage() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               {t('premiumModal.successMessage', { months: premiumDuration })}
             </p>
-            <button onClick={() => setPremiumStep('NONE')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold">
+            <button onClick={() => setPremiumStep('NONE')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl font-bold">
               {t('premiumModal.successButton')}
             </button>
           </div>

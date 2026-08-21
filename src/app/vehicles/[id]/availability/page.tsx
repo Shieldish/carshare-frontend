@@ -227,13 +227,13 @@ function AvailabilityPageContent() {
             </div>
 
             <div className="container mx-auto max-w-6xl py-8 px-4">
-                <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 text-center">
                     {t('title', { id: vehicleId })}
                 </h1>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Calendar View */}
-                    <div className="md:col-span-2 bg-card p-6 rounded-lg shadow-md border border-border">
+                    <div className="md:col-span-2 bg-card p-4 sm:p-6 rounded-lg shadow-md border border-border">
                         <h2 className="text-xl font-semibold mb-4 text-foreground">{t('calendarTitle')}</h2>
                         <Calendar
                             onChange={handleCalendarChange}
@@ -316,7 +316,7 @@ function AvailabilityPageContent() {
                                             </div>
                                             <button
                                                 onClick={() => handleDeleteBlockedPeriod(period.id)}
-                                                className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded"
+                                                className="p-2 -m-1 text-red-500 hover:text-red-700 hover:bg-red-100 rounded"
                                                 title={t('deleteTitle')}
                                             >
                                                 <Trash2 size={16} />

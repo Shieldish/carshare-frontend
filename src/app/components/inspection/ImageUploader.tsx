@@ -180,8 +180,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
                 alt={t('previewAlt')}
                 className={`w-full h-full object-cover rounded-md border ${img.status === 'error' ? 'border-red-500' : 'border-border'}`}
               />
-              {/* Overlay for status */}
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-md">
+              {/* Overlay for status — toujours visible pendant l'upload (pas de survol sur mobile),
+                  sinon caché par défaut pour ne pas assombrir les vignettes déjà envoyées */}
+              <div className={`absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity rounded-md ${
+                img.status === 'uploading' ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              }`}>
                 {img.status === 'uploading' && <Loader2 className="w-6 h-6 text-white animate-spin" />}
                 {img.status === 'error' && (
                   <div title={img.errorMessage}>
@@ -193,7 +196,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
               <button
                 type="button"
                 onClick={() => removeImage(img.id)}
-                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-md hover:bg-red-600"
+                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold shadow-md hover:bg-red-600"
                 title={t('removeTitle')}
               >
                 <X size={14} />

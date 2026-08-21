@@ -209,10 +209,10 @@ function MyVehiclesContent() {
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
 
   return (
-    <div className="container mx-auto p-8 bg-background min-h-screen">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto p-4 sm:p-6 md:p-8 bg-background min-h-screen">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">{t('title')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">{t('title')}</h1>
           {totalVehicles > 0 && (
             <p className="text-foreground/70 mt-2">
               {totalVehicles > 1 ? t('countPlural', { count: totalVehicles }) : t('countSingular', { count: totalVehicles })}
@@ -221,7 +221,7 @@ function MyVehiclesContent() {
         </div>
         <button
           onClick={() => router.push('/vehicles/add')}
-          className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+          className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors self-start sm:self-auto"
         >
           {t('addButton')}
         </button>

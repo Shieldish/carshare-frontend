@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -45,7 +45,7 @@ const getProvinceCoords = (provinceName?: string): [number, number] | null => {
 function MapFitter({ vehicles }: { vehicles: Vehicle[] }) {
   const map = useMap();
 
-  useEffect(() => {
+  const fitToVehicles = useCallback(() => {
     if (!vehicles || vehicles.length === 0) return;
 
     const bounds = L.latLngBounds([]);
@@ -73,41 +73,68 @@ function MapFitter({ vehicles }: { vehicles: Vehicle[] }) {
       }
     });
 
-    if (hasValidPoints) {
+    // Sur mobile, ce conteneur reste display:none tant que la vue "liste" est active
+    // (voir search/page.tsx) : Leaflet le mesure alors à (0,0) et flyToBounds plante
+    // avec "Invalid LatLng object: (NaN, NaN)". On ne recadre que si la carte a une
+    // taille réelle ; le ResizeObserver ci-dessous rattrape le recadrage dès que le
+    // conteneur redevient visible.
+    const size = map.getSize();
+    if (hasValidPoints && size.x > 0 && size.y > 0) {
       map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 13, duration: 1.5 });
     }
   }, [map, vehicles]);
+
+  useEffect(() => {
+    fitToVehicles();
+  }, [fitToVehicles]);
+
+  // Le conteneur n'a pas de boîte générée tant qu'il est display:none, donc le
+  // ResizeObserver ne se déclenche que lorsqu'il redevient visible (bouton "Voir la
+  // carte" sur mobile) — c'est le signal pour que Leaflet recalcule sa taille interne
+  // puis se recadre correctement.
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+      fitToVehicles();
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map, fitToVehicles]);
 
   return null;
 }
 
 function MapEventListener({ onBoundsChange }: { onBoundsChange?: (bounds: MapBounds) => void }) {
   const map = useMapEvents({
-    moveend: () => {
-      if (onBoundsChange) {
-        const bounds = map.getBounds();
-        onBoundsChange({
-          north: bounds.getNorthEast().lat,
-          south: bounds.getSouthWest().lat,
-          east: bounds.getNorthEast().lng,
-          west: bounds.getSouthWest().lng,
-        });
-      }
-    }
+    moveend: () => emitBounds(),
+    resize: () => emitBounds(),
   });
 
+  const emitBounds = useCallback(() => {
+    if (!onBoundsChange) return;
+
+    // Sur mobile, ce conteneur reste display:none tant que la vue "liste" est active
+    // (voir search/page.tsx) : Leaflet le mesure alors à (0,0) et getBounds() renvoie
+    // des bornes quasi ponctuelles, ce qui ferait filtrer TOUTE la liste à zéro
+    // véhicule côté parent. On n'émet que si la carte a une taille réelle ; le
+    // ResizeObserver de MapFitter appelle invalidateSize() dès que le conteneur
+    // redevient visible, ce qui déclenche l'événement 'resize' ci-dessous.
+    const size = map.getSize();
+    if (size.x === 0 || size.y === 0) return;
+
+    const bounds = map.getBounds();
+    onBoundsChange({
+      north: bounds.getNorthEast().lat,
+      south: bounds.getSouthWest().lat,
+      east: bounds.getNorthEast().lng,
+      west: bounds.getSouthWest().lng,
+    });
+  }, [map, onBoundsChange]);
+
   useEffect(() => {
-    if (onBoundsChange) {
-      const bounds = map.getBounds();
-      onBoundsChange({
-        north: bounds.getNorthEast().lat,
-        south: bounds.getSouthWest().lat,
-        east: bounds.getNorthEast().lng,
-        west: bounds.getSouthWest().lng,
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    emitBounds();
+  }, [emitBounds]);
 
   return null;
 }

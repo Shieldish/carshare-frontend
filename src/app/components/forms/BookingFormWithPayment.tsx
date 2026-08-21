@@ -198,7 +198,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-            currentStep === 'dates' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+            currentStep === 'dates' ? 'bg-primary text-primary-foreground' : 'bg-green-600 text-white'
           }`}>
             {currentStep === 'success' ? (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
@@ -229,7 +229,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden relative">
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+      <div className="bg-gradient-to-r from-primary to-primary/90 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
         <div className="flex items-center">
           <div className="bg-white/20 rounded-full p-3 mr-4">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,11 +237,11 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             </svg>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-white">
+            <h3 className="text-2xl font-bold text-primary-foreground">
               {currentStep === 'dates' && t('headerTitleDates')}
               {currentStep === 'success' && t('headerTitleSuccess')}
             </h3>
-            <p className="text-blue-100 mt-1">
+            <p className="text-primary-foreground/80 mt-1">
               {currentStep === 'dates' && t('headerSubtitleDates')}
               {currentStep === 'success' && t('headerSubtitleSuccess')}
             </p>
@@ -249,7 +249,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
         </div>
       </div>
 
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <StepIndicator />
 
         {/* Étape 1: Dates et Bouton d'action direct */}
@@ -266,7 +266,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
                   onChange={(e) => setStartDate(e.target.value)}
                   min={getMinDateTime()}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
               
@@ -280,14 +280,14 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate || getMinDateTime()}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
 
             {startDate && endDate && numberOfDays > 0 && (
-              <div className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-6 border border-blue-100 dark:border-blue-800">
-                <div className="flex justify-between items-center text-lg font-bold text-blue-900 dark:text-blue-100">
+              <div className="bg-primary/5 dark:bg-primary/30 rounded-lg p-6 border border-primary/10 dark:border-primary/30">
+                <div className="flex justify-between items-center text-lg font-bold text-primary">
                   <span>{t('totalForDays', { days: numberOfDays, dayWord: numberOfDays > 1 ? t('dayPlural') : t('daySingular') })}</span>
                   <span>{totalPrice.toLocaleString()} FBu</span>
                 </div>
@@ -301,7 +301,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             <button
               type="submit"
               disabled={isSubmittingBooking || !startDate || !endDate}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:cursor-not-allowed transition-all font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary disabled:from-gray-400 disabled:cursor-not-allowed transition-all font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center"
             >
               {isSubmittingBooking ? (
                 <><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>{t('creating')}</>
@@ -331,7 +331,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={() => router.push('/bookings/my-bookings')}
-                className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg hover:bg-blue-700"
+                className="flex-1 bg-primary text-primary-foreground py-3 px-6 rounded-xl font-semibold shadow-lg hover:bg-primary/90"
               >
                 {t('viewMyBookings')}
               </button>

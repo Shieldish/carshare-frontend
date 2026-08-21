@@ -63,7 +63,7 @@ const Toast: React.FC<{
     success: { bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800', icon: <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />, titleColor: 'text-green-800 dark:text-green-300', messageColor: 'text-green-700 dark:text-green-400' },
     error: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800', icon: <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />, titleColor: 'text-red-800 dark:text-red-300', messageColor: 'text-red-700 dark:text-red-400' },
     warning: { bg: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-200 dark:border-yellow-800', icon: <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />, titleColor: 'text-yellow-800 dark:text-yellow-300', messageColor: 'text-yellow-700 dark:text-yellow-400' },
-    info: { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800', icon: <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />, titleColor: 'text-blue-800 dark:text-blue-300', messageColor: 'text-blue-700 dark:text-blue-400' }
+    info: { bg: 'bg-muted', border: 'border-border', icon: <Info className="h-5 w-5 text-primary" />, titleColor: 'text-foreground', messageColor: 'text-muted-foreground' }
   };
 
   const currentStyle = typeStyles[type];
@@ -78,7 +78,7 @@ const Toast: React.FC<{
             <p className={`mt-1 text-sm ${currentStyle.messageColor}`}>{message}</p>
           </div>
           <div className="ml-4 flex-shrink-0 flex">
-            <button className={`rounded-md inline-flex ${currentStyle.titleColor} hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} onClick={() => onDismiss(id)}>
+            <button className={`rounded-md inline-flex ${currentStyle.titleColor} hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-2 -m-2`} onClick={() => onDismiss(id)}>
               <span className="sr-only">{t('closeToast')}</span>
               <X className="h-4 w-4" />
             </button>

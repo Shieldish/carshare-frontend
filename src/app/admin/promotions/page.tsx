@@ -6,6 +6,9 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import PromotionRow from './PromotionRow';
+import AdminPagination from '../components/AdminPagination';
+
+const ITEMS_PER_PAGE = 10;
 
 // Type pour les données reçues de l'API
 export interface BoostAdminData {
@@ -25,6 +28,7 @@ export default function AdminPromotionsPage() {
   const [boosts, setBoosts] = useState<BoostAdminData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
 
@@ -79,9 +83,13 @@ export default function AdminPromotionsPage() {
   if (error) return <div className="text-center p-12 text-red-500">{error}</div>;
   if (!user || user.role !== 'ADMIN') return null; // Pendant la redirection
 
+  const totalPages = Math.ceil(boosts.length / ITEMS_PER_PAGE);
+  const safePage = Math.min(currentPage, Math.max(totalPages, 1));
+  const paginatedBoosts = boosts.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">{t('pageTitle')}</h1>
+    <div className="container mx-auto p-4 sm:p-6 md:p-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">{t('pageTitle')}</h1>
       <div className="bg-card rounded-lg shadow border overflow-x-auto">
         <table className="min-w-full divide-y">
           <thead className="bg-muted/50">
@@ -95,7 +103,7 @@ export default function AdminPromotionsPage() {
           </thead>
           <tbody className="divide-y">
             {boosts.length > 0 ? (
-              boosts.map(boost => (
+              paginatedBoosts.map(boost => (
                 <PromotionRow
                   key={boost.boostId}
                   boost={boost}
@@ -111,6 +119,15 @@ export default function AdminPromotionsPage() {
           </tbody>
         </table>
       </div>
+
+      <AdminPagination
+        currentPage={safePage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        previousLabel={t('pagePrevious')}
+        nextLabel={t('pageNext')}
+        pageLabel={t('pageOf', { current: safePage, total: totalPages })}
+      />
     </div>
   );
 }

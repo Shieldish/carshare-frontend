@@ -23,7 +23,7 @@ export default function AddVehiclePage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -35,8 +35,8 @@ export default function AddVehiclePage() {
   // 🛡️ LE GARDIEN : Vérification de l'identité
   if (!user.isIdentityVerified) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-800 max-w-lg w-full rounded-2xl shadow-xl p-8 text-center border-t-4 border-orange-500">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-gray-800 max-w-lg w-full rounded-2xl shadow-xl p-6 sm:p-8 text-center border-t-4 border-orange-500">
           <ShieldAlert className="w-20 h-20 text-orange-500 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
             {t('verificationRequiredTitle')}
@@ -63,13 +63,13 @@ export default function AddVehiclePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-primary/5 dark:bg-gray-900">
       {/* Header avec navigation */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <button 
             onClick={() => router.back()}
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors group"
+            className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
           >
             <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -82,12 +82,12 @@ export default function AddVehiclePage() {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* En-tête de page */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-            <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 dark:bg-primary/20 rounded-full mb-4">
+            <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
             {t('title')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
@@ -98,7 +98,7 @@ export default function AddVehiclePage() {
         {/* Formulaire dans un conteneur moderne */}
         <div className="max-w-4xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+            <div className="bg-gradient-to-r from-primary to-primary/90 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
               <div className="flex items-center">
                 <div className="bg-white/20 rounded-full p-3 mr-4">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,13 +106,13 @@ export default function AddVehiclePage() {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">{t('sectionTitle')}</h2>
-                  <p className="text-blue-100 mt-1">{t('sectionSubtitle')}</p>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white">{t('sectionTitle')}</h2>
+                  <p className="text-white/80 mt-1">{t('sectionSubtitle')}</p>
                 </div>
               </div>
             </div>
 
-            <div className="p-8">
+            <div className="p-4 sm:p-6 md:p-8">
               <AddVehicleForm />
             </div>
           </div>

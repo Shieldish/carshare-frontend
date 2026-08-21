@@ -85,7 +85,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
         {hasActiveFilters && (
           <button
             onClick={onResetFilters}
-            className="text-sm text-primary hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
+            className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             {t('reset')}
@@ -110,7 +110,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.pickupDate}
                 onChange={(e) => onInputChange('pickupDate', e.target.value)}
                 min={today || undefined}
-                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
               />
             </div>
           </div>
@@ -126,7 +126,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.dropoffDate}
                 onChange={(e) => onInputChange('dropoffDate', e.target.value)}
                 min={filters.pickupDate || today || undefined}
-                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
               />
             </div>
           </div>
@@ -149,7 +149,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={selectedProvince}
                 onChange={onProvinceChange}
                 disabled={loadingProvinces}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
               >
                 <option value="">{t('allProvinces')}</option>
                 {loadingProvinces ? (
@@ -176,7 +176,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.communeId}
                 onChange={(e) => onInputChange('communeId', e.target.value)}
                 disabled={!selectedProvince || communes.length === 0 || loadingCommunes}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
               >
                 <option value="">
                   {loadingCommunes ? t('loading') : t('allCommunes')}
@@ -208,7 +208,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <select
                 value={filters.carType}
                 onChange={(e) => onInputChange('carType', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
               >
                 <option value="">{t('allTypes')}</option>
                 {VEHICLE_TYPE_VALUES.map((value) => (
@@ -230,7 +230,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <select
                 value={filters.make}
                 onChange={(e) => onInputChange('make', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
               >
                 <option value="">{t('allMakes')}</option>
                 {makes.map((make) => (
@@ -277,7 +277,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               value={filters.companyName}
               onChange={(e) => onInputChange('companyName', e.target.value)}
               disabled={loadingCompanies}
-              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
             >
               <option value="">{t('allCompanies')}</option>
               {loadingCompanies ? (
@@ -537,8 +537,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
             className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
             onClick={onClose} 
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-card shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-card shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
               <h3 className="text-lg font-semibold text-foreground">
                 {t('title')}
               </h3>
@@ -549,7 +549,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="h-full overflow-y-auto pb-20">
+            <div className="flex-1 overflow-y-auto">
               <FilterContent {...filterContentProps} />
             </div>
           </div>

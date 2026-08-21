@@ -57,7 +57,7 @@ export default function AdminPaymentTable() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center p-12">
-        <Loader2 className="animate-spin text-blue-600 w-12 h-12" />
+        <Loader2 className="animate-spin text-primary w-12 h-12" />
       </div>
     );
   }

@@ -177,10 +177,10 @@ const TermsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 dark:from-blue-800 dark:via-purple-800 dark:to-blue-900">
+      <div className="bg-primary">
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
               {tPage('metaTitle')}
             </h1>
           </div>
@@ -218,8 +218,8 @@ const TermsPage = () => {
           )}
 
           {/* Last Updated */}
-          <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+          <div className="mb-8 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20 dark:border-primary/30">
+            <p className="text-sm text-primary">
               <strong>{c.lastUpdated}</strong>
             </p>
           </div>
@@ -404,7 +404,7 @@ const TermsPage = () => {
             <h2 className="text-3xl font-bold mb-6 text-foreground">
               {c.contact.title}
             </h2>
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-800 dark:to-purple-800 rounded-2xl p-8 text-white shadow-lg">
+            <div className="bg-primary rounded-2xl p-8 text-white shadow-lg">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -412,7 +412,7 @@ const TermsPage = () => {
                     {c.contact.phoneTitle}
                   </h3>
                   <p className="mb-2">+257 XX XX XX XX</p>
-                  <p className="text-blue-100 text-sm">{c.contact.phoneHours}</p>
+                  <p className="text-white/80 text-sm">{c.contact.phoneHours}</p>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -420,7 +420,7 @@ const TermsPage = () => {
                     {c.contact.emailTitle}
                   </h3>
                   <p className="mb-2">support@carshareburundi.com</p>
-                  <p className="text-blue-100 text-sm">{c.contact.emailResponse}</p>
+                  <p className="text-white/80 text-sm">{c.contact.emailResponse}</p>
                 </div>
               </div>
             </div>

@@ -82,9 +82,9 @@ export default function AdminReviewsPage() {
   const currentPage = reviewPage?.number ?? 0;
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="container mx-auto p-4 sm:p-6 md:p-8">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
-        <h1 className="text-3xl font-bold">{t('pageTitle')}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">{t('pageTitle')}</h1>
         {totalElements > 0 && (
           <span className="text-sm text-muted-foreground">{t('totalCount', { count: totalElements })}</span>
         )}
@@ -128,7 +128,7 @@ export default function AdminReviewsPage() {
                       onClick={() => handleDelete(review)}
                       disabled={deletingId === review.id}
                       title={t('deleteTitle')}
-                      className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors"
+                      className="p-2.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors"
                     >
                       <Trash2 size={16} />
                     </button>

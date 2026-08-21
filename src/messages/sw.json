@@ -33,7 +33,7 @@
     "rn": "Ikirundi"
   },
   "nav": {
-    "whyOurCarShare": "Kwa nini OurCarShare",
+    "whyOurCarShare": "Kwa nini BudaxDrive",
     "profile": "Wasifu Wangu",
     "myVehicles": "Magari Yangu",
     "myBookings": "Uhifadhi Wangu",
@@ -1356,7 +1356,7 @@
     },
     "dashboard": {
       "pageTitle": "Dashibodi ya Msimamizi",
-      "subtitle": "Muhtasari wa jukwaa la OurCarShare",
+      "subtitle": "Muhtasari wa jukwaa la BudaxDrive",
       "newBadge": "Mpya",
       "changeSuffix": "mwezi huu",
       "paymentHistoryTitle": "Historia ya malipo",
@@ -1423,6 +1423,9 @@
       "incidentLabel": "Tukio #{id} (Uhifadhi #{bookingId})",
       "incidentDateLabel": "Tarehe ya tukio: ",
       "noIncidents": "Hakuna tukio lililopatikana",
+      "pagePrevious": "Iliyotangulia",
+      "pageNext": "Inayofuata",
+      "pageOf": "Ukurasa {current} kati ya {total}",
       "judgeManage": "Hukumu / Simamia",
       "modal": {
         "detailsTitle": "Maelezo ya tukio #{id}",
@@ -1463,6 +1466,9 @@
         "sliderImage": "Picha ya Slaidi"
       },
       "noPromotions": "Hakuna tangazo linalotumika kwa sasa.",
+      "pagePrevious": "Iliyotangulia",
+      "pageNext": "Inayofuata",
+      "pageOf": "Ukurasa {current} kati ya {total}",
       "vehicleAlt": "Gari",
       "previewAlt": "Muhtasari",
       "changeImage": "Badilisha picha",
@@ -1540,6 +1546,9 @@
         "actions": "Vitendo"
       },
       "noUsersFound": "Hakuna mtumiaji aliyepatikana na vichujio hivi.",
+      "pagePrevious": "Iliyotangulia",
+      "pageNext": "Inayofuata",
+      "pageOf": "Ukurasa {current} kati ya {total}",
       "notProvided": "Haijatolewa",
       "neverLoggedIn": "Hajawahi kuingia",
       "premiumBadge": "Premium",
@@ -1602,6 +1611,9 @@
       "subtitle": "Simamia meli ya magari, thibitisha hati na simamia usalama.",
       "loading": "Inapakia magari...",
       "loadError": "Imeshindikana kupakia magari.",
+      "pagePrevious": "Iliyotangulia",
+      "pageNext": "Inayofuata",
+      "pageOf": "Ukurasa {current} kati ya {total}",
       "tabs": {
         "pending": "Yanayosubiri",
         "active": "Yanayotumika",
