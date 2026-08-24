@@ -31,6 +31,11 @@ interface FilterData {
   communeId: string;
   make: string;
   supportsDriver: boolean;
+  fuelType: string;
+  transmission: string;
+  minSeats: string;
+  minPrice: string;
+  maxPrice: string;
 }
 
 interface HomeClientProps {
@@ -121,7 +126,8 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const [activeFilters, setActiveFilters] = useState<FilterData>({
-    pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false
+    pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false,
+    fuelType: '', transmission: '', minSeats: '', minPrice: '', maxPrice: ''
   });
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -173,6 +179,11 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     if (filters.carType) params.append('carType', filters.carType);
     if (filters.supportsDriver) params.append('supportsDriver', 'true');
     if (filters.companyName && filters.companyName !== 'all') params.append('companyName', filters.companyName);
+    if (filters.fuelType) params.append('fuelType', filters.fuelType);
+    if (filters.transmission) params.append('transmission', filters.transmission);
+    if (filters.minSeats) params.append('minSeats', filters.minSeats);
+    if (filters.minPrice) params.append('minRatePerDay', filters.minPrice);
+    if (filters.maxPrice) params.append('maxRatePerDay', filters.maxPrice);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/search?${params.toString()}`);
@@ -242,7 +253,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const getActiveFiltersCount = () => Object.entries(activeFilters).filter(([key, value]) => key === 'supportsDriver' ? value === true : value !== '').length;
 
   const handleResetAllFilters = () => {
-    setActiveFilters({ pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false });
+    setActiveFilters({
+      pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false,
+      fuelType: '', transmission: '', minSeats: '', minPrice: '', maxPrice: ''
+    });
     setFilteredVehicles(allVehicles);
     setCurrentPage(1);
   };

@@ -153,7 +153,28 @@
       "convertible": "Gari la Kufunua Paa",
       "wagon": "Steshoni Wagoni",
       "other": "Nyingine"
-    }
+    },
+    "characteristicsTitle": "Sifa",
+    "fuelLabel": "Mafuta",
+    "allFuelTypes": "Mafuta yote",
+    "transmissionLabel": "Gia",
+    "allTransmissions": "Gia zote",
+    "minSeatsLabel": "Idadi ya viti (kima cha chini)",
+    "fuelTypes": {
+      "Essence": "Petroli",
+      "Diesel": "Dizeli",
+      "Hybride": "Haibridi",
+      "Électrique": "Umeme",
+      "GPL": "Gesi (LPG)"
+    },
+    "transmissionTypes": {
+      "Manuelle": "Ya mkono",
+      "Automatique": "Otomatiki",
+      "Semi-automatique": "Nusu-otomatiki"
+    },
+    "priceTitle": "Bei kwa siku (FBu)",
+    "minPriceLabel": "Kima cha chini",
+    "maxPriceLabel": "Kima cha juu"
   },
   "auth": {
     "onboardingGate": {

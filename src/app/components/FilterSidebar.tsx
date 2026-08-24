@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X } from 'lucide-react';
+import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X, Fuel, Settings2, Users, Banknote } from 'lucide-react';
 import { Vehicle } from '../types/vehicle';
 import { apiClient } from '@/lib/apiClient';
 
@@ -31,6 +31,11 @@ interface FilterData {
   communeId: string;
   make: string;
   supportsDriver: boolean;
+  fuelType: string;
+  transmission: string;
+  minSeats: string;
+  minPrice: string;
+  maxPrice: string;
 }
 
 interface FilterContentProps {
@@ -55,6 +60,9 @@ const VEHICLE_TYPE_VALUES = [
   'sedan', 'suv', 'suv_coupe', 'hatchback', 'minibus', 'pickup', 'van',
   'minivan', 'truck', 'motorcycle', 'tricycle', 'coupe', 'convertible', 'wagon', 'other',
 ] as const;
+
+const FUEL_TYPE_VALUES = ['Essence', 'Diesel', 'Hybride', 'Électrique', 'GPL'] as const;
+const TRANSMISSION_TYPE_VALUES = ['Manuelle', 'Automatique', 'Semi-automatique'] as const;
 
 const FilterContent: React.FC<FilterContentProps> = ({
   filters,
@@ -245,6 +253,114 @@ const FilterContent: React.FC<FilterContentProps> = ({
         </div>
       </div>
 
+      {/* Section Caractéristiques */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('characteristicsTitle')}
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('fuelLabel')}
+            </label>
+            <div className="relative">
+              <Fuel className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.fuelType}
+                onChange={(e) => onInputChange('fuelType', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allFuelTypes')}</option>
+                {FUEL_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`fuelTypes.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('transmissionLabel')}
+            </label>
+            <div className="relative">
+              <Settings2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.transmission}
+                onChange={(e) => onInputChange('transmission', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allTransmissions')}</option>
+                {TRANSMISSION_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`transmissionTypes.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('minSeatsLabel')}
+            </label>
+            <div className="relative">
+              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="1"
+                value={filters.minSeats}
+                onChange={(e) => onInputChange('minSeats', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Prix */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('priceTitle')}
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('minPriceLabel')}
+            </label>
+            <div className="relative">
+              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="0"
+                value={filters.minPrice}
+                onChange={(e) => onInputChange('minPrice', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('maxPriceLabel')}
+            </label>
+            <div className="relative">
+              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="0"
+                value={filters.maxPrice}
+                onChange={(e) => onInputChange('maxPrice', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Section Options */}
       <div className="space-y-4">
         <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
@@ -345,7 +461,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     provinceId: '',
     communeId: '',
     make: '',
-    supportsDriver: false
+    supportsDriver: false,
+    fuelType: '',
+    transmission: '',
+    minSeats: '',
+    minPrice: '',
+    maxPrice: ''
   });
 
   const initialFilters: FilterData = {
@@ -356,7 +477,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     provinceId: '',
     communeId: '',
     make: '',
-    supportsDriver: false
+    supportsDriver: false,
+    fuelType: '',
+    transmission: '',
+    minSeats: '',
+    minPrice: '',
+    maxPrice: ''
   };
 
   // Extraire les marques uniques des véhicules

@@ -151,7 +151,28 @@
       "convertible": "Cabriolet",
       "wagon": "Break",
       "other": "Autre"
-    }
+    },
+    "characteristicsTitle": "Caractéristiques",
+    "fuelLabel": "Carburant",
+    "allFuelTypes": "Tous carburants",
+    "transmissionLabel": "Transmission",
+    "allTransmissions": "Toutes transmissions",
+    "minSeatsLabel": "Nombre de places (min)",
+    "fuelTypes": {
+      "Essence": "Essence",
+      "Diesel": "Diesel",
+      "Hybride": "Hybride",
+      "Électrique": "Électrique",
+      "GPL": "GPL"
+    },
+    "transmissionTypes": {
+      "Manuelle": "Manuelle",
+      "Automatique": "Automatique",
+      "Semi-automatique": "Semi-automatique"
+    },
+    "priceTitle": "Prix par jour (FBu)",
+    "minPriceLabel": "Minimum",
+    "maxPriceLabel": "Maximum"
   },
   "auth": {
     "onboardingGate": {

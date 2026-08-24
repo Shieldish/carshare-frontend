@@ -151,7 +151,28 @@
       "convertible": "Convertible",
       "wagon": "Wagon",
       "other": "Other"
-    }
+    },
+    "characteristicsTitle": "Characteristics",
+    "fuelLabel": "Fuel",
+    "allFuelTypes": "All fuel types",
+    "transmissionLabel": "Transmission",
+    "allTransmissions": "All transmissions",
+    "minSeatsLabel": "Number of seats (min)",
+    "fuelTypes": {
+      "Essence": "Petrol",
+      "Diesel": "Diesel",
+      "Hybride": "Hybrid",
+      "Électrique": "Electric",
+      "GPL": "LPG"
+    },
+    "transmissionTypes": {
+      "Manuelle": "Manual",
+      "Automatique": "Automatic",
+      "Semi-automatique": "Semi-automatic"
+    },
+    "priceTitle": "Price per day (FBu)",
+    "minPriceLabel": "Minimum",
+    "maxPriceLabel": "Maximum"
   },
   "auth": {
     "onboardingGate": {
