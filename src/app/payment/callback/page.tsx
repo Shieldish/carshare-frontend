@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
@@ -16,6 +16,12 @@ function CallbackContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [source, setSource] = useState<string | null>(null);
+  // ✅ Garde-fou anti-double-soumission : refreshUser est maintenant stable (voir AuthContext),
+  // ce qui règle la cause du bug de notifications en double. Ce ref est une deuxième protection
+  // indépendante : même si une dépendance de cet effet redevenait instable un jour, ou à cause du
+  // double-montage du Strict Mode de React en dev, on ne confirme le paiement qu'une seule fois
+  // par montage réel du composant.
+  const hasProcessedRef = useRef(false);
 
   useEffect(() => {
     const urlSource = searchParams.get('source');
@@ -24,6 +30,9 @@ function CallbackContent() {
     setSource(finalSource);
 
     const processPayment = async () => {
+      if (hasProcessedRef.current) return;
+      hasProcessedRef.current = true;
+
       const paymentStatus = searchParams.get('status');
       const transactionId = searchParams.get('tx_id') || searchParams.get('session_id');
       const referenceId = searchParams.get('ref');
