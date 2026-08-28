@@ -59,7 +59,7 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
                     href={`https://www.google.com/maps/search/?api=1&query=${details.latitudeStart},${details.longitudeStart}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     {t('openInMaps')}
                     <ExternalLink className="w-3 h-3 ml-1" />
@@ -160,7 +160,7 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
                     href={`https://www.google.com/maps/search/?api=1&query=${details.latitudeEnd},${details.longitudeEnd}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    className="inline-flex items-center text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     {t('openInMaps')}
                     <ExternalLink className="w-3 h-3 ml-1" />

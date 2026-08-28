@@ -19,6 +19,9 @@ import {
   Banknote
 } from 'lucide-react';
 import Image from 'next/image';
+import AdminPagination from '../components/AdminPagination';
+
+const ITEMS_PER_PAGE = 10;
 
 interface IncidentReport {
   id: number;
@@ -72,6 +75,7 @@ export default function AdminIncidentsPage() {
 
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'ADMIN')) {
@@ -123,6 +127,10 @@ export default function AdminIncidentsPage() {
     
     setFilteredIncidents(result);
   }, [filterStatus, searchTerm, incidents]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus, searchTerm]);
 
   // ✅ Patch local ciblé : ne remplace que status/resolutionNotes/resolvedAt (les seuls
   // champs que ces deux actions changent) sans re-fetcher tout le tableau des incidents.
@@ -233,11 +241,14 @@ export default function AdminIncidentsPage() {
 
   if (!user || user.role !== 'ADMIN') return null;
 
+  const totalPages = Math.ceil(filteredIncidents.length / ITEMS_PER_PAGE);
+  const paginatedIncidents = filteredIncidents.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {t('pageTitle')}
         </h1>
         <p className="text-muted-foreground">
@@ -305,7 +316,7 @@ export default function AdminIncidentsPage() {
       {/* Liste des incidents */}
       <div className="space-y-4">
         {filteredIncidents.length > 0 ? (
-          filteredIncidents.map((incident) => (
+          paginatedIncidents.map((incident) => (
             <div
               key={incident.id}
               className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow"
@@ -394,6 +405,15 @@ export default function AdminIncidentsPage() {
         )}
       </div>
 
+      <AdminPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        previousLabel={t('pagePrevious')}
+        nextLabel={t('pageNext')}
+        pageLabel={t('pageOf', { current: currentPage, total: totalPages })}
+      />
+
       {/* Modal de détails et d'arbitrage */}
       {isModalOpen && selectedIncident && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -426,7 +446,7 @@ export default function AdminIncidentsPage() {
               )}
 
               {/* Contenu Informational */}
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">{t('modal.vehicleLabel')}</label>
                   <p className="mt-1 font-semibold">{selectedIncident.vehicleMake} {selectedIncident.vehicleModel}</p>

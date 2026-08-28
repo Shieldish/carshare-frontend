@@ -7,6 +7,24 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Les popups natifs des <input type="date"/"datetime-local"/"time"> (calendrier,
+   sélecteur d'heure) sont dessinés par le navigateur, pas par Tailwind — accent-color
+   est le seul levier CSS qui influence leur couleur de sélection (Chrome/Edge/Firefox/
+   Safari 15.4+). Sans ça, ces popups restent bleus par défaut du navigateur, quelle que
+   soit la couleur de marque définie ailleurs. */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+input[type="month"],
+input[type="week"] {
+  accent-color: rgb(var(--primary));
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: rgb(var(--primary));
+}
+
 :root {
   --background: 249 250 251; /* bg-gray-50 */
   --foreground: 31 41 55;   /* text-gray-800 */
@@ -17,7 +35,7 @@ html {
   --muted: 243 244 246; /* bg-gray-100 */
   --muted-foreground: 107 114 128; /* text-gray-500 */
 
-  --primary: 37 99 235; /* bg-blue-600 */
+  --primary: 27 107 74; /* #1B6B4A — vert Kibira (marque) */
   --primary-foreground: 255 255 255; /* text-white */
 
   --secondary: 156 163 175; /* bg-gray-400 */
@@ -31,7 +49,7 @@ html {
 
   --border: 229 231 235; /* border-gray-200 */
   --input: 229 231 235; /* border-gray-200 */
-  --ring: 37 99 235; /* ring-blue-600 */
+  --ring: 27 107 74; /* #1B6B4A — vert Kibira */
 }
 
 .dark {
@@ -44,7 +62,7 @@ html {
   --muted: 55 65 81; /* bg-gray-700 */
   --muted-foreground: 156 163 175; /* text-gray-400 */
 
-  --primary: 59 130 246; /* bg-blue-500 - plus clair en dark mode */
+  --primary: 41 163 113; /* #29A371 — vert Kibira, plus clair pour le contraste en dark mode */
   --primary-foreground: 17 24 39; /* text-gray-900 */
 
   --secondary: 75 85 99; /* bg-gray-600 */
@@ -58,13 +76,13 @@ html {
 
   --border: 55 65 81; /* border-gray-700 */
   --input: 55 65 81; /* border-gray-700 */
-  --ring: 59 130 246; /* ring-blue-500 */
+  --ring: 41 163 113; /* #29A371 */
 }
 
 @layer base {
   body {
     @apply bg-background text-foreground;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   }
 }
 
@@ -118,7 +136,7 @@ html {
 
 /* Custom styles for react-calendar */
 .react-calendar {
-  @apply bg-card border border-border rounded-lg p-4 shadow-md;
+  @apply bg-card border border-border rounded-lg p-2 sm:p-4 shadow-md;
   width: 100%;
 }
 
@@ -205,7 +223,7 @@ html {
 
 .booked-day::after {
   content: 'Réservé';
-  @apply absolute bottom-0.5 left-0 right-0 text-[8px] text-red-700 dark:text-red-300 font-semibold text-center;
+  @apply hidden sm:block absolute bottom-0.5 left-0 right-0 text-[8px] text-red-700 dark:text-red-300 font-semibold text-center;
 }
 
 /* Style for blocked days */
@@ -216,14 +234,14 @@ html {
 
 .blocked-day::after {
   content: 'Bloqué';
-  @apply absolute bottom-0.5 left-0 right-0 text-[8px] text-gray-600 dark:text-gray-400 font-semibold text-center;
+  @apply hidden sm:block absolute bottom-0.5 left-0 right-0 text-[8px] text-gray-600 dark:text-gray-400 font-semibold text-center;
 }
 
 /* Style for selected range */
 .react-calendar__tile--range,
 .react-calendar__tile--rangeStart,
 .react-calendar__tile--rangeEnd {
-  @apply bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200;
+  @apply bg-primary/20 text-primary;
 }
 
 .react-calendar__tile--rangeStart,

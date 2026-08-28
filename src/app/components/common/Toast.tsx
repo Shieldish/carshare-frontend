@@ -60,20 +60,20 @@ const Toast: React.FC<ToastProps> = ({
       iconColor: 'text-amber-200',
     },
     info: {
-      bgColor: 'bg-blue-600 dark:bg-blue-700',
-      borderColor: 'border-blue-400',
+      bgColor: 'bg-gray-700 dark:bg-gray-800',
+      borderColor: 'border-gray-500',
       icon: Info,
-      iconColor: 'text-blue-200',
+      iconColor: 'text-gray-300',
     },
   };
 
   const { bgColor, borderColor, icon: IconComponent, iconColor } = config[type];
 
   const positionClasses = {
-    'bottom-right': 'bottom-6 right-6',
-    'bottom-left': 'bottom-6 left-6',
-    'top-right': 'top-6 right-6',
-    'top-left': 'top-6 left-6',
+    'bottom-right': 'bottom-6 left-4 right-4 sm:left-auto sm:right-6',
+    'bottom-left': 'bottom-6 left-4 right-4 sm:right-auto sm:left-6',
+    'top-right': 'top-6 left-4 right-4 sm:left-auto sm:right-6',
+    'top-left': 'top-6 left-4 right-4 sm:right-auto sm:left-6',
   };
 
   const handleClose = () => {
@@ -97,7 +97,7 @@ const Toast: React.FC<ToastProps> = ({
         </div>
         <button
           onClick={handleClose}
-          className="flex-shrink-0 text-white/70 hover:text-white transition-colors mt-0.5"
+          className="flex-shrink-0 text-white/70 hover:text-white transition-colors mt-0.5 p-2 -m-2"
           aria-label={t('closeNotification')}
           type="button"
         >

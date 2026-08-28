@@ -166,13 +166,13 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
                     disabled={isDeleting}
                     title={boost.heroImageUrl ? t('changeImage') : t('addImage')}
                     aria-label={boost.heroImageUrl ? t('changeImage') : t('addImage')}
-                    className="p-2 text-blue-600 hover:bg-blue-100 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-full disabled:opacity-50 transition-colors"
+                    className="p-2.5 text-primary hover:bg-primary/10 dark:hover:bg-primary/20 rounded-full disabled:opacity-50 transition-colors"
                   >
                     {boost.heroImageUrl ? <Pencil size={18} /> : <ImagePlus size={18} />}
                   </button>
 
                   {boost.heroImageUrl && (
-                    <button onClick={handleDelete} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors" title={t('deleteImageTitle')}>
+                    <button onClick={handleDelete} disabled={isDeleting} className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors" title={t('deleteImageTitle')}>
                       {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 size={18} />}
                     </button>
                   )}
@@ -200,8 +200,11 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
                 className="relative w-full max-w-5xl h-[85vh] animate-in zoom-in-95 duration-300"
                 onClick={(e) => e.stopPropagation()}
               >
-                <button 
-                  className="absolute -top-12 right-0 md:-right-8 text-white/70 hover:text-white transition-colors z-10"
+                {/* Positionné à l'intérieur de la boîte (pas au-dessus) pour ne jamais être coupé
+                    par le haut de l'écran sur un viewport court — un -top-12 flottant au-dessus
+                    du conteneur h-[85vh] pouvait dépasser la marge disponible sur un petit mobile. */}
+                <button
+                  className="absolute top-2 right-2 md:top-4 md:right-4 text-white/90 hover:text-white bg-black/40 hover:bg-black/60 rounded-full transition-colors z-10"
                   onClick={() => setZoomedImage(null)}
                 >
                   <XCircle size={40} />

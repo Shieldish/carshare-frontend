@@ -93,7 +93,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
             name="firstName" 
             id="firstName" 
             required 
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" 
             value={formData.firstName} 
             onChange={handleChange} 
           />
@@ -107,7 +107,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
             name="lastName" 
             id="lastName" 
             required 
-            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" 
             value={formData.lastName} 
             onChange={handleChange} 
           />
@@ -123,7 +123,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
           name="email" 
           id="email" 
           required 
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" 
           value={formData.email} 
           onChange={handleChange} 
         />
@@ -141,27 +141,23 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
             id="password" 
             required 
             minLength={6} 
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden" 
+            className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden" 
             value={formData.password} 
             onChange={handleChange} 
           />
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <button
-              type="button"
-              className="text-gray-400 hover:text-gray-500 focus:outline-none"
-              onMouseDown={() => setShowPassword(true)}
-              onMouseUp={() => setShowPassword(false)}
-              onMouseLeave={() => setShowPassword(false)}
-              onTouchStart={() => setShowPassword(true)}
-              onTouchEnd={() => setShowPassword(false)}
-            >
-              {showPassword ? (
-                <EyeOff className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <Eye className="h-5 w-5" aria-hidden="true" />
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-pressed={showPassword}
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Eye className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -176,7 +172,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
           id="confirmPassword" 
           required 
           minLength={6} 
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden" 
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary [&::-ms-reveal]:hidden [&::-ms-clear]:hidden" 
           value={formData.confirmPassword} 
           onChange={handleChange} 
         />
@@ -192,7 +188,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
           id="phoneNumber"
           required
           placeholder="Ex: +257 79 12 34 56"
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
           value={formData.phoneNumber}
           onChange={handleChange}
         />
@@ -202,7 +198,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
       </div>
 
       <div className="text-center text-sm mb-4">
-        <Link href="/register/company" className="font-medium text-blue-600 hover:text-blue-500">
+        <Link href="/register/company" className="font-medium text-primary hover:text-primary/80">
           {t('companyLink')}
         </Link>
       </div>
@@ -211,7 +207,7 @@ export default function RegisterForm({ redirectTo = '/' }: RegisterFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/40"
         >
           {isLoading ? t('submitting') : t('submitButton')}
         </button>

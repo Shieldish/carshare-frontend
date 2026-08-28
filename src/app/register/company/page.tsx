@@ -91,8 +91,8 @@ export default function RegisterCompanyPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-4">
-          <div className="p-3 bg-blue-600 rounded-full shadow-lg">
-            <Building2 className="w-8 h-8 text-white" />
+          <div className="p-3 bg-primary rounded-full shadow-lg">
+            <Building2 className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
@@ -116,29 +116,29 @@ export default function RegisterCompanyPage() {
               <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t('companyNameLabel')} <span className="text-red-500">*</span>
               </label>
-              <input type="text" name="companyName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.companyName} onChange={handleChange} disabled={isLoading} />
+              <input type="text" name="companyName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.companyName} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('firstNameLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" name="firstName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.firstName} onChange={handleChange} disabled={isLoading} />
+                <input type="text" name="firstName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.firstName} onChange={handleChange} disabled={isLoading} />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('lastNameLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" name="lastName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.lastName} onChange={handleChange} disabled={isLoading} />
+                <input type="text" name="lastName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.lastName} onChange={handleChange} disabled={isLoading} />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('emailLabel')} <span className="text-red-500">*</span></label>
-              <input type="email" name="email" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.email} onChange={handleChange} disabled={isLoading} />
+              <input type="email" name="email" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.email} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('passwordLabel')} <span className="text-red-500">*</span></label>
               <div className="mt-1 relative rounded-md shadow-sm">
-                <input type={showPassword ? 'text' : 'password'} name="password" required minLength={6} className="block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 pr-10" value={formData.password} onChange={handleChange} disabled={isLoading} />
+                <input type={showPassword ? 'text' : 'password'} name="password" required minLength={6} className="block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary pr-10" value={formData.password} onChange={handleChange} disabled={isLoading} />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                   <button type="button" className="text-gray-400 hover:text-gray-500" onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -149,12 +149,12 @@ export default function RegisterCompanyPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('confirmPasswordLabel')} <span className="text-red-500">*</span></label>
-              <input type="password" name="confirmPassword" required minLength={6} className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.confirmPassword} onChange={handleChange} disabled={isLoading} />
+              <input type="password" name="confirmPassword" required minLength={6} className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.confirmPassword} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('phoneLabel')} <span className="text-red-500">*</span></label>
-              <input type="tel" name="phoneNumber" required placeholder="Ex: +257 79 12 34 56" className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500" value={formData.phoneNumber} onChange={handleChange} disabled={isLoading} />
+              <input type="tel" name="phoneNumber" required placeholder="Ex: +257 79 12 34 56" className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.phoneNumber} onChange={handleChange} disabled={isLoading} />
             </div>
 
             {/* ✅ NOUVEAU : Choix de la formule (1 mois / 1 an) */}
@@ -167,18 +167,18 @@ export default function RegisterCompanyPage() {
                   type="button"
                   onClick={() => setDuration(1)}
                   className={`p-3 border-2 rounded-xl text-center transition-all ${
-                    duration === 1 ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                    duration === 1 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-gray-200 dark:border-gray-600 hover:border-primary/40'
                   }`}
                 >
                   <h4 className="font-bold text-gray-900 dark:text-white">{t('plan1Month')}</h4>
-                  <p className="text-sm font-semibold text-blue-600">{t('plan1MonthPrice')}</p>
+                  <p className="text-sm font-semibold text-primary">{t('plan1MonthPrice')}</p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDuration(12)}
                   className={`p-3 border-2 rounded-xl text-center transition-all relative ${
-                    duration === 12 ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-200 dark:border-gray-600 hover:border-blue-300'
+                    duration === 12 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-gray-200 dark:border-gray-600 hover:border-primary/40'
                   }`}
                 >
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
@@ -187,13 +187,13 @@ export default function RegisterCompanyPage() {
                   <h4 className="font-bold text-gray-900 dark:text-white flex items-center justify-center gap-1">
                     <Calendar size={14}/> {t('plan1Year')}
                   </h4>
-                  <p className="text-sm font-semibold text-blue-600">{t('plan1YearPrice')}</p>
+                  <p className="text-sm font-semibold text-primary">{t('plan1YearPrice')}</p>
                 </button>
               </div>
             </div>
 
             <div className="pt-2">
-              <button type="submit" disabled={isLoading} className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-lg text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all">
+              <button type="submit" disabled={isLoading} className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-lg text-lg font-bold text-primary-foreground bg-primary hover:bg-primary/90 disabled:opacity-50 transition-all">
                 {isLoading ? <Loader2 className="animate-spin mr-3" size={20} /> : t('submitButton')}
               </button>
             </div>

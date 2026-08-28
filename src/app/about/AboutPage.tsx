@@ -26,15 +26,15 @@ const AboutPage = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-20 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="absolute inset-0 bg-primary/10"></div>
         <div className="container mx-auto max-w-6xl relative">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <h1 className="text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent leading-tight">
+              <h1 className="text-5xl lg:text-6xl font-bold mb-6 text-primary leading-tight">
                 CarShare Burundi
               </h1>
               <p className="text-xl lg:text-2xl text-muted-foreground mb-8 leading-relaxed">
-                {t('hero.subtitlePrefix')} <span className="font-semibold text-blue-600">{t('hero.subtitleHighlight')}</span> {t('hero.subtitleSuffix')}
+                {t('hero.subtitlePrefix')} <span className="font-semibold text-primary">{t('hero.subtitleHighlight')}</span> {t('hero.subtitleSuffix')}
               </p>
               <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                 <div className="flex items-center gap-2 bg-card rounded-full px-4 py-2 shadow-lg border border-border">
@@ -52,7 +52,7 @@ const AboutPage = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl p-8 text-white shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
+              <div className="bg-primary rounded-3xl p-8 text-white shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
                 <div className="grid grid-cols-2 gap-6 text-center">
                   <div>
                     <div className="text-3xl font-bold">15,000+</div>
@@ -67,7 +67,7 @@ const AboutPage = () => {
                     <div className="text-sm opacity-90">{t('hero.statSavingsLabel')}</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold">24/7</div>
+                    <div className="text-3xl font-bold">7h-22h</div>
                     <div className="text-sm opacity-90">{t('hero.statSupportLabel')}</div>
                   </div>
                 </div>
@@ -342,7 +342,7 @@ const AboutPage = () => {
       </section>
 
       {/* Stats */}
-      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+      <section className="py-20 px-6 bg-primary text-white">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6">{t('stats.title')}</h2>
@@ -382,13 +382,13 @@ const AboutPage = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 inline-flex items-center justify-center"
+              className="bg-primary text-white px-8 py-4 rounded-xl font-semibold text-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 inline-flex items-center justify-center"
             >
               {t('cta.rentButton')}
             </Link>
             <Link
               href={getEarnMoneyLink()}
-              className={`border-2 border-blue-600 text-blue-600 dark:text-blue-400 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-blue-600 hover:text-white transition-all duration-300 inline-flex items-center justify-center ${
+              className={`border-2 border-primary text-primary px-8 py-4 rounded-xl font-semibold text-lg hover:bg-primary hover:text-white transition-all duration-300 inline-flex items-center justify-center ${
                 isLoading ? 'opacity-75 cursor-wait' : ''
               }`}
             >

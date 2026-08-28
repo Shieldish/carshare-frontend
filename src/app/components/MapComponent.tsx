@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import type { Vehicle } from '../types/vehicle';
+import type { Vehicle } from '@/types/vehicle';
 
 export interface MapBounds {
   north: number;
@@ -22,30 +22,49 @@ interface MapProps {
 }
 
 // 🌟 TECHNIQUE PRO 1 : Fonction de secours intelligente (tolère les variations de texte)
-const getProvinceCoords = (provinceName?: string): [number, number] | null => {
-  if (!provinceName) return null;
-  const name = provinceName.toLowerCase();
-  
-  // On sépare explicitement Bujumbura Mairie et Bujumbura Rural
-  if (name.includes('bujumbura mairie') || name.includes('mairie')) return [-3.3822, 29.3644];
-  if (name.includes('bujumbura rural') || name.includes('rural')) return [-3.4500, 29.4667]; 
-  
-  // Fallback (sécurité) au cas où la base de données renvoie juste "bujumbura"
-  if (name === 'bujumbura') return [-3.3822, 29.3644];
-  
-  if (name.includes('gitega')) return [-3.4273, 29.9246];
-  if (name.includes('ngozi')) return [-2.9075, 29.8288];
-  if (name.includes('makamba')) return [-4.1348, 29.8030];
-  if (name.includes('rumonge')) return [-3.9736, 29.4386];
-  if (name.includes('cankuzo')) return [-3.2185, 30.5528];
+// Coordonnées approximatives des principales villes/communes (découpage 2025 : la commune
+// est le niveau "ville" pertinent, la province ne l'est plus). On retombe sur le nom de
+// province si la commune n'est pas renseignée ou pas reconnue.
+const CITY_COORDS: Record<string, [number, number]> = {
+  'muha': [-3.3822, 29.3644],
+  'mukaza': [-3.3822, 29.3644],
+  'ntahangwa': [-3.3556, 29.3644],
+  'bujumbura': [-3.3822, 29.3644],
+  'gitega': [-3.4273, 29.9246],
+  'ngozi': [-2.9075, 29.8288],
+  'makamba': [-4.1348, 29.8030],
+  'rumonge': [-3.9736, 29.4386],
+  'cankuzo': [-3.2185, 30.5528],
+  'muyinga': [-2.8451, 30.3414],
+  'ruyigi': [-3.4764, 30.2467],
+  'kayanza': [-2.9226, 29.6303],
+  'kirundo': [-2.5847, 30.0961],
+  'bururi': [-3.9500, 29.6167],
+  'karuzi': [-3.1167, 30.1667],
+  'muramvya': [-3.2667, 29.6083],
+  'mwaro': [-3.5167, 29.7000],
+  'bubanza': [-3.0904, 29.3911],
+  'cibitoke': [-2.8895, 29.1247],
+  'rutana': [-3.9333, 30.0000],
+};
+
+const getCityCoords = (name?: string): [number, number] | null => {
+  if (!name) return null;
+  const key = name.toLowerCase().trim();
+  for (const [city, coords] of Object.entries(CITY_COORDS)) {
+    if (key.includes(city)) return coords;
+  }
   return null;
 };
+
+const getVehicleCityCoords = (vehicle: { commune?: { name?: string } | null; province?: { name?: string } | null }): [number, number] | null =>
+  getCityCoords(vehicle.commune?.name) ?? getCityCoords(vehicle.province?.name);
 
 // 🌟 TECHNIQUE PRO 2 : Le Recadreur Automatique (Auto-Fit)
 function MapFitter({ vehicles }: { vehicles: Vehicle[] }) {
   const map = useMap();
 
-  useEffect(() => {
+  const fitToVehicles = useCallback(() => {
     if (!vehicles || vehicles.length === 0) return;
 
     const bounds = L.latLngBounds([]);
@@ -60,7 +79,7 @@ function MapFitter({ vehicles }: { vehicles: Vehicle[] }) {
         lat = parseFloat(parts[0].trim());
         lng = parseFloat(parts[1].trim());
       } else {
-        const coords = getProvinceCoords(vehicle.province?.name);
+        const coords = getVehicleCityCoords(vehicle);
         if (coords) {
           lat = coords[0];
           lng = coords[1];
@@ -73,41 +92,68 @@ function MapFitter({ vehicles }: { vehicles: Vehicle[] }) {
       }
     });
 
-    if (hasValidPoints) {
+    // Sur mobile, ce conteneur reste display:none tant que la vue "liste" est active
+    // (voir search/page.tsx) : Leaflet le mesure alors à (0,0) et flyToBounds plante
+    // avec "Invalid LatLng object: (NaN, NaN)". On ne recadre que si la carte a une
+    // taille réelle ; le ResizeObserver ci-dessous rattrape le recadrage dès que le
+    // conteneur redevient visible.
+    const size = map.getSize();
+    if (hasValidPoints && size.x > 0 && size.y > 0) {
       map.flyToBounds(bounds, { padding: [50, 50], maxZoom: 13, duration: 1.5 });
     }
   }, [map, vehicles]);
+
+  useEffect(() => {
+    fitToVehicles();
+  }, [fitToVehicles]);
+
+  // Le conteneur n'a pas de boîte générée tant qu'il est display:none, donc le
+  // ResizeObserver ne se déclenche que lorsqu'il redevient visible (bouton "Voir la
+  // carte" sur mobile) — c'est le signal pour que Leaflet recalcule sa taille interne
+  // puis se recadre correctement.
+  useEffect(() => {
+    const container = map.getContainer();
+    const observer = new ResizeObserver(() => {
+      map.invalidateSize();
+      fitToVehicles();
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [map, fitToVehicles]);
 
   return null;
 }
 
 function MapEventListener({ onBoundsChange }: { onBoundsChange?: (bounds: MapBounds) => void }) {
   const map = useMapEvents({
-    moveend: () => {
-      if (onBoundsChange) {
-        const bounds = map.getBounds();
-        onBoundsChange({
-          north: bounds.getNorthEast().lat,
-          south: bounds.getSouthWest().lat,
-          east: bounds.getNorthEast().lng,
-          west: bounds.getSouthWest().lng,
-        });
-      }
-    }
+    moveend: () => emitBounds(),
+    resize: () => emitBounds(),
   });
 
+  const emitBounds = useCallback(() => {
+    if (!onBoundsChange) return;
+
+    // Sur mobile, ce conteneur reste display:none tant que la vue "liste" est active
+    // (voir search/page.tsx) : Leaflet le mesure alors à (0,0) et getBounds() renvoie
+    // des bornes quasi ponctuelles, ce qui ferait filtrer TOUTE la liste à zéro
+    // véhicule côté parent. On n'émet que si la carte a une taille réelle ; le
+    // ResizeObserver de MapFitter appelle invalidateSize() dès que le conteneur
+    // redevient visible, ce qui déclenche l'événement 'resize' ci-dessous.
+    const size = map.getSize();
+    if (size.x === 0 || size.y === 0) return;
+
+    const bounds = map.getBounds();
+    onBoundsChange({
+      north: bounds.getNorthEast().lat,
+      south: bounds.getSouthWest().lat,
+      east: bounds.getNorthEast().lng,
+      west: bounds.getSouthWest().lng,
+    });
+  }, [map, onBoundsChange]);
+
   useEffect(() => {
-    if (onBoundsChange) {
-      const bounds = map.getBounds();
-      onBoundsChange({
-        north: bounds.getNorthEast().lat,
-        south: bounds.getSouthWest().lat,
-        east: bounds.getNorthEast().lng,
-        west: bounds.getSouthWest().lng,
-      });
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    emitBounds();
+  }, [emitBounds]);
 
   return null;
 }
@@ -181,7 +227,7 @@ export default function MapComponent({ vehicles = [], onBoundsChange, selectedVe
             lng = parseFloat(parts[1].trim());
           } 
           else {
-            const coords = getProvinceCoords(vehicle.province?.name);
+            const coords = getVehicleCityCoords(vehicle);
             if (coords) {
               lat = coords[0];
               lng = coords[1];
@@ -211,6 +257,13 @@ export default function MapComponent({ vehicles = [], onBoundsChange, selectedVe
               <Popup className="custom-popup border-none rounded-xl overflow-hidden shadow-xl">
                 <div className="text-sm text-center min-w-[160px] p-2 bg-white">
                   <strong className="text-base text-gray-800 block mb-1">{vehicle.make} {vehicle.model}</strong>
+                  {(vehicle.commune || vehicle.province) && (
+                    <span className="text-xs text-gray-500 block mb-1">
+                      {[vehicle.address, vehicle.commune?.name, vehicle.commune?.province.name ?? vehicle.province?.name]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </span>
+                  )}
                   <span className="text-primary font-bold block mb-3">{formatPrice(vehicle.ratePerDay)} BIF / jour</span>
                   <Link href={`/vehicles/${vehicle.id}`} className="block w-full text-center bg-[#0f172a] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-black transition shadow-sm">
                     Voir l&apos;offre

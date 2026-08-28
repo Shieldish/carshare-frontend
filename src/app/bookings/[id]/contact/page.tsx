@@ -466,7 +466,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
                 <button
                   onClick={handleOnlinePayment}
                   disabled={isPaymentLoading}
-                  className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
+                  className="w-full flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-primary/40 text-primary-foreground py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
                 >
                   <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z" />
@@ -517,15 +517,15 @@ export default function BookingContactPage({ params }: ContactPageProps) {
             </div>
 
             {/* Instructions */}
-            <div className="bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-950 dark:to-blue-900 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-6 shadow-md">
-              <h4 className="text-lg font-bold text-blue-900 dark:text-blue-200 mb-4 flex items-center">
+            <div className="bg-gradient-to-r from-primary/20 to-primary/10 dark:from-primary/30 dark:to-primary/20 border-2 border-primary/30 dark:border-primary/40 rounded-xl p-6 shadow-md">
+              <h4 className="text-lg font-bold text-primary mb-4 flex items-center">
                 <AlertCircle className="w-5 h-5 mr-2" />
                 {t('nextStepsTitle')}
               </h4>
-              <ol className="space-y-3 text-base text-blue-800 dark:text-blue-300">
+              <ol className="space-y-3 text-base text-primary">
                 {contactContent.steps.map((step, index) => (
                   <li key={index} className="flex items-start">
-                    <Circle className="w-4 h-4 mr-3 mt-1 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="currentColor" />
+                    <Circle className="w-4 h-4 mr-3 mt-1 text-primary flex-shrink-0" fill="currentColor" />
                     <span>{step}</span>
                   </li>
                 ))}

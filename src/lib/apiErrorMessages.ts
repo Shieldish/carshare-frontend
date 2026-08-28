@@ -13,6 +13,8 @@ type ToastErrorKey =
   | 'startAfterEnd'
   | 'bookingTooShort'
   | 'missingDates'
+  | 'insuranceExpiresDuringBooking'
+  | 'technicalControlExpiresDuringBooking'
   | 'tooManyPendingBookings'
   | 'bookingRateLimitExceeded'
   | 'tooManyPendingBoostPayments'
@@ -27,6 +29,8 @@ const CODE_TO_KEY: Record<string, ToastErrorKey> = {
   START_AFTER_END: 'startAfterEnd',
   BOOKING_TOO_SHORT: 'bookingTooShort',
   MISSING_DATES: 'missingDates',
+  INSURANCE_EXPIRES_DURING_BOOKING: 'insuranceExpiresDuringBooking',
+  TECHNICAL_CONTROL_EXPIRES_DURING_BOOKING: 'technicalControlExpiresDuringBooking',
   TOO_MANY_PENDING_BOOKINGS: 'tooManyPendingBookings',
   BOOKING_RATE_LIMIT_EXCEEDED: 'bookingRateLimitExceeded',
   TOO_MANY_PENDING_BOOST_PAYMENTS: 'tooManyPendingBoostPayments',

@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Shield, Eye, Database, Lock, Users, Cookie, FileText, Mail, Phone, AlertCircle, Globe } from 'lucide-react';
+import { Shield, Eye, Database, Lock, Users, Cookie, FileText, Mail, Clock, AlertCircle, Globe } from 'lucide-react';
 
 type DocLang = 'fr' | 'en';
 
@@ -18,10 +18,10 @@ const content: Record<DocLang, {
   rights: { title: string; accessTitle: string; rightAccessBadge: string; rightAccessLabel: string; rightEditBadge: string; rightEditLabel: string; rightDeleteBadge: string; rightDeleteLabel: string; rightPortBadge: string; rightPortLabel: string; howTitle: string; byEmailTitle: string; fromAccountTitle: string; fromAccountDesc: string; responseTimeTitle: string; responseTimeDesc: string };
   retention: { title: string; activeTitle: string; activeDesc: string; activeValue: string; deletedTitle: string; deletedDesc: string; deletedValue: string; legalTitle: string; legalDesc: string; legalValue: string; anonTitle: string; anonDesc: string; anonValue: string };
   contact: { title: string; questionsTitle: string; responseGuarantee: string; emergencyTitle: string; emergencyHours: string; breachNotice: string };
-  updates: { title: string; p1: string; p2: string; versionLabel: string; historyLink: string };
+  updates: { title: string; p1: string; p2: string; versionLabel: string };
 }> = {
   fr: {
-    lastUpdated: "Dernière mise à jour : 15 septembre 2025",
+    lastUpdated: "Dernière mise à jour : 24 août 2026",
     intro: {
       title: "1. Introduction",
       p1: "CarShare Burundi s'engage à protéger votre vie privée et vos données personnelles. Cette politique explique comment nous collectons, utilisons, stockons et protégeons vos informations personnelles.",
@@ -31,43 +31,43 @@ const content: Record<DocLang, {
     collection: {
       title: "2. Données Collectées",
       sub1Title: "2.1 Informations personnelles",
-      sub1Items: ["Nom, prénom, date de naissance", "Adresse email et numéro de téléphone", "Adresse postale", "Informations du permis de conduire", "Données bancaires (cryptées)", "Photos de profil et documents d'identité"],
+      sub1Items: ["Nom et prénom", "Adresse email et numéro de téléphone", "Pièce d'identité, permis de conduire et selfie (vérification de compte)", "Photo de profil"],
       sub2Title: "2.2 Données d'utilisation",
-      sub2Items: ["Historique des réservations", "Préférences de véhicules", "Évaluations et commentaires", "Communications sur la plateforme", "Données de géolocalisation (avec consentement)"],
+      sub2Items: ["Historique des réservations", "Évaluations et commentaires", "Messages échangés sur la messagerie intégrée", "Localisation des véhicules (renseignée par les propriétaires, affichée sur la carte)"],
       sub3Title: "2.3 Données techniques",
-      sub3Items: ["Adresse IP et données de connexion", "Type d'appareil et navigateur", "Données de navigation (cookies)", "Logs de sécurité"]
+      sub3Items: ["Informations techniques sur votre connexion", "Type d'appareil et navigateur", "Cookie de préférence de langue", "Historique technique de connexion (en cas de problème)"]
     },
     usage: {
       title: "3. Utilisation des Données",
       coreTitle: "Services principaux",
-      coreItems: ["Création et gestion de comptes", "Mise en relation propriétaires/locataires", "Traitement des réservations", "Support client personnalisé", "Vérification d'identité"],
+      coreItems: ["Création et gestion de comptes", "Mise en relation propriétaires/locataires", "Traitement des réservations", "Support client", "Vérification d'identité"],
       improveTitle: "Amélioration",
-      improveItems: ["Analyses et statistiques", "Développement de nouvelles fonctionnalités", "Prévention de la fraude", "Sécurisation de la plateforme", "Personnalisation de l'expérience"]
+      improveItems: ["Développement de nouvelles fonctionnalités", "Prévention des abus (ex. limites sur les tentatives de réservation)", "Sécurisation de la plateforme"]
     },
     sharing: {
       title: "4. Partage des Données",
       sub1Title: "4.1 Avec d'autres utilisateurs",
       sub1Desc: "Nous partageons certaines informations entre propriétaires et locataires pour faciliter les transactions :",
-      sub1Items: ["Nom, photo de profil et évaluations", "Informations de contact (masquées jusqu'à confirmation)", "Historique de location (nombre de voyages)"],
+      sub1Items: ["Nom, photo de profil et évaluations", "Coordonnées personnelles (téléphone, email) : jamais partagées directement — les échanges passent par la messagerie intégrée ou par BudaxDrive", "Historique de location (nombre de voyages)"],
       sub2Title: "4.2 Avec des tiers",
       partnersTitle: "Partenaires autorisés",
-      partnersItems: ["Processeurs de paiement", "Compagnies d'assurance", "Services de vérification d'identité", "Prestataires techniques"],
+      partnersItems: ["Stripe (traitement des paiements par carte)", "Cloudinary (hébergement des photos)", "OpenStreetMap (cartes et localisation)"],
       authoritiesTitle: "Autorités légales",
       authoritiesItems: ["Demandes judiciaires", "Enquêtes policières", "Obligations légales", "Protection des droits"]
     },
     security: {
       title: "5. Sécurité des Données",
-      encryptionTitle: "Chiffrement", encryptionDesc: "Données sensibles chiffrées avec AES-256",
-      accessTitle: "Accès Contrôlé", accessDesc: "Authentification multi-facteurs obligatoire",
-      backupTitle: "Sauvegarde", backupDesc: "Sauvegardes quotidiennes automatisées",
-      extraTitle: "Mesures supplémentaires",
-      extraItems: ["Monitoring 24h/7j des accès", "Tests de pénétration réguliers", "Formation sécurité des employés", "Mise à jour continue des systèmes"]
+      encryptionTitle: "Mots de passe", encryptionDesc: "Protégés par un système de sécurité avancé, jamais stockés ni consultables en clair",
+      accessTitle: "Documents sensibles", accessDesc: "Identité, permis et selfie stockés sur un espace protégé, accessible uniquement par vous et les administrateurs autorisés",
+      backupTitle: "Paiements", backupDesc: "Aucune donnée de carte bancaire n'est conservée chez nous — les paiements sont traités par Stripe ou votre opérateur Mobile Money",
+      extraTitle: "Mesures en place",
+      extraItems: ["Connexions sécurisées et protégées", "Accès aux documents restreint par rôle (propriétaire, administrateur)", "Améliorations de sécurité continues"]
     },
     cookies: {
       title: "6. Cookies et Technologies Similaires",
-      intro: "Nous utilisons des cookies pour améliorer votre expérience et analyser l'utilisation de nos services.",
+      intro: "Nous utilisons uniquement un cookie technique, nécessaire au fonctionnement du site : mémoriser la langue que vous avez choisie. Nous n'utilisons aucun cookie publicitaire ni de suivi analytique.",
       headerType: "Type de Cookie", headerPurpose: "Objectif", headerDuration: "Durée",
-      rows: [["Essentiels", "Fonctionnement du site", "Session"], ["Préférences", "Mémoriser vos choix", "1 an"], ["Analytiques", "Statistiques d'usage", "2 ans"], ["Publicitaires", "Annonces personnalisées", "13 mois"]]
+      rows: [["Préférence de langue", "Mémoriser la langue choisie", "Persistant"]]
     },
     rights: {
       title: "7. Vos Droits",
@@ -78,32 +78,31 @@ const content: Record<DocLang, {
       rightPortBadge: "PORT", rightPortLabel: "Récupérer vos données dans un format portable",
       howTitle: "Comment exercer vos droits",
       byEmailTitle: "Par email",
-      fromAccountTitle: "Depuis votre compte", fromAccountDesc: "Section \"Paramètres de confidentialité\"",
+      fromAccountTitle: "Depuis votre compte", fromAccountDesc: "Téléchargez vos données ou supprimez votre compte directement depuis votre profil",
       responseTimeTitle: "Délai de réponse", responseTimeDesc: "Maximum 30 jours"
     },
     retention: {
       title: "8. Conservation des Données",
       activeTitle: "Données de compte actif", activeDesc: "Tant que votre compte est actif", activeValue: "Illimitée",
-      deletedTitle: "Après suppression du compte", deletedDesc: "Données personnelles supprimées", deletedValue: "30 jours",
-      legalTitle: "Données légales", legalDesc: "Transactions, factures", legalValue: "7 ans",
-      anonTitle: "Données anonymisées", anonDesc: "Statistiques, analyses", anonValue: "Permanent"
+      deletedTitle: "Après suppression du compte", deletedDesc: "Vos documents d'identité sont supprimés immédiatement ; le reste de vos données personnelles est effacé ou anonymisé", deletedValue: "5 ans",
+      legalTitle: "Données de transaction", legalDesc: "Conservées pour nos obligations comptables et légales", legalValue: "10 ans",
+      anonTitle: "Données anonymisées", anonDesc: "Statistiques internes", anonValue: "Permanent"
     },
     contact: {
-      title: "9. Contact - Délégué à la Protection des Données",
-      questionsTitle: "Questions sur vos données", responseGuarantee: "Réponse sous 48h garantie",
-      emergencyTitle: "Urgence Confidentialité", emergencyHours: "7j/7 - 24h/24",
+      title: "9. Contact - Protection des Données",
+      questionsTitle: "Questions sur vos données", responseGuarantee: "Nous répondons dans les meilleurs délais",
+      emergencyTitle: "Délai de réponse", emergencyHours: "Délai de traitement de votre demande",
       breachNotice: "Important : En cas de violation de données, nous nous engageons à vous notifier dans les 72 heures suivant la découverte de l'incident."
     },
     updates: {
       title: "Mises à jour de cette Politique",
       p1: "Cette politique peut être mise à jour périodiquement pour refléter les changements dans nos pratiques ou pour des raisons légales et réglementaires.",
       p2: "Nous vous informerons de tout changement significatif par email et via une notification sur la plateforme au moins 30 jours avant l'entrée en vigueur.",
-      versionLabel: "Version actuelle : 2.1 - Septembre 2025",
-      historyLink: "Voir l'historique des versions →"
+      versionLabel: "Version actuelle : 3.0 - Août 2026"
     }
   },
   en: {
-    lastUpdated: "Last updated: September 15, 2025",
+    lastUpdated: "Last updated: August 24, 2026",
     intro: {
       title: "1. Introduction",
       p1: "CarShare Burundi is committed to protecting your privacy and personal data. This policy explains how we collect, use, store and protect your personal information.",
@@ -113,43 +112,43 @@ const content: Record<DocLang, {
     collection: {
       title: "2. Data Collected",
       sub1Title: "2.1 Personal information",
-      sub1Items: ["First name, last name, date of birth", "Email address and phone number", "Postal address", "Driving license information", "Bank data (encrypted)", "Profile photos and ID documents"],
+      sub1Items: ["First and last name", "Email address and phone number", "ID document, driving license and selfie (account verification)", "Profile photo"],
       sub2Title: "2.2 Usage data",
-      sub2Items: ["Booking history", "Vehicle preferences", "Ratings and reviews", "Communications on the platform", "Geolocation data (with consent)"],
+      sub2Items: ["Booking history", "Ratings and reviews", "Messages sent through the built-in chat", "Vehicle locations (set by owners, shown on the map)"],
       sub3Title: "2.3 Technical data",
-      sub3Items: ["IP address and connection data", "Device and browser type", "Browsing data (cookies)", "Security logs"]
+      sub3Items: ["Technical information about your connection", "Device and browser type", "Language preference cookie", "Technical connection history (in case of an issue)"]
     },
     usage: {
       title: "3. Use of Data",
       coreTitle: "Core services",
-      coreItems: ["Account creation and management", "Connecting owners/renters", "Booking processing", "Personalized customer support", "Identity verification"],
+      coreItems: ["Account creation and management", "Connecting owners/renters", "Booking processing", "Customer support", "Identity verification"],
       improveTitle: "Improvement",
-      improveItems: ["Analytics and statistics", "Development of new features", "Fraud prevention", "Platform security", "Personalizing your experience"]
+      improveItems: ["Development of new features", "Abuse prevention (e.g. limits on booking attempts)", "Platform security"]
     },
     sharing: {
       title: "4. Data Sharing",
       sub1Title: "4.1 With other users",
       sub1Desc: "We share certain information between owners and renters to facilitate transactions:",
-      sub1Items: ["Name, profile photo and ratings", "Contact information (hidden until confirmation)", "Rental history (number of trips)"],
+      sub1Items: ["Name, profile photo and ratings", "Personal contact details (phone, email): never shared directly — all communication goes through the built-in chat or via BudaxDrive", "Rental history (number of trips)"],
       sub2Title: "4.2 With third parties",
       partnersTitle: "Authorized partners",
-      partnersItems: ["Payment processors", "Insurance companies", "Identity verification services", "Technical service providers"],
+      partnersItems: ["Stripe (card payment processing)", "Cloudinary (photo hosting)", "OpenStreetMap (maps and location)"],
       authoritiesTitle: "Legal authorities",
       authoritiesItems: ["Judicial requests", "Police investigations", "Legal obligations", "Protection of rights"]
     },
     security: {
       title: "5. Data Security",
-      encryptionTitle: "Encryption", encryptionDesc: "Sensitive data encrypted with AES-256",
-      accessTitle: "Controlled Access", accessDesc: "Mandatory multi-factor authentication",
-      backupTitle: "Backup", backupDesc: "Automated daily backups",
-      extraTitle: "Additional measures",
-      extraItems: ["24/7 access monitoring", "Regular penetration testing", "Employee security training", "Continuous system updates"]
+      encryptionTitle: "Passwords", encryptionDesc: "Protected by advanced security, never stored or readable in plain text",
+      accessTitle: "Sensitive documents", accessDesc: "ID, license and selfie stored in a protected space, accessible only by you and authorized administrators",
+      backupTitle: "Payments", backupDesc: "We never keep your card details — payments are processed by Stripe or your Mobile Money operator",
+      extraTitle: "Measures in place",
+      extraItems: ["Secure, protected connections", "Document access restricted by role (owner, administrator)", "Ongoing security improvements"]
     },
     cookies: {
       title: "6. Cookies and Similar Technologies",
-      intro: "We use cookies to improve your experience and analyze the use of our services.",
+      intro: "We only use one technical cookie, needed for the site to work: remembering the language you chose. We do not use any advertising or analytics/tracking cookies.",
       headerType: "Cookie Type", headerPurpose: "Purpose", headerDuration: "Duration",
-      rows: [["Essential", "Site functionality", "Session"], ["Preferences", "Remember your choices", "1 year"], ["Analytics", "Usage statistics", "2 years"], ["Advertising", "Personalized ads", "13 months"]]
+      rows: [["Language preference", "Remember your chosen language", "Persistent"]]
     },
     rights: {
       title: "7. Your Rights",
@@ -160,28 +159,27 @@ const content: Record<DocLang, {
       rightPortBadge: "EXPORT", rightPortLabel: "Retrieve your data in a portable format",
       howTitle: "How to exercise your rights",
       byEmailTitle: "By email",
-      fromAccountTitle: "From your account", fromAccountDesc: "\"Privacy settings\" section",
+      fromAccountTitle: "From your account", fromAccountDesc: "Download your data or delete your account directly from your profile",
       responseTimeTitle: "Response time", responseTimeDesc: "Maximum 30 days"
     },
     retention: {
       title: "8. Data Retention",
       activeTitle: "Active account data", activeDesc: "As long as your account is active", activeValue: "Unlimited",
-      deletedTitle: "After account deletion", deletedDesc: "Personal data deleted", deletedValue: "30 days",
-      legalTitle: "Legal data", legalDesc: "Transactions, invoices", legalValue: "7 years",
-      anonTitle: "Anonymized data", anonDesc: "Statistics, analytics", anonValue: "Permanent"
+      deletedTitle: "After account deletion", deletedDesc: "Your identity documents are deleted immediately; the rest of your personal data is erased or anonymized", deletedValue: "5 years",
+      legalTitle: "Transaction data", legalDesc: "Kept for our accounting and legal obligations", legalValue: "10 years",
+      anonTitle: "Anonymized data", anonDesc: "Internal statistics", anonValue: "Permanent"
     },
     contact: {
-      title: "9. Contact - Data Protection Officer",
-      questionsTitle: "Questions about your data", responseGuarantee: "48h response guaranteed",
-      emergencyTitle: "Privacy Emergency", emergencyHours: "7 days a week - 24 hours a day",
+      title: "9. Contact - Data Protection",
+      questionsTitle: "Questions about your data", responseGuarantee: "We respond as soon as we can",
+      emergencyTitle: "Response time", emergencyHours: "Time to process your request",
       breachNotice: "Important: In the event of a data breach, we are committed to notifying you within 72 hours of discovering the incident."
     },
     updates: {
       title: "Updates to this Policy",
       p1: "This policy may be updated periodically to reflect changes in our practices or for legal and regulatory reasons.",
       p2: "We will inform you of any significant change by email and via a notification on the platform at least 30 days before it takes effect.",
-      versionLabel: "Current version: 2.1 - September 2025",
-      historyLink: "View version history →"
+      versionLabel: "Current version: 3.0 - August 2026"
     }
   }
 };
@@ -445,7 +443,7 @@ const PrivacyPage = () => {
                   <div className="space-y-3">
                     <div className="bg-muted p-3 rounded-lg">
                       <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.byEmailTitle}</h4>
-                      <p className="text-xs text-muted-foreground">orl.ndonse@gmail.com</p>
+                      <p className="text-xs text-muted-foreground">contact@budaxdrive.bi</p>
                     </div>
                     <div className="bg-muted p-3 rounded-lg">
                       <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.fromAccountTitle}</h4>
@@ -512,15 +510,15 @@ const PrivacyPage = () => {
                     <Mail className="w-5 h-5 mr-2" />
                     {c.contact.questionsTitle}
                   </h3>
-                  <p className="mb-2">orl.ndonse@gmail.com</p>
+                  <p className="mb-2">contact@budaxdrive.bi</p>
                   <p className="text-green-100 text-sm">{c.contact.responseGuarantee}</p>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
-                    <Phone className="w-5 h-5 mr-2" />
+                    <Clock className="w-5 h-5 mr-2" />
                     {c.contact.emergencyTitle}
                   </h3>
-                  <p className="mb-2">+257 XX XX XX XX</p>
+                  <p className="mb-2">30 {docLang === 'fr' ? 'jours maximum' : 'days maximum'}</p>
                   <p className="text-green-100 text-sm">{c.contact.emergencyHours}</p>
                 </div>
               </div>
@@ -540,15 +538,7 @@ const PrivacyPage = () => {
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-4">{c.updates.p1}</p>
               <p className="text-muted-foreground leading-relaxed mb-4">{c.updates.p2}</p>
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <p className="text-muted-foreground text-sm">{c.updates.versionLabel}</p>
-                <a
-                  href="#"
-                  className="text-green-600 hover:text-green-700 text-sm font-medium hover:underline"
-                >
-                  {c.updates.historyLink}
-                </a>
-              </div>
+              <p className="text-muted-foreground text-sm">{c.updates.versionLabel}</p>
             </div>
           </section>
         </div>

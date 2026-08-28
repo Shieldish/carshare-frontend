@@ -72,9 +72,9 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     switch (status) {
       case 'CAPTURED': return { icon: <CheckCircle className="w-4 h-4 text-green-500" />, text: t('statusConfirmed') };
       case 'PENDING': return { icon: <Clock className="w-4 h-4 text-orange-500" />, text: t('statusPending') };
-      case 'PROCESSING': return { icon: <Clock className="w-4 h-4 text-blue-500" />, text: t('statusProcessing') };
+      case 'PROCESSING': return { icon: <Clock className="w-4 h-4 text-primary" />, text: t('statusProcessing') };
       case 'FAILED': return { icon: <XCircle className="w-4 h-4 text-red-500" />, text: t('statusFailed') };
-      case 'REFUNDED': return { icon: <RefreshCcw className="w-4 h-4 text-blue-500" />, text: t('statusRefunded') };
+      case 'REFUNDED': return { icon: <RefreshCcw className="w-4 h-4 text-primary" />, text: t('statusRefunded') };
       default: return { icon: <Clock className="w-4 h-4 text-gray-500" />, text: status };
     }
   };

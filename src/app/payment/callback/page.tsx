@@ -123,11 +123,11 @@ function CallbackContent() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors">
-      <div className="text-center bg-white dark:bg-gray-800 p-12 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-gray-100 dark:border-gray-700">
+      <div className="text-center bg-white dark:bg-gray-800 p-6 sm:p-12 rounded-2xl shadow-xl max-w-md w-full mx-4 border border-gray-100 dark:border-gray-700">
         
         {status === 'loading' && (
           <>
-            <Loader className="w-16 h-16 text-blue-500 mx-auto animate-spin mb-4" />
+            <Loader className="w-16 h-16 text-primary mx-auto animate-spin mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('verifyingTitle')}</h1>
             <p className="text-gray-600 dark:text-gray-300 mt-3">{t('verifyingSubtitle')}</p>
           </>
@@ -142,7 +142,7 @@ function CallbackContent() {
             </p>
             <button 
               onClick={successContent.buttonAction}
-              className="bg-blue-600 text-white py-2 px-8 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="bg-primary text-primary-foreground py-2 px-8 rounded-lg hover:bg-primary/90 transition-colors font-medium"
             >
               {successContent.buttonText}
             </button>
@@ -173,7 +173,7 @@ export default function CallbackPage() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center dark:bg-gray-950 bg-gray-50">
         <div className="text-center">
-          <Loader className="w-8 h-8 text-blue-500 mx-auto animate-spin mb-4" />
+          <Loader className="w-8 h-8 text-primary mx-auto animate-spin mb-4" />
           <p className="text-gray-600 dark:text-gray-300">{t('loading')}</p>
         </div>
       </div>

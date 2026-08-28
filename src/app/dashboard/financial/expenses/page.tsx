@@ -46,7 +46,7 @@ export default function ExpensesPage() {
   return (
     <div className="space-y-6">
       {/* Info Banner */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-md flex items-start">
+      <div className="bg-muted border border-border text-muted-foreground px-4 py-3 rounded-md flex items-start">
         <Info className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
         <div className="text-sm">
           <p className="font-medium mb-1">{t('expensesInfoTitle')}</p>

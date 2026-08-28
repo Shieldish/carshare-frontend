@@ -2,17 +2,20 @@
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Vehicle } from '../types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import MyVehicleCard from './VehicleCard';
+import { VehicleCardSkeleton } from '../components/VehicleCard';
 import BoostModal from '../components/BoostModal';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
+import { useFavoriteIds } from '@/hooks/useFavoriteIds';
 
 function MyVehiclesContent() {
   const t = useTranslations('vehicles.myVehicles');
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightedVehicleId = searchParams.get('highlight') ? Number(searchParams.get('highlight')) : null;
+  const favoritedIds = useFavoriteIds();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,14 +208,24 @@ function MyVehiclesContent() {
     return buttons;
   };
 
-  if (isLoading) return <p className="text-center py-12 text-foreground">{t('loading')}</p>;
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4 sm:p-6 md:p-8 bg-background min-h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <VehicleCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
 
   return (
-    <div className="container mx-auto p-8 bg-background min-h-screen">
-      <div className="flex justify-between items-center mb-8">
+    <div className="container mx-auto p-4 sm:p-6 md:p-8 bg-background min-h-screen">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-foreground">{t('title')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">{t('title')}</h1>
           {totalVehicles > 0 && (
             <p className="text-foreground/70 mt-2">
               {totalVehicles > 1 ? t('countPlural', { count: totalVehicles }) : t('countSingular', { count: totalVehicles })}
@@ -221,7 +234,7 @@ function MyVehiclesContent() {
         </div>
         <button
           onClick={() => router.push('/vehicles/add')}
-          className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+          className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors self-start sm:self-auto"
         >
           {t('addButton')}
         </button>
@@ -244,6 +257,7 @@ function MyVehiclesContent() {
                   onDelete={handleDeleteVehicle}
                   onBoostClick={handleOpenBoostModal}
                   onActiveChange={handleActiveChange}
+                  favoritedIds={favoritedIds}
                 />
               </div>
             ))}

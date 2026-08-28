@@ -154,8 +154,8 @@ function InspectionPageContent() {
             } else if (isOwner) {
                 // ✅ Le propriétaire voit un message d'attente sécurisé
                 return (
-                    <div className="text-center py-10 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                        <Lock className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+                    <div className="text-center py-10 bg-primary/10 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg">
+                        <Lock className="w-12 h-12 text-primary mx-auto mb-3" />
                         <h3 className="text-lg font-semibold text-foreground mb-2">{t('inProgressOwnerTitle')}</h3>
                         <p className="text-muted-foreground px-4">
                             {t('inProgressOwnerDesc')}
@@ -252,7 +252,7 @@ function InspectionPageContent() {
                 </div>
             </div>
             <div className="container mx-auto max-w-2xl py-8 px-4">
-                <h1 className="text-3xl font-bold text-foreground mb-8 text-center">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 text-center">
                     {t('pageTitle', { id: bookingId })}
                 </h1>
                 {renderContent()}
@@ -260,7 +260,7 @@ function InspectionPageContent() {
 
             {/* ✅ TOAST DE SUCCÈS DANS LE PARENT — survit au démontage du formulaire */}
             {showSuccessToast && (
-                <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+                <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300 max-w-sm">
                     <CheckCircle className="w-5 h-5 flex-shrink-0" />
                     <div>
                         <p className="font-semibold text-sm">{t('checkInSuccessTitle')}</p>
@@ -268,7 +268,7 @@ function InspectionPageContent() {
                     </div>
                     <button
                         onClick={() => setShowSuccessToast(false)}
-                        className="ml-2 text-green-200 hover:text-white transition-colors"
+                        className="ml-2 text-green-200 hover:text-white transition-colors p-2 -m-2"
                         aria-label={t('closeAria')}
                     >
                         <X className="w-4 h-4" />

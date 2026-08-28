@@ -360,7 +360,7 @@ function BookingCreateContent() {
 
       <div className="container mx-auto max-w-6xl py-8 px-4">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">{t('pageTitle')}</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">{t('pageTitle')}</h1>
           <p className="text-lg text-muted-foreground">{t('pageSubtitle')}</p>
         </div>
 
@@ -377,7 +377,7 @@ function BookingCreateContent() {
                 unoptimized
                 onError={() => setUseFallbackImage(true)}
               />
-              <div className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 rounded-lg shadow-lg z-10">
+              <div className="absolute top-4 right-4 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-4 py-2 rounded-lg shadow-lg z-10">
                 <p className="text-lg font-bold">{vehicle.ratePerDay?.toLocaleString('fr-FR')} FBu</p>
                 <p className="text-xs opacity-90">{t('perDay')}</p>
               </div>
@@ -450,7 +450,7 @@ function BookingCreateContent() {
           </div>
 
           {/* COLONNE DROITE : Sélection des dates */}
-          <div className="bg-card rounded-2xl shadow-xl p-8 border border-border">
+          <div className="bg-card rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border border-border">
             <h2 className="text-2xl font-bold text-foreground mb-6">{t('yourDatesTitle')}</h2>
 
             <div className="space-y-6 mb-8">
@@ -489,7 +489,7 @@ function BookingCreateContent() {
             <button
               onClick={handleSubmitBooking}
               disabled={isSubmitting || availabilityStatus !== 'available' || !startDate || !endDate}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
             >
               {isSubmitting ? (
                 <>

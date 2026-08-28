@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X } from 'lucide-react';
-import { Vehicle } from '../types/vehicle';
+import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X, Fuel, Settings2, Users, Banknote } from 'lucide-react';
+import { Vehicle } from '@/types/vehicle';
 import { apiClient } from '@/lib/apiClient';
 
 // Types pour la localisation
@@ -31,6 +31,11 @@ interface FilterData {
   communeId: string;
   make: string;
   supportsDriver: boolean;
+  fuelType: string;
+  transmission: string;
+  minSeats: string;
+  minPrice: string;
+  maxPrice: string;
 }
 
 interface FilterContentProps {
@@ -55,6 +60,9 @@ const VEHICLE_TYPE_VALUES = [
   'sedan', 'suv', 'suv_coupe', 'hatchback', 'minibus', 'pickup', 'van',
   'minivan', 'truck', 'motorcycle', 'tricycle', 'coupe', 'convertible', 'wagon', 'other',
 ] as const;
+
+const FUEL_TYPE_VALUES = ['Essence', 'Diesel', 'Hybride', 'Électrique', 'GPL'] as const;
+const TRANSMISSION_TYPE_VALUES = ['Manuelle', 'Automatique', 'Semi-automatique'] as const;
 
 const FilterContent: React.FC<FilterContentProps> = ({
   filters,
@@ -85,7 +93,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
         {hasActiveFilters && (
           <button
             onClick={onResetFilters}
-            className="text-sm text-primary hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-1 transition-colors"
+            className="text-sm text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
           >
             <RotateCcw className="w-4 h-4" />
             {t('reset')}
@@ -110,7 +118,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.pickupDate}
                 onChange={(e) => onInputChange('pickupDate', e.target.value)}
                 min={today || undefined}
-                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
               />
             </div>
           </div>
@@ -126,14 +134,15 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.dropoffDate}
                 onChange={(e) => onInputChange('dropoffDate', e.target.value)}
                 min={filters.pickupDate || today || undefined}
-                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground transition-colors"
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Section Localisation */}
+      {/* Section Localisation — la province en premier, la ville en dessous ne montre
+          que celles de la province choisie (comme avant). */}
       <div className="space-y-4">
         <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
           {t('locationTitle')}
@@ -149,7 +158,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={selectedProvince}
                 onChange={onProvinceChange}
                 disabled={loadingProvinces}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
               >
                 <option value="">{t('allProvinces')}</option>
                 {loadingProvinces ? (
@@ -176,7 +185,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 value={filters.communeId}
                 onChange={(e) => onInputChange('communeId', e.target.value)}
                 disabled={!selectedProvince || communes.length === 0 || loadingCommunes}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
               >
                 <option value="">
                   {loadingCommunes ? t('loading') : t('allCommunes')}
@@ -208,7 +217,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <select
                 value={filters.carType}
                 onChange={(e) => onInputChange('carType', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
               >
                 <option value="">{t('allTypes')}</option>
                 {VEHICLE_TYPE_VALUES.map((value) => (
@@ -230,7 +239,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <select
                 value={filters.make}
                 onChange={(e) => onInputChange('make', e.target.value)}
-                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors"
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
               >
                 <option value="">{t('allMakes')}</option>
                 {makes.map((make) => (
@@ -240,6 +249,114 @@ const FilterContent: React.FC<FilterContentProps> = ({
                 ))}
               </select>
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Caractéristiques */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('characteristicsTitle')}
+        </h4>
+        <div className="space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('fuelLabel')}
+            </label>
+            <div className="relative">
+              <Fuel className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.fuelType}
+                onChange={(e) => onInputChange('fuelType', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allFuelTypes')}</option>
+                {FUEL_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`fuelTypes.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('transmissionLabel')}
+            </label>
+            <div className="relative">
+              <Settings2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <select
+                value={filters.transmission}
+                onChange={(e) => onInputChange('transmission', e.target.value)}
+                className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors"
+              >
+                <option value="">{t('allTransmissions')}</option>
+                {TRANSMISSION_TYPE_VALUES.map((value) => (
+                  <option key={value} value={value}>
+                    {t(`transmissionTypes.${value}`)}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 pointer-events-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('minSeatsLabel')}
+            </label>
+            <div className="relative">
+              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="1"
+                value={filters.minSeats}
+                onChange={(e) => onInputChange('minSeats', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section Prix */}
+      <div className="space-y-4">
+        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+          {t('priceTitle')}
+        </h4>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('minPriceLabel')}
+            </label>
+            <div className="relative">
+              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="0"
+                value={filters.minPrice}
+                onChange={(e) => onInputChange('minPrice', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('maxPriceLabel')}
+            </label>
+            <div className="relative">
+              <Banknote className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+              <input
+                type="number"
+                min="0"
+                value={filters.maxPrice}
+                onChange={(e) => onInputChange('maxPrice', e.target.value)}
+                className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground transition-colors"
+              />
             </div>
           </div>
         </div>
@@ -277,7 +394,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
               value={filters.companyName}
               onChange={(e) => onInputChange('companyName', e.target.value)}
               disabled={loadingCompanies}
-              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
+              className="w-full pl-10 pr-8 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-input text-foreground appearance-none transition-colors disabled:opacity-50"
             >
               <option value="">{t('allCompanies')}</option>
               {loadingCompanies ? (
@@ -317,12 +434,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   
-  // États pour la localisation
+  // États pour la localisation — la ville affichée dépend de la province choisie.
   const [provinces, setProvinces] = useState<Province[]>([]);
+  const [provincesWithCommunes, setProvincesWithCommunes] = useState<(Province & { communes: Commune[] })[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [loadingProvinces, setLoadingProvinces] = useState(false);
-  const [loadingCommunes, setLoadingCommunes] = useState(false);
+  const loadingCommunes = loadingProvinces;
 
   // ✅ Guard monté : empêche tout appel API avant que le composant soit
   // hydraté côté client — élimine les erreurs "Failed to fetch" en console
@@ -345,7 +463,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     provinceId: '',
     communeId: '',
     make: '',
-    supportsDriver: false
+    supportsDriver: false,
+    fuelType: '',
+    transmission: '',
+    minSeats: '',
+    minPrice: '',
+    maxPrice: ''
   });
 
   const initialFilters: FilterData = {
@@ -356,7 +479,12 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     provinceId: '',
     communeId: '',
     make: '',
-    supportsDriver: false
+    supportsDriver: false,
+    fuelType: '',
+    transmission: '',
+    minSeats: '',
+    minPrice: '',
+    maxPrice: ''
   };
 
   // Extraire les marques uniques des véhicules
@@ -366,37 +494,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     setMakes(uniqueMakes);
   }, [vehicles]);
 
-  // ✅ Charger les provinces — uniquement après montage côté client
+  // ✅ Charger les provinces (avec leurs villes imbriquées) — uniquement après montage
+  // côté client, en un seul appel. La liste des villes affichées est ensuite filtrée
+  // localement selon la province choisie (voir l'effet ci-dessous).
   useEffect(() => {
     if (!mounted) return;
 
     const fetchProvinces = async () => {
       setLoadingProvinces(true);
       try {
-        const data = await apiClient.get('/api/locations/provinces');
-        setProvinces(data || []);
+        const data: (Province & { communes: Commune[] })[] = await apiClient.get('/api/locations/provinces');
+        setProvinces((data || []).map(({ id, name }) => ({ id, name })));
+        setProvincesWithCommunes(data || []);
       } catch (err) {
-        console.error("Impossible de charger les provinces", err);
-        setProvinces([
-          { id: 1, name: 'Bubanza' },
-          { id: 2, name: 'Bujumbura Rural' },
-          { id: 3, name: 'Bujumbura Mairie' },
-          { id: 4, name: 'Bururi' },
-          { id: 5, name: 'Cankuzo' },
-          { id: 6, name: 'Cibitoke' },
-          { id: 7, name: 'Mwaro' },
-          { id: 8, name: 'Karuzi' },
-          { id: 9, name: 'Gitega' },
-          { id: 10, name: 'Kirundo' },
-          { id: 11, name: 'Makamba' },
-          { id: 12, name: 'Muramvya' },
-          { id: 13, name: 'Muyinga' },
-          { id: 14, name: 'Kayanza' },
-          { id: 15, name: 'Ngozi' },
-          { id: 16, name: 'Rumonge' },
-          { id: 17, name: 'Rutana' },
-          { id: 18, name: 'Ruyigi' }
-        ]);
+        console.error("Impossible de charger les provinces/villes", err);
+        setProvinces([]);
+        setProvincesWithCommunes([]);
       } finally {
         setLoadingProvinces(false);
       }
@@ -404,37 +517,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     fetchProvinces();
   }, [mounted]);
 
-  // ✅ Charger les communes quand la province change — uniquement après montage
+  // Filtre les villes affichées selon la province sélectionnée (aucune sélection = vide,
+  // comme avant : on ne montre les villes qu'une fois la province choisie).
   useEffect(() => {
-    if (!mounted) return;
-
-    if (selectedProvince) {
-      const fetchCommunes = async () => {
-        setLoadingCommunes(true);
-        try {
-          const data = await apiClient.get(`/api/locations/provinces/${selectedProvince}/communes`);
-          setCommunes(data || []);
-        } catch (err) {
-          console.error("Impossible de charger les communes", err);
-          if (selectedProvince === '2') {
-            setCommunes([
-              { id: 1, name: 'Mukaza' },
-              { id: 2, name: 'Ntahangwa' },
-              { id: 3, name: 'Muha' }
-            ]);
-          } else {
-            setCommunes([]);
-          }
-        } finally {
-          setLoadingCommunes(false);
-        }
-      };
-      fetchCommunes();
-    } else {
+    if (!selectedProvince) {
       setCommunes([]);
-      setLoadingCommunes(false);
+      return;
     }
-  }, [mounted, selectedProvince]);
+    const province = provincesWithCommunes.find(p => p.id.toString() === selectedProvince);
+    setCommunes(province?.communes ?? []);
+  }, [selectedProvince, provincesWithCommunes]);
 
   // ✅ Charger les entreprises — uniquement après montage côté client
   useEffect(() => {
@@ -469,11 +561,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     const provinceId = e.target.value;
     setSelectedProvince(provinceId);
     setFilters(prevFilters => {
-      const updatedFilters = {
-        ...prevFilters,
-        provinceId: provinceId,
-        communeId: ''
-      };
+      const updatedFilters = { ...prevFilters, provinceId, communeId: '' };
       setTimeout(() => {
         onFilterChange?.(updatedFilters);
       }, 0);
@@ -494,7 +582,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const handleResetFilters = useCallback(() => {
     setFilters(initialFilters);
     setSelectedProvince('');
-    setCommunes([]);
     setTimeout(() => {
       onFilterChange?.(initialFilters);
     }, 0);
@@ -537,8 +624,8 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
             className="absolute inset-0 bg-black/50 backdrop-blur-sm" 
             onClick={onClose} 
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-card shadow-2xl">
-            <div className="flex items-center justify-between p-4 border-b border-border">
+          <div className="absolute right-0 top-0 h-full w-full max-w-sm bg-card shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
               <h3 className="text-lg font-semibold text-foreground">
                 {t('title')}
               </h3>
@@ -549,7 +636,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="h-full overflow-y-auto pb-20">
+            <div className="flex-1 overflow-y-auto">
               <FilterContent {...filterContentProps} />
             </div>
           </div>

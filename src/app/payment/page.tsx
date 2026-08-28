@@ -120,7 +120,7 @@ function PaymentPageContent() {
   if (isLoadingPayment) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center">
-        <Loader2 className="animate-spin w-12 h-12 text-blue-600 mb-4" />
+        <Loader2 className="animate-spin w-12 h-12 text-primary mb-4" />
         <p className="text-gray-500 font-medium">{t('loadingInvoice')}</p>
       </div>
     );
@@ -135,7 +135,7 @@ function PaymentPageContent() {
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 dark:text-white">{t('congratulations')}</h2>
                 <p className="text-gray-500 mt-2">{t('successRedirecting')}</p>
-                <Loader2 className="animate-spin mx-auto mt-8 text-blue-600" />
+                <Loader2 className="animate-spin mx-auto mt-8 text-primary" />
             </div>
         </div>
     );
@@ -144,21 +144,21 @@ function PaymentPageContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white dark:bg-gray-800 p-10 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 text-center">
-          <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <CreditCard className="h-10 w-10 text-blue-600" />
+        <div className="bg-white dark:bg-gray-800 p-6 sm:p-10 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 text-center">
+          <div className="w-20 h-20 bg-primary/10 dark:bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <CreditCard className="h-10 w-10 text-primary" />
           </div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{t('title')}</h2>
           <div className="mt-10 p-6 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-600">
             <span className="text-sm text-gray-500 uppercase font-bold tracking-widest">{t('amountDue')}</span>
-            <div className="text-4xl font-black text-blue-600 mt-1">
+            <div className="text-4xl font-black text-primary mt-1">
               {amount.toLocaleString()} <span className="text-xl">{currency}</span>
             </div>
           </div>
           <button
             onClick={() => setShowModal(true)}
             disabled={isProcessing}
-            className="mt-10 w-full flex justify-center items-center py-4 rounded-2xl text-lg font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all disabled:opacity-50"
+            className="mt-10 w-full flex justify-center items-center py-4 rounded-2xl text-lg font-bold text-primary-foreground bg-primary hover:bg-primary/90 transition-all disabled:opacity-50"
           >
             {isProcessing ? <Loader2 className="animate-spin mr-2" /> : <CreditCard className="mr-3 h-6 w-6" />}
             {t('proceedToPayment')}

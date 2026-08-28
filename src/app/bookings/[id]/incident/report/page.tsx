@@ -87,7 +87,7 @@ function IncidentReportPageContent() {
             <div className="container mx-auto max-w-2xl py-8 px-4">
                 <div className="text-center mb-8">
                      <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3"/>
-                     <h1 className="text-3xl font-bold text-foreground mb-2">{t('pageTitle')}</h1>
+                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t('pageTitle')}</h1>
                      <p className="text-muted-foreground">{t('forBooking', { id: bookingId })}</p>
                 </div>
 
@@ -137,7 +137,7 @@ function IncidentReportPageContent() {
 
                 {/* Pop-up de succès flottant - s'affiche après l'envoi réussi */}
                 {showSuccessToast && (
-                    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300 max-w-sm">
                         <CheckCircle className="w-5 h-5 flex-shrink-0" />
                         <div>
                             <p className="font-semibold text-sm">{t('toastTitle')}</p>
@@ -145,7 +145,7 @@ function IncidentReportPageContent() {
                         </div>
                         <button
                             onClick={() => setShowSuccessToast(false)}
-                            className="ml-2 text-green-200 hover:text-white transition-colors"
+                            className="ml-2 text-green-200 hover:text-white transition-colors p-2 -m-2"
                             aria-label={t('closeAria')}
                         >
                             <X className="w-4 h-4" />

@@ -164,11 +164,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
           <button
             onClick={goToPrevious}
             className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30
-                       p-2 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
+                       p-2.5 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
                        hover:bg-white/40 transition-all duration-300
                        focus:outline-none focus:ring-2 focus:ring-white/50
-                       group shadow-lg ${
-                         isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'
+                       group shadow-lg opacity-100 translate-x-0 ${
+                         isHovered ? 'md:opacity-100 md:translate-x-0' : 'md:opacity-0 md:-translate-x-4'
                        }`}
             aria-label={t('ariaPrevious')}
           >
@@ -178,23 +178,23 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
           <button
             onClick={goToNext}
             className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30
-                       p-2 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
+                       p-2.5 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
                        hover:bg-white/40 transition-all duration-300
                        focus:outline-none focus:ring-2 focus:ring-white/50
-                       group shadow-lg ${
-                         isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'
+                       group shadow-lg opacity-100 translate-x-0 ${
+                         isHovered ? 'md:opacity-100 md:translate-x-0' : 'md:opacity-0 md:translate-x-4'
                        }`}
             aria-label={t('ariaNext')}
           >
             <ChevronRight className="w-5 h-5 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
           </button>
 
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center">
             {originalSlides.map((_, idx) => {
               let activeIdx = currentIndex - 1;
               if (currentIndex === 0) activeIdx = originalSlides.length - 1;
               if (currentIndex === originalSlides.length + 1) activeIdx = 0;
-              
+
               return (
                 <button
                   key={idx}
@@ -202,11 +202,16 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
                     setIsTransitioning(true);
                     setCurrentIndex(idx + 1);
                   }}
-                  className={`h-2 rounded-full transition-all duration-300 shadow-md ${
-                    activeIdx === idx ? 'w-8 bg-white' : 'w-2 bg-white/50 hover:bg-white/90'
-                  }`}
                   aria-label={t('ariaGoToSlide', { index: idx + 1 })}
-                />
+                  aria-current={activeIdx === idx}
+                  className="p-2 flex items-center justify-center"
+                >
+                  <span
+                    className={`block h-2 rounded-full transition-all duration-300 shadow-md ${
+                      activeIdx === idx ? 'w-8 bg-white' : 'w-2 bg-white/50'
+                    }`}
+                  />
+                </button>
               );
             })}
           </div>

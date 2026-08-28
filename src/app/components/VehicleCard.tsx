@@ -1,18 +1,74 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Image as ImageIcon, Building2, User, Flame } from 'lucide-react';
+import { MapPin, Image as ImageIcon, Building2, User, Flame, Heart } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import type { Vehicle } from '../types/vehicle';
+import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/lib/apiClient';
+import type { Vehicle } from '@/types/vehicle';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
+  // ✅ FAVORIS : ids déjà favoris de l'utilisateur connecté (undefined = visiteur anonyme
+  // ou chargement pas encore terminé) — permet d'afficher le cœur "rempli" sans devoir
+  // récupérer les objets véhicules complets sur chaque page qui liste des véhicules.
+  favoritedIds?: Set<number>;
+  // Callback optionnel, utile par ex. sur /favorites pour retirer la carte de la liste
+  // dès que le véhicule est "défavorisé" (au lieu d'attendre un rechargement complet).
+  onFavoriteChange?: (vehicleId: number, isFavorited: boolean) => void;
 }
 
-export default function VehicleCard({ vehicle }: VehicleCardProps) {
+export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }: VehicleCardProps) {
   const t = useTranslations('vehicleCard');
   const locale = useLocale();
+  const { user } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // ✅ FAVORIS : état local optimiste — se resynchronise si le prop change (ex: la liste
+  // des ids favoris arrive un instant après le premier rendu de la carte).
+  const [isFavorited, setIsFavorited] = useState(() => favoritedIds?.has(vehicle.id) ?? false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+
+  useEffect(() => {
+    setIsFavorited(favoritedIds?.has(vehicle.id) ?? false);
+  }, [favoritedIds, vehicle.id]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // La carte entière est un <Link> vers la fiche véhicule : on empêche la navigation
+    // et la propagation pour que le clic sur le cœur ne fasse QUE (dé)favoriser.
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    const nextState = !isFavorited;
+    // UI optimiste : on bascule immédiatement, sans attendre la réponse du serveur.
+    setIsFavorited(nextState);
+    setIsTogglingFavorite(true);
+
+    try {
+      if (nextState) {
+        await apiClient.post(`/api/favorites/${vehicle.id}`, {});
+      } else {
+        await apiClient.delete(`/api/favorites/${vehicle.id}`);
+      }
+      onFavoriteChange?.(vehicle.id, nextState);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des favoris:', error);
+      // Échec : on revient à l'état précédent plutôt que de laisser un cœur mensonger.
+      setIsFavorited(!nextState);
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  };
+
   // Image principale avec fallback amélioré
   const primaryImageUrl = vehicle.images && vehicle.images.length > 0
     ? vehicle.images[0].url
@@ -26,11 +82,11 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
       parts.push(vehicle.address);
     }
 
-    // Logique améliorée
+    // La commune est désormais le niveau "ville" pertinent (découpage 2025) : on
+    // n'affiche la province que si on n'a même pas de commune.
     if (vehicle.commune) {
       parts.push(vehicle.commune.name);
-      parts.push(vehicle.commune.province.name);
-    } else if (vehicle.province) { // Cas où seule la province est définie
+    } else if (vehicle.province) {
       parts.push(vehicle.province.name);
     }
 
@@ -82,10 +138,28 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             </div>
           ) : null}
 
-          {/* Badge prix */}
-          <div className="absolute top-3 right-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm z-10">
-            <div className="text-sm font-bold">{formatPrice(vehicle.ratePerDay)} FBu</div>
-            <div className="text-xs opacity-90">{t('perDay')}</div>
+          {/* Bouton favoris + Badge prix, groupés dans une même rangée en haut à droite */}
+          <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleToggleFavorite}
+              disabled={isTogglingFavorite}
+              aria-pressed={isFavorited}
+              aria-label={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+              title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+              className="flex items-center justify-center h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm shadow-lg hover:bg-black/60 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              <Heart
+                className={`w-5 h-5 transition-colors ${
+                  isFavorited ? 'fill-red-500 text-red-500' : 'text-white'
+                }`}
+              />
+            </button>
+
+            <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm">
+              <div className="text-sm font-bold">{formatPrice(vehicle.ratePerDay)} FBu</div>
+              <div className="text-xs opacity-90">{t('perDay')}</div>
+            </div>
           </div>
 
           {/* Indicateur du nombre d'images */}
@@ -154,7 +228,7 @@ export default function VehicleCard({ vehicle }: VehicleCardProps) {
             <div className="text-sm text-muted-foreground">
               {t('clickForMore')}
             </div>
-            <div className="text-sm font-medium text-primary group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors flex items-center">
+            <div className="text-sm font-medium text-primary group-hover:text-primary/80 transition-colors flex items-center">
               <span>{t('seeDetails')}</span>
               <svg 
                 className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" 

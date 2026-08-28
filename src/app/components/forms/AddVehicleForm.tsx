@@ -291,9 +291,9 @@ export default function AddVehicleForm() {
             <div><label className="block text-sm font-medium mb-1">{t('ratePerDayLabel')}</label><input type="number" name="ratePerDay" required min="0" className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /></div>
             <div><label className="block text-sm font-medium mb-1">{t('ratePerWeekLabel')}</label><input type="number" name="ratePerWeek" min="0" className="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /></div>
           </div>
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+          <div className="mt-6 p-4 bg-primary/5 dark:bg-primary/20 rounded-lg border border-primary/10 dark:border-primary/30">
             <div className="flex items-start">
-              <input id="supportsDriver" name="supportsDriver" type="checkbox" className="focus:ring-blue-500 h-4 w-4 mt-1 text-blue-600 border-gray-300 rounded cursor-pointer" />
+              <input id="supportsDriver" name="supportsDriver" type="checkbox" className="focus:ring-primary h-4 w-4 mt-1 text-primary border-gray-300 rounded cursor-pointer" />
               <div className="ml-3 text-sm"><label htmlFor="supportsDriver" className="font-medium cursor-pointer">{t('supportsDriverLabel')}</label><p className="text-gray-500">{t('supportsDriverHelp')}</p></div>
             </div>
           </div>
@@ -307,7 +307,7 @@ export default function AddVehicleForm() {
           </div>
           <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             <label className="block text-sm font-medium mb-1">{t('addressLabel')}</label>
-            <div className="flex space-x-2"><input type="text" name="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /><button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap} className="bg-blue-100 text-blue-700 px-4 py-2 rounded-md font-semibold">{isSearchingMap ? t('centering') : t('centerButton')}</button></div>
+            <div className="flex flex-col sm:flex-row gap-2"><input type="text" name="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} placeholder={t('addressPlaceholder')} className="flex-1 min-w-0 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /><button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap} className="bg-primary/10 text-primary px-4 py-2 rounded-md font-semibold whitespace-nowrap">{isSearchingMap ? t('centering') : t('centerButton')}</button></div>
           </div>
           <div className="mt-6" ref={mapRef}><label className="block text-sm font-medium mb-1">{t('mapLabel')}</label><LocationPickerMap onLocationSelect={(lat, lng) => setLocationGps(`${lat}, ${lng}`)} centerPosition={mapCenter} forceMarkerPosition={locationGps ? [parseFloat(locationGps.split(',')[0]), parseFloat(locationGps.split(',')[1])] : null} /><input type="hidden" name="locationGps" value={locationGps} /></div>
         </div>
@@ -333,7 +333,7 @@ export default function AddVehicleForm() {
               <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={(e) => setInsuranceFile(e.target.files?.[0] || null)} className="w-full text-xs mb-3" />
               {insuranceFile && <p className="text-xs text-green-600 mb-2">✓ {insuranceFile.name}</p>}
               <div className="border-t dark:border-gray-700 pt-2 mt-2">
-                <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabel')}</label>
+                <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabel')}</label>
                 <input type="date" name="insuranceExpiryDate" required min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
               </div>
             </div>
@@ -344,7 +344,7 @@ export default function AddVehicleForm() {
               <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={(e) => setTechnicalControlFile(e.target.files?.[0] || null)} className="w-full text-xs mb-3" />
               {technicalControlFile && <p className="text-xs text-green-600 mb-2">✓ {technicalControlFile.name}</p>}
               <div className="border-t dark:border-gray-700 pt-2 mt-2">
-                <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabel')}</label>
+                <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabel')}</label>
                 <input type="date" name="technicalControlExpiryDate" required min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
               </div>
             </div>
@@ -360,14 +360,14 @@ export default function AddVehicleForm() {
               {imagePreviews.map((p, i) => (
                 <div key={i} className="relative group w-full h-24">
                   <Image src={p} alt="" fill className="object-cover rounded-lg border shadow-sm" unoptimized />
-                  <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100">×</button>
+                  <button type="button" onClick={() => removeImage(i)} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-7 h-7 flex items-center justify-center opacity-100 md:opacity-0 md:group-hover:opacity-100">×</button>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-6">
+        <div className="bg-primary/5 dark:bg-primary/20 p-4 rounded-lg border border-primary/20 dark:border-primary/30 mb-6">
           <div className="flex items-start space-x-3">
             <input
               id="insurance-check"
@@ -384,7 +384,7 @@ export default function AddVehicleForm() {
         </div>
 
         <div className="pt-6">
-          <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium">
+          <button type="submit" disabled={isLoading} className="w-full bg-primary text-primary-foreground py-3 rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors font-medium">
             {isLoading ? t('submittingAdd') : t('submitAdd')}
           </button>
         </div>

@@ -119,14 +119,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden lg:block p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="hidden lg:block p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <ChevronRight className={`h-5 w-5 transition-transform ${!isSidebarOpen && 'rotate-180'}`} />
           </button>
 
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="lg:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <X className="h-5 w-5" />
           </button>
@@ -171,7 +171,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {isSidebarOpen && (
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
                 {user.sub.split('@')[0].charAt(0).toUpperCase()}
               </div>
               <div className="overflow-hidden">

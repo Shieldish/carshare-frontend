@@ -150,7 +150,7 @@ function IncidentViewPageContent() {
                 </div>
             </div>
              <div className="container mx-auto max-w-2xl py-8 px-4">
-                 <h1 className="text-3xl font-bold text-foreground mb-8 text-center">{t('pageTitle')}</h1>
+                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 text-center">{t('pageTitle')}</h1>
                  {renderContent()}
              </div>
         </div>

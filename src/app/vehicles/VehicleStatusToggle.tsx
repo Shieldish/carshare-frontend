@@ -46,7 +46,12 @@ export default function VehicleStatusToggle({ vehicleId, initialIsActive, adminS
     }
   };
 
-  const buttonClasses = `relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDisabled ? 'cursor-not-allowed opacity-50' : ''}`;
+  // Note: h-6/w-11 are fixed dimensions under border-box sizing, so plain padding can't
+  // grow the hit area here (it would shrink the content box and make the h-5 w-5 knob
+  // overflow the track). Instead we extend the tappable area with an absolutely
+  // positioned ::before pseudo-element, which is excluded from flex layout and doesn't
+  // affect the visible track/knob at all.
+  const buttonClasses = `relative before:content-[''] before:absolute before:-inset-2 inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDisabled ? 'cursor-not-allowed opacity-50' : ''}`;
   const toggleClasses = `inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out`;
 
   return (

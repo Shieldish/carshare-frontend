@@ -162,9 +162,9 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
             <h3 className="text-lg font-medium text-foreground">
               {expenseToEdit ? t('editExpenseTitle') : t('newExpenseTitle')}
             </h3>
-            <button 
-              onClick={() => { setShowForm(false); setExpenseToEdit(null); }} 
-              className="p-1 text-muted-foreground hover:text-foreground"
+            <button
+              onClick={() => { setShowForm(false); setExpenseToEdit(null); }}
+              className="p-2 -m-2 text-muted-foreground hover:text-foreground"
             >
               ✕
             </button>
@@ -216,13 +216,13 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                     <p className="text-xs text-muted-foreground italic mt-1">{expense.description}</p>
                   )}
                 </div>
-                <div className="flex gap-2 items-center justify-end">
+                <div className="flex gap-3 items-center justify-end">
                   {expense.receiptUrl && (
-                    <a 
-                      href={expense.receiptUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="p-1 text-blue-500 hover:text-blue-700"
+                    <a
+                      href={expense.receiptUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 text-blue-500 hover:text-blue-700"
                       title={t('viewReceiptTitle')}
                     >
                       <Paperclip size={16}/>
@@ -230,14 +230,14 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                   )}
                   <button
                     onClick={() => { setExpenseToEdit(expense); setShowForm(true); }}
-                    className="p-1 text-yellow-600 hover:text-yellow-800"
+                    className="p-2 text-yellow-600 hover:text-yellow-800"
                     title={t('editTitle')}
                   >
                     <Edit2 size={16}/>
                   </button>
                   <button
                     onClick={() => handleDeleteExpense(expense.id)}
-                    className="p-1 text-red-600 hover:text-red-800"
+                    className="p-2 text-red-600 hover:text-red-800"
                     title={t('deleteTitle')}
                   >
                     <Trash2 size={16}/>

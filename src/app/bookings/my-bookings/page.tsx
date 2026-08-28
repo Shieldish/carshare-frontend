@@ -325,7 +325,7 @@ function BookingCard({
                     <button
                       onClick={handleOnlinePayment}
                       disabled={isLoading}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-3 px-4 rounded-lg transition-all duration-200 font-medium flex items-center justify-center shadow-md hover:shadow-lg"
+                      className="flex-1 bg-primary hover:bg-primary/90 disabled:bg-primary/40 text-primary-foreground py-3 px-4 rounded-lg transition-all duration-200 font-medium flex items-center justify-center shadow-md hover:shadow-lg"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
@@ -353,23 +353,23 @@ function BookingCard({
 
                 {/* ✅ Bloc code secret Check-in : visible uniquement pour le locataire quand CONFIRMED */}
                 {status === 'CONFIRMED' && booking.checkInCode && (
-                  <div className="mt-3 mb-3 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-md dark:bg-blue-950/30 dark:border-blue-400">
+                  <div className="mt-3 mb-3 p-4 bg-muted border-l-4 border-primary rounded-r-md">
                     <div className="flex items-center">
-                      <svg className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-primary mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                       </svg>
-                      <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                      <h3 className="text-sm font-semibold text-foreground">
                         {t('checkInCodeTitle')}
                       </h3>
                     </div>
-                    <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {t('checkInCodeDesc')}
                     </p>
                     <div className="mt-3 flex items-center gap-3">
-                      <span className="text-2xl font-black tracking-widest text-blue-900 dark:text-blue-100 bg-white dark:bg-blue-900/50 px-4 py-2 rounded-lg shadow-sm border border-blue-200 dark:border-blue-700">
+                      <span className="text-2xl font-black tracking-widest text-primary bg-card px-4 py-2 rounded-lg shadow-sm border border-primary/20">
                         {booking.checkInCode}
                       </span>
-                      <span className="text-xs text-blue-600 dark:text-blue-400 italic">
+                      <span className="text-xs text-muted-foreground italic">
                         {t('checkInCodeWarning')}
                       </span>
                     </div>
@@ -416,7 +416,7 @@ function BookingCard({
                   {status === 'COMPLETED' && (
                     <Link
                       href={`/bookings/${booking.id}/inspection`}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium w-full justify-center sm:w-auto"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg flex items-center text-sm font-medium w-full justify-center sm:w-auto"
                     >
                       <ClipboardCheck className="w-4 h-4 mr-2" />
                       {t('viewInspection')}
@@ -439,7 +439,7 @@ function BookingCard({
                           onClick={handleDeleteReview}
                           disabled={isDeletingReview}
                           title={t('deleteReview')}
-                          className="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg disabled:opacity-50 transition-colors"
+                          className="p-2.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg disabled:opacity-50 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -476,7 +476,7 @@ function BookingCard({
 
                   <button
                     onClick={() => router.push(`/bookings/${booking.id}/contact`)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -782,7 +782,7 @@ function MyBookingsContent() {
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
               <p className="text-muted-foreground mt-1">
                 {filteredBookings.length} {filteredBookings.length === 1 ? t('countSingular') : t('countPlural')}{' '}
                 {activeFilter !== 'all' && t('totalCount', { count: statusCounts.all })}
@@ -806,7 +806,7 @@ function MyBookingsContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
         <FilterTabs activeFilter={activeFilter} onFilterChange={handleFilterChange} totalCounts={statusCounts} />
 
         {filteredBookings.length > 0 ? (

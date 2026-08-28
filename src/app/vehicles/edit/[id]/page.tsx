@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { Vehicle } from '@/types/vehicle';
+import { openProtectedVehicleDocument } from '@/app/components/ProtectedImage';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -327,9 +328,9 @@ export default function VehicleEditPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">{tEdit('loading')}</p>
         </div>
       </div>
@@ -338,13 +339,13 @@ export default function VehicleEditPage() {
 
   if (error && !vehicle) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full mb-4">
             <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <p className="text-xl text-red-600 dark:text-red-400">{error}</p>
-          <button onClick={() => router.back()} className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">{tEdit('back')}</button>
+          <button onClick={() => router.back()} className="mt-4 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">{tEdit('back')}</button>
         </div>
       </div>
     );
@@ -353,10 +354,10 @@ export default function VehicleEditPage() {
   if (!vehicle) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-primary/5 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <button onClick={() => router.back()} className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors group">
+          <button onClick={() => router.back()} className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group">
             <svg className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>{tEdit('back')}
           </button>
         </div>
@@ -367,17 +368,17 @@ export default function VehicleEditPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-full mb-4">
             <svg className="w-8 h-8 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{tEdit('title')}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">{tEdit('title')}</h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">{vehicle.make} {vehicle.model}</p>
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-8 py-6">
-            <h2 className="text-2xl font-bold text-white">{tEdit('sectionTitle')}</h2>
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-white">{tEdit('sectionTitle')}</h2>
             <p className="text-orange-100 mt-1">{tEdit('sectionSubtitle')}</p>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             {error && (
               <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-center">
                 <svg className="w-5 h-5 text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -443,7 +444,7 @@ export default function VehicleEditPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                <div className="mt-6 p-4 bg-primary/5 dark:bg-primary/20 rounded-lg border border-primary/10 dark:border-primary/30">
                   <div className="flex items-start">
                     <div className="flex items-center h-5">
                       <input id="supportsDriver" name="supportsDriver" type="checkbox" defaultChecked={vehicle.supportsDriver || false} className="focus:ring-orange-500 h-4 w-4 text-orange-600 border-gray-300 rounded cursor-pointer" />
@@ -481,9 +482,9 @@ export default function VehicleEditPage() {
                     {t('addressOptionalLabel')}
                   </label>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{tEdit('addressHelp')}</p>
-                  <div className="flex space-x-2">
-                    <input type="text" name="address" id="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder={tEdit('addressPlaceholder')} />
-                    <button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap || (!selectedProvince && !addressText)} className="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-md hover:bg-orange-200 dark:hover:bg-orange-800/60 disabled:opacity-50 transition-colors flex items-center text-sm font-semibold border border-orange-200 dark:border-orange-800">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input type="text" name="address" id="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder={tEdit('addressPlaceholder')} />
+                    <button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap || (!selectedProvince && !addressText)} className="bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300 px-4 py-2 rounded-md hover:bg-orange-200 dark:hover:bg-orange-800/60 disabled:opacity-50 transition-colors flex items-center justify-center text-sm font-semibold border border-orange-200 dark:border-orange-800 whitespace-nowrap">
                       {isSearchingMap ? t('centering') : tEdit('centerMapButton')}
                     </button>
                   </div>
@@ -542,7 +543,7 @@ export default function VehicleEditPage() {
               <div className="border-t pt-6">
                 <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
                   {t('legalDocsTitle')}
-                  <span className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 px-2 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+                  <span className="text-xs bg-primary/10 text-primary dark:bg-primary/30 px-2 py-1 rounded-full border border-primary/20 dark:border-primary/40">
                     {tEdit('optionalUpdateBadge')}
                   </span>
                 </h3>
@@ -558,11 +559,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('registrationLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.registrationDocumentUrl && !registrationFile && (
-                        <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
-                          <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                      {vehicle.hasRegistrationDocument && !registrationFile && (
+                        <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
+                          <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'registration')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 
@@ -577,11 +578,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('insuranceLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.insuranceDocumentUrl && !insuranceFile && (
-                        <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
-                          <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                      {vehicle.hasInsuranceDocument && !insuranceFile && (
+                        <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
+                          <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'insurance')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 
@@ -589,7 +590,7 @@ export default function VehicleEditPage() {
                       {insuranceFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: insuranceFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">
-                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabelShort')}</label>
+                      <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabelShort')}</label>
                       {/* Affichage sécurisé de la date de la base de données */}
                       <input type="date" name="insuranceExpiryDate" defaultValue={vehicle.insuranceExpiryDate ? new Date(vehicle.insuranceExpiryDate).toISOString().split('T')[0] : ''} min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
                     </div>
@@ -601,11 +602,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('technicalControlLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.technicalControlDocumentUrl && !technicalControlFile && (
-                        <div className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-3">
-                          <svg className="w-4 h-4 text-blue-600 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                          <span className="text-xs text-blue-700 dark:text-blue-300 flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-blue-600 hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                      {vehicle.hasTechnicalControlDocument && !technicalControlFile && (
+                        <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
+                          <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                          <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'technicalControl')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 
@@ -613,7 +614,7 @@ export default function VehicleEditPage() {
                       {technicalControlFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: technicalControlFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">
-                      <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400 mb-1">{t('expiryDateLabelShort')}</label>
+                      <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabelShort')}</label>
                       {/* Affichage sécurisé de la date de la base de données */}
                       <input type="date" name="technicalControlExpiryDate" defaultValue={vehicle.technicalControlExpiryDate ? new Date(vehicle.technicalControlExpiryDate).toISOString().split('T')[0] : ''} min={todayDateStr} className="w-full px-2 py-1 text-sm border rounded-md dark:bg-gray-700 dark:border-gray-600" />
                     </div>
@@ -623,7 +624,7 @@ export default function VehicleEditPage() {
 
               <div className="border-t pt-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">{tEdit('imagesMaxLabel', { max: MAX_IMAGES })}</label>
-                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-8 text-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors">
+                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 sm:p-8 text-center hover:border-orange-400 dark:hover:border-orange-500 transition-colors">
                   <input type="file" accept={ACCEPTED_IMAGE_TYPES.join(',')} onChange={handleImageChange} className="hidden" id="image-upload" multiple disabled={existingImages.length + imageFiles.length >= MAX_IMAGES} />
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-gray-500 dark:text-gray-400">{existingImages.length + imageFiles.length}/{MAX_IMAGES} images</span>
@@ -647,7 +648,7 @@ export default function VehicleEditPage() {
                                 className="object-cover rounded-lg border-2 border-gray-200 dark:border-gray-600 shadow-sm"
                               />
                             </div>
-                              <button type="button" onClick={() => isExisting ? removeExistingImage(imageId!) : removeNewImage(index - existingImages.length)} className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity shadow-lg" title={tEdit('removeImageTitle')}>×</button>
+                              <button type="button" onClick={() => isExisting ? removeExistingImage(imageId!) : removeNewImage(index - existingImages.length)} className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs font-bold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow-lg" title={tEdit('removeImageTitle')}>×</button>
                               <div className="absolute bottom-1 left-1 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{index + 1}</div>
                             </div>
                           );

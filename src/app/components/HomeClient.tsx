@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -9,9 +9,10 @@ import CategoryCardsOverlay from './CategoryCardsOverlay';
 import FilterSidebar from './FilterSidebar';
 import VehicleCard from './VehicleCard';
 import VehicleCarousel from './VehicleCarousel';
-import type { Vehicle } from '../types/vehicle';
+import type { Vehicle } from '@/types/vehicle';
 import type { HeroSliderData } from '../page';
 import { Filter, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Info, LayoutGrid, Map as MapIcon, Car } from 'lucide-react';
+import { useFavoriteIds } from '@/hooks/useFavoriteIds';
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
   ssr: false,
@@ -31,6 +32,11 @@ interface FilterData {
   communeId: string;
   make: string;
   supportsDriver: boolean;
+  fuelType: string;
+  transmission: string;
+  minSeats: string;
+  minPrice: string;
+  maxPrice: string;
 }
 
 interface HomeClientProps {
@@ -63,7 +69,7 @@ const Toast: React.FC<{
     success: { bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800', icon: <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />, titleColor: 'text-green-800 dark:text-green-300', messageColor: 'text-green-700 dark:text-green-400' },
     error: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800', icon: <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />, titleColor: 'text-red-800 dark:text-red-300', messageColor: 'text-red-700 dark:text-red-400' },
     warning: { bg: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-200 dark:border-yellow-800', icon: <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />, titleColor: 'text-yellow-800 dark:text-yellow-300', messageColor: 'text-yellow-700 dark:text-yellow-400' },
-    info: { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800', icon: <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />, titleColor: 'text-blue-800 dark:text-blue-300', messageColor: 'text-blue-700 dark:text-blue-400' }
+    info: { bg: 'bg-muted', border: 'border-border', icon: <Info className="h-5 w-5 text-primary" />, titleColor: 'text-foreground', messageColor: 'text-muted-foreground' }
   };
 
   const currentStyle = typeStyles[type];
@@ -78,7 +84,7 @@ const Toast: React.FC<{
             <p className={`mt-1 text-sm ${currentStyle.messageColor}`}>{message}</p>
           </div>
           <div className="ml-4 flex-shrink-0 flex">
-            <button className={`rounded-md inline-flex ${currentStyle.titleColor} hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`} onClick={() => onDismiss(id)}>
+            <button className={`rounded-md inline-flex ${currentStyle.titleColor} hover:bg-black hover:bg-opacity-10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-2 -m-2`} onClick={() => onDismiss(id)}>
               <span className="sr-only">{t('closeToast')}</span>
               <X className="h-4 w-4" />
             </button>
@@ -113,6 +119,7 @@ const toArray = (data: unknown): Vehicle[] => {
 const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, featuredPromotions }) => {
   const router = useRouter();
   const t = useTranslations('home');
+  const favoritedIds = useFavoriteIds();
   const safeInitial = toArray(initialVehicles);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(safeInitial);
   const [isSearching, setIsSearching] = useState(false);
@@ -121,15 +128,43 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   
   const [activeFilters, setActiveFilters] = useState<FilterData>({
-    pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false
+    pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false,
+    fuelType: '', transmission: '', minSeats: '', minPrice: '', maxPrice: ''
   });
   
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 12;
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // 🌟 MODIFICATION ICI : Séparation de Bujumbura en Mairie et Rural
-  const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Rumonge', 'Cankuzo'];
+  // Niveau "ville" (= les 18 anciennes provinces, réutilisées comme communes pour rester
+  // lisibles), réparties sous les 5 nouvelles provinces officielles (2025).
+  const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Muyinga', 'Ruyigi', 'Kayanza', 'Bururi', 'Rumonge', 'Cankuzo'];
+
+  // Ne montre que les 3 provinces les mieux fournies (seuil minimum pour éviter un carrousel ridicule),
+  // et replie sur une seule carrousel générale si aucune province n'atteint ce seuil.
+  const MIN_VEHICLES_PER_CITY = 3;
+  const MAX_CITY_SECTIONS = 3;
+  const cityCarousels = useMemo(() => {
+    const withVehicles = prioritizedCities.map(city => {
+      const searchTerm = city.toLowerCase();
+      const cityVehicles = allVehicles.filter(v =>
+        v.province?.name?.toLowerCase().includes(searchTerm) ||
+        v.commune?.name?.toLowerCase().includes(searchTerm) ||
+        v.address?.toLowerCase().includes(searchTerm) ||
+        v.locationGps?.toLowerCase().includes(searchTerm)
+      );
+      return { city, vehicles: cityVehicles };
+    });
+
+    const qualifying = withVehicles
+      .filter(c => c.vehicles.length >= MIN_VEHICLES_PER_CITY)
+      .sort((a, b) => b.vehicles.length - a.vehicles.length)
+      .slice(0, MAX_CITY_SECTIONS);
+
+    if (qualifying.length > 0) return qualifying;
+    if (allVehicles.length > 0) return [{ city: null as string | null, vehicles: allVehicles }];
+    return [];
+  }, [allVehicles]);
 
   const addNotification = (type: Notification['type'], title: string, message: string) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
@@ -173,6 +208,11 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     if (filters.carType) params.append('carType', filters.carType);
     if (filters.supportsDriver) params.append('supportsDriver', 'true');
     if (filters.companyName && filters.companyName !== 'all') params.append('companyName', filters.companyName);
+    if (filters.fuelType) params.append('fuelType', filters.fuelType);
+    if (filters.transmission) params.append('transmission', filters.transmission);
+    if (filters.minSeats) params.append('minSeats', filters.minSeats);
+    if (filters.minPrice) params.append('minRatePerDay', filters.minPrice);
+    if (filters.maxPrice) params.append('maxRatePerDay', filters.maxPrice);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/search?${params.toString()}`);
@@ -242,7 +282,10 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const getActiveFiltersCount = () => Object.entries(activeFilters).filter(([key, value]) => key === 'supportsDriver' ? value === true : value !== '').length;
 
   const handleResetAllFilters = () => {
-    setActiveFilters({ pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false });
+    setActiveFilters({
+      pickupDate: '', dropoffDate: '', carType: '', companyName: '', provinceId: '', communeId: '', make: '', supportsDriver: false,
+      fuelType: '', transmission: '', minSeats: '', minPrice: '', maxPrice: ''
+    });
     setFilteredVehicles(allVehicles);
     setCurrentPage(1);
   };
@@ -268,29 +311,22 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
 
           <main className="flex-1 min-w-0">
             
-            {/* CARROUSELS PAR VILLE */}
-            {!hasActiveFilters && !isSearching && viewMode === 'list' && (
+            {/* CARROUSELS PAR VILLE (ou carrousel générale de repli) */}
+            {!hasActiveFilters && !isSearching && viewMode === 'list' && cityCarousels.length > 0 && (
               <div className="mb-16">
-                {prioritizedCities.map(city => {
-                  const cityVehicles = allVehicles.filter(v => {
-                  const searchTerm = city.toLowerCase();
-                  return (
-                    v.province?.name?.toLowerCase().includes(searchTerm) ||
-                    v.commune?.name?.toLowerCase().includes(searchTerm) ||
-                    v.address?.toLowerCase().includes(searchTerm) ||
-                    v.locationGps?.toLowerCase().includes(searchTerm)
-                  );
-                });
-                  if (cityVehicles.length === 0) return null;
-                  return (
-                    <VehicleCarousel
-                      key={city} title={t('recommendedVehicles')} city={city} vehicles={cityVehicles}
-                      onViewAll={() => {
+                {cityCarousels.map(({ city, vehicles }) => (
+                  <VehicleCarousel
+                    key={city ?? 'all'} title={t('recommendedVehicles')} city={city ?? undefined} vehicles={vehicles}
+                    favoritedIds={favoritedIds}
+                    onViewAll={() => {
+                      if (city) {
                         router.push(`/search?city=${encodeURIComponent(city)}`);
-                      }}
-                    />
-                  );
-                })}
+                      } else {
+                        router.push('/search');
+                      }
+                    }}
+                  />
+                ))}
               </div>
             )}
 
@@ -350,7 +386,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                   <div className="animate-in fade-in duration-300">
                     <PaginationControls className="mb-8" />
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                      {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />)}
+                      {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} favoritedIds={favoritedIds} />)}
                     </div>
                     <PaginationControls className="mt-12" />
                   </div>

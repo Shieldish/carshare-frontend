@@ -54,7 +54,7 @@ const content: Record<DocLang, {
     payments: {
       title: "5. Paiements et Tarification",
       sub1Title: "5.1 Prix et frais",
-      sub1Items: ["Prix fixés librement par les propriétaires", "Commission CarShare Burundi : 15% du montant de la location", "Frais de traitement des paiements inclus", "Assurance obligatoire incluse dans le prix"],
+      sub1Items: ["Prix fixés librement par les propriétaires", "Commission CarShare Burundi : 15% du montant de la location", "Frais de traitement des paiements inclus"],
       sub2Title: "5.2 Caution",
       sub2Items: ["Montant : 100 000 à 500 000 FBU selon le véhicule", "Préautorisation sur carte bancaire", "Libération automatique 7 jours après restitution", "Retenue en cas de dommages ou d'infractions"],
       sub3Title: "5.3 Moyens de paiement",
@@ -67,19 +67,19 @@ const content: Record<DocLang, {
       sub2Title: "6.2 Responsabilité du propriétaire",
       sub2Items: ["Véhicule en bon état de fonctionnement", "Contrôle technique à jour", "Assurance véhicule valide", "Information sur les spécificités du véhicule"],
       sub3Title: "6.3 Responsabilité de CarShare Burundi",
-      sub3Items: ["Mise en relation entre propriétaires et locataires", "Traitement sécurisé des paiements", "Support client 7j/7", "Assurance complémentaire des locations"]
+      sub3Items: ["Mise en relation entre propriétaires et locataires", "Traitement sécurisé des paiements", "Support client 7j/7", "Vérification d'identité et des documents des véhicules"]
     },
     cancellation: {
       title: "7. Annulation et Remboursement",
       headerDelay: "Délai d'annulation", headerRefund: "Remboursement",
-      rows: [["Plus de 24h avant", "100% (gratuit)"], ["Entre 24h et 2h avant", "50%"], ["Moins de 2h avant", "Aucun remboursement"], ["Annulation propriétaire", "100% + dédommagement"]]
+      rows: [["Plus de 24h avant", "100% (gratuit)"], ["Entre 24h et 2h avant", "50%"], ["Moins de 2h avant", "Aucun remboursement"], ["Annulation propriétaire", "100%"]]
     },
     prohibited: {
       title: "8. Utilisations Interdites",
       strictlyTitle: "Strictement interdit :",
       strictlyItems: ["Usage commercial non déclaré", "Transport de passagers payants", "Conduite sous influence", "Courses automobiles", "Transport de matières illégales"],
       sanctionsTitle: "Sanctions :",
-      sanctionsItems: ["Suspension de compte", "Résiliation définitive", "Poursuites judiciaires", "Non-prise en charge assurance"]
+      sanctionsItems: ["Suspension de compte", "Résiliation définitive", "Poursuites judiciaires"]
     },
     contact: {
       title: "9. Contact et Support",
@@ -126,7 +126,7 @@ const content: Record<DocLang, {
     payments: {
       title: "5. Payments and Pricing",
       sub1Title: "5.1 Prices and fees",
-      sub1Items: ["Prices freely set by owners", "CarShare Burundi commission: 15% of the rental amount", "Payment processing fees included", "Mandatory insurance included in the price"],
+      sub1Items: ["Prices freely set by owners", "CarShare Burundi commission: 15% of the rental amount", "Payment processing fees included"],
       sub2Title: "5.2 Deposit",
       sub2Items: ["Amount: 100,000 to 500,000 FBU depending on the vehicle", "Pre-authorization on bank card", "Automatic release 7 days after return", "Withheld in case of damage or violations"],
       sub3Title: "5.3 Payment methods",
@@ -139,19 +139,19 @@ const content: Record<DocLang, {
       sub2Title: "6.2 Owner's responsibility",
       sub2Items: ["Vehicle in good working order", "Up-to-date technical inspection", "Valid vehicle insurance", "Information about the vehicle's specifics"],
       sub3Title: "6.3 CarShare Burundi's responsibility",
-      sub3Items: ["Connecting owners and renters", "Secure payment processing", "Customer support 7 days a week", "Supplementary rental insurance"]
+      sub3Items: ["Connecting owners and renters", "Secure payment processing", "Customer support 7 days a week", "Identity verification and vehicle document checks"]
     },
     cancellation: {
       title: "7. Cancellation and Refunds",
       headerDelay: "Cancellation notice", headerRefund: "Refund",
-      rows: [["More than 24h before", "100% (free)"], ["Between 24h and 2h before", "50%"], ["Less than 2h before", "No refund"], ["Owner cancellation", "100% + compensation"]]
+      rows: [["More than 24h before", "100% (free)"], ["Between 24h and 2h before", "50%"], ["Less than 2h before", "No refund"], ["Owner cancellation", "100%"]]
     },
     prohibited: {
       title: "8. Prohibited Uses",
       strictlyTitle: "Strictly prohibited:",
       strictlyItems: ["Undeclared commercial use", "Transporting paying passengers", "Driving under the influence", "Car racing", "Transporting illegal materials"],
       sanctionsTitle: "Sanctions:",
-      sanctionsItems: ["Account suspension", "Permanent termination", "Legal proceedings", "Insurance coverage denied"]
+      sanctionsItems: ["Account suspension", "Permanent termination", "Legal proceedings"]
     },
     contact: {
       title: "9. Contact and Support",
@@ -177,10 +177,10 @@ const TermsPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 dark:from-blue-800 dark:via-purple-800 dark:to-blue-900">
+      <div className="bg-primary">
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
               {tPage('metaTitle')}
             </h1>
           </div>
@@ -218,8 +218,8 @@ const TermsPage = () => {
           )}
 
           {/* Last Updated */}
-          <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <p className="text-sm text-blue-700 dark:text-blue-300">
+          <div className="mb-8 p-4 bg-primary/10 dark:bg-primary/20 rounded-lg border border-primary/20 dark:border-primary/30">
+            <p className="text-sm text-primary">
               <strong>{c.lastUpdated}</strong>
             </p>
           </div>
@@ -404,7 +404,7 @@ const TermsPage = () => {
             <h2 className="text-3xl font-bold mb-6 text-foreground">
               {c.contact.title}
             </h2>
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-800 dark:to-purple-800 rounded-2xl p-8 text-white shadow-lg">
+            <div className="bg-primary rounded-2xl p-8 text-white shadow-lg">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -412,15 +412,15 @@ const TermsPage = () => {
                     {c.contact.phoneTitle}
                   </h3>
                   <p className="mb-2">+257 XX XX XX XX</p>
-                  <p className="text-blue-100 text-sm">{c.contact.phoneHours}</p>
+                  <p className="text-white/80 text-sm">{c.contact.phoneHours}</p>
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-4 flex items-center">
                     <Mail className="w-5 h-5 mr-2" />
                     {c.contact.emailTitle}
                   </h3>
-                  <p className="mb-2">support@carshareburundi.com</p>
-                  <p className="text-blue-100 text-sm">{c.contact.emailResponse}</p>
+                  <p className="mb-2">contact@budaxdrive.bi</p>
+                  <p className="text-white/80 text-sm">{c.contact.emailResponse}</p>
                 </div>
               </div>
             </div>

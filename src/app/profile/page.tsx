@@ -4,17 +4,22 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
-import { BadgeCheck, BadgeAlert, User, Mail, Phone, Building2, Shield, AlertTriangle, CheckCircle, XCircle, Edit2, Save, X, Camera, Upload, Lock, Crown, Loader2 } from 'lucide-react';
+import { BadgeCheck, BadgeAlert, User, Mail, Phone, Building2, Shield, AlertTriangle, CheckCircle, XCircle, Edit2, Save, X, Camera, Upload, Lock, Crown, Loader2, Trash2, Download } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
+import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
 
 type UserFormData = {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber?: string;
+  bio?: string;
 };
+
+// ✅ Bio publique (page hôte /hosts/{id}) — limite alignée sur la contrainte backend (max 500).
+const MAX_BIO_LENGTH = 500;
 
 // ✅ COMPOSANT : La fenêtre de la Webcam
 function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCapture: (file: File) => void, onClose: () => void, isProfilePicture?: boolean }) {
@@ -64,12 +69,12 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-x-hidden overflow-y-auto shadow-2xl">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
           <h3 className="font-bold text-lg flex items-center gap-2">
             <Camera className="w-5 h-5" /> {t('liveCaptureTitle')}
           </h3>
-          <button onClick={onClose} className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
+          <button onClick={onClose} aria-label="Close" className="p-2 -m-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -130,7 +135,7 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const locale = useLocale();
   const router = useRouter();
-  const { user, isLoading: isAuthLoading, refreshUser } = useAuth();
+  const { user, isLoading: isAuthLoading, refreshUser, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -139,9 +144,14 @@ export default function ProfilePage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
-  
+  const [kycConsentGiven, setKycConsentGiven] = useState(false);
+
   const [showWebcamModal, setShowWebcamModal] = useState(false);
   const [showProfileWebcamModal, setShowProfileWebcamModal] = useState(false);
+
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isExportingData, setIsExportingData] = useState(false);
 
   // ✅ NOUVEAUX ÉTATS POUR L'ABONNEMENT PREMIUM
   const [premiumStep, setPremiumStep] = useState<'NONE' | 'SELECT_DURATION' | 'PAYMENT' | 'SUCCESS'>('NONE');
@@ -165,6 +175,7 @@ export default function ProfilePage() {
     lastName: '',
     email: '',
     phoneNumber: '',
+    bio: '',
   });
 
   useEffect(() => {
@@ -174,11 +185,12 @@ export default function ProfilePage() {
         lastName: user.lastName || '',
         email: user.email || user.sub || '',
         phoneNumber: user.phoneNumber || '',
+        bio: user.bio || '',
       });
     }
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({
       ...prev,
@@ -202,6 +214,7 @@ export default function ProfilePage() {
         lastName: user.lastName || '',
         email: user.email || user.sub || '',
         phoneNumber: user.phoneNumber || '',
+        bio: user.bio || '',
       });
     }
   };
@@ -289,6 +302,43 @@ export default function ProfilePage() {
     }
   };
 
+  // ✅ DROIT À L'EFFACEMENT : suppression du compte (anonymisation côté serveur, voir
+  // UserService.deleteUser), puis déconnexion locale et retour à l'accueil.
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setIsDeletingAccount(true);
+    setError(null);
+    try {
+      await apiClient.delete(`/api/users/${user.id}`);
+      setShowDeleteAccountModal(false);
+      await logout();
+      router.push('/');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t('deleteAccountModal.genericError');
+      setError(errorMessage);
+      setIsDeletingAccount(false);
+    }
+  };
+
+  // ✅ DROIT À LA PORTABILITÉ : télécharge un export PDF lisible des données
+  // personnelles (profil, réservations, véhicules possédés, avis) depuis
+  // GET /api/users/me/export — le backend renvoie du JSON structuré, mis en
+  // forme ici en PDF pour rester exploitable par quelqu'un de non technique.
+  const handleExportData = async () => {
+    setIsExportingData(true);
+    setError(null);
+    try {
+      const data = await apiClient.get('/api/users/me/export');
+      const { generateDataExportPdf } = await import('@/lib/exportPdf');
+      generateDataExportPdf(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t('exportData.genericError');
+      setError(errorMessage);
+    } finally {
+      setIsExportingData(false);
+    }
+  };
+
   // ✅ INITIER LE PAIEMENT PREMIUM
   const handleInitiatePremium = async () => {
     setIsPremiumLoading(true);
@@ -372,7 +422,7 @@ export default function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-lg text-foreground">{t('loadingProfile')}</p>
@@ -383,7 +433,7 @@ export default function ProfilePage() {
 
   if (!user && !isAuthLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
           <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <p className="text-xl text-red-600 dark:text-red-400 font-semibold">
@@ -404,7 +454,7 @@ export default function ProfilePage() {
   const isPartiallyVerified = user?.isIdentityVerified || user?.isDrivingLicenseVerified || user?.isSelfieVerified;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-8 px-4">
+    <div className="min-h-screen bg-primary/5 dark:bg-gray-900 py-8 px-4">
       {/* Modal Webcam pour le Selfie KYC */}
       {showWebcamModal && (
         <WebcamModal 
@@ -431,7 +481,7 @@ export default function ProfilePage() {
       <div className="container mx-auto max-w-5xl">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground flex items-center gap-3">
               <User className="w-10 h-10 text-primary" />
               {t('title')}
             </h1>
@@ -510,12 +560,24 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-3 mt-4">
+                {!isFullyVerified && (
+                  <label className="flex items-start gap-2 p-3 rounded-lg border border-border bg-muted/40 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={kycConsentGiven}
+                      onChange={(e) => setKycConsentGiven(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                    />
+                    <span className="text-xs text-muted-foreground">{t('verification.consentLabel')}</span>
+                  </label>
+                )}
+
                 {/* BLOC PIÈCE D'IDENTITÉ */}
                 <div className={`p-3 rounded-lg border ${
                   user?.isIdentityVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.identityDocumentUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -524,7 +586,7 @@ export default function ProfilePage() {
                         {user?.isIdentityVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
                           {t('verification.identityLabel')}
@@ -534,7 +596,7 @@ export default function ProfilePage() {
                         user?.isIdentityVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.identityDocumentUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isIdentityVerified
@@ -559,7 +621,7 @@ export default function ProfilePage() {
                             accept="image/*,.pdf"
                             className="hidden"
                             onChange={(e) => handleFileInputChange(e, 'IDENTITY')}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
@@ -575,7 +637,7 @@ export default function ProfilePage() {
                   user?.isDrivingLicenseVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.drivingLicenseUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -584,7 +646,7 @@ export default function ProfilePage() {
                         {user?.isDrivingLicenseVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">
                           {t('verification.licenseLabel')}
@@ -594,7 +656,7 @@ export default function ProfilePage() {
                         user?.isDrivingLicenseVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.drivingLicenseUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isDrivingLicenseVerified
@@ -619,7 +681,7 @@ export default function ProfilePage() {
                             accept="image/*,.pdf"
                             className="hidden"
                             onChange={(e) => handleFileInputChange(e, 'DRIVING_LICENSE')}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
@@ -635,7 +697,7 @@ export default function ProfilePage() {
                   user?.isSelfieVerified
                     ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
                     : user?.selfieUrl
-                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
                     : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
                 }`}>
                   <div className="flex flex-col gap-2">
@@ -644,7 +706,7 @@ export default function ProfilePage() {
                         {user?.isSelfieVerified ? (
                           <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
                         ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'}`} />
+                          <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
                         )}
                         <span className="font-medium text-sm text-foreground">{t('verification.selfieLabel')}</span>
                       </div>
@@ -652,7 +714,7 @@ export default function ProfilePage() {
                         user?.isSelfieVerified
                           ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
                           : user?.selfieUrl
-                          ? 'bg-blue-200 text-blue-800'
+                          ? 'bg-primary/20 text-primary'
                           : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}>
                         {user?.isSelfieVerified
@@ -665,11 +727,11 @@ export default function ProfilePage() {
 
                     {!user?.isSelfieVerified && (
                       <div className="mt-2">
-                        <div className="mb-3 text-center bg-blue-50/50 dark:bg-blue-900/10 p-3 rounded-md border border-blue-100 dark:border-blue-800/30">
-                          <p className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-1">
+                        <div className="mb-3 text-center bg-muted/50 p-3 rounded-md border border-border">
+                          <p className="text-xs font-medium text-foreground mb-1">
                             {t('verification.selfieHintTitle')}
                           </p>
-                          <p className="text-[11px] text-blue-600/80 dark:text-blue-400/80">
+                          <p className="text-[11px] text-primary/80">
                             {t('verification.selfieHintText')}
                           </p>
                         </div>
@@ -677,7 +739,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button
                             onClick={() => setShowWebcamModal(true)}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                             className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}
                           >
                             <Camera className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -696,7 +758,7 @@ export default function ProfilePage() {
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => handleFileInputChange(e, 'SELFIE')}
-                              disabled={uploadingDocType !== null}
+                              disabled={uploadingDocType !== null || !kycConsentGiven}
                             />
                           </label>
                         </div>
@@ -713,15 +775,15 @@ export default function ProfilePage() {
             </div>
 
             {!isFullyVerified && (
-              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl shadow-sm">
-                <p className="text-sm text-blue-800 dark:text-blue-300 mb-2">
+              <div className="mt-4 p-4 bg-muted border border-border rounded-xl shadow-sm">
+                <p className="text-sm text-foreground mb-2">
                   <strong>{t('verification.whyVerifyTitle')}</strong><br />
                   {t('verification.whyVerifyText')}
                 </p>
 
-                <div className="flex items-start mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-blue-100 dark:border-blue-800/50">
+                <div className="flex items-start mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-border">
                   <Lock className="w-5 h-5 text-green-600 mr-2 flex-shrink-0 mt-0.5" />
-                  <p className="text-xs text-blue-900 dark:text-blue-200">
+                  <p className="text-xs text-foreground">
                     <strong>{t('verification.kycTitle')}</strong><br />
                     {t('verification.kycText')}
                   </p>
@@ -776,7 +838,7 @@ export default function ProfilePage() {
                          <button
                            onClick={() => setShowProfileWebcamModal(true)}
                            disabled={isUploadingImage}
-                           className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
+                           className={`p-3 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
                              isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-primary hover:bg-primary/90'
                            }`}
                            title={t('takePhotoTitle')}
@@ -784,8 +846,8 @@ export default function ProfilePage() {
                            <Camera className="w-4 h-4" />
                          </button>
                          <label
-                           className={`p-2 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
-                             isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'
+                           className={`p-3 rounded-full text-white cursor-pointer transition-transform hover:scale-110 shadow-md ${
+                             isUploadingImage ? 'bg-gray-400 cursor-wait' : 'bg-primary hover:bg-primary/90'
                            }`}
                            title={t('uploadPhotoTitle')}
                          >
@@ -804,7 +866,7 @@ export default function ProfilePage() {
                       onClick={() => {
                         handleEditClick();
                       }}
-                      className="absolute bottom-0 right-0 p-2 rounded-full text-white bg-primary hover:bg-primary/90 transition-transform hover:scale-110 shadow-md"
+                      className="absolute bottom-0 right-0 p-3 rounded-full text-white bg-primary hover:bg-primary/90 transition-transform hover:scale-110 shadow-md"
                       title={t('editPhotoTitle')}
                     >
                       <Camera className="w-4 h-4" />
@@ -871,6 +933,18 @@ export default function ProfilePage() {
                       </label>
                       <p className="text-lg text-foreground font-medium bg-muted/30 p-3 rounded-lg">
                         {user.companyName}
+                      </p>
+                    </div>
+                  )}
+
+                  {user?.bio && (
+                    <div className="group">
+                      <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        {t('bioLabel')}
+                      </label>
+                      <p className="text-base text-foreground bg-muted/30 p-3 rounded-lg whitespace-pre-line leading-relaxed">
+                        {user.bio}
                       </p>
                     </div>
                   )}
@@ -943,7 +1017,7 @@ export default function ProfilePage() {
                         </div>
                         <button
                           onClick={() => setPremiumStep('SELECT_DURATION')}
-                          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded-lg transition-colors shrink-0"
                         >
                           {t('subscription.becomePremium')}
                         </button>
@@ -1024,6 +1098,30 @@ export default function ProfilePage() {
                     </p>
                   </div>
 
+                  <div>
+                    <label htmlFor="bio" className="block text-sm font-medium text-foreground mb-2">
+                      {t('bioLabel')}
+                    </label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={4}
+                      maxLength={MAX_BIO_LENGTH}
+                      value={editFormData.bio}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                      placeholder={t('form.bioPlaceholder')}
+                    />
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">
+                        {t('bioHelp')}
+                      </p>
+                      <p className="text-xs text-muted-foreground flex-shrink-0 ml-3">
+                        {t('form.bioCharCount', { count: (editFormData.bio || '').length, max: MAX_BIO_LENGTH })}
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border">
                     <button
                       type="submit"
@@ -1048,7 +1146,57 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* ======================================= */}
+        {/* MES DONNÉES : export (droit à la portabilité) */}
+        {/* ======================================= */}
+        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-border p-6">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2 mb-2">
+            <Download className="w-5 h-5 text-primary" />
+            {t('exportData.sectionTitle')}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('exportData.sectionDescription')}
+          </p>
+          <button
+            type="button"
+            onClick={handleExportData}
+            disabled={isExportingData}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border text-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+          >
+            {isExportingData ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {isExportingData ? t('exportData.exporting') : t('exportData.sectionButton')}
+          </button>
+        </div>
+
+        {/* ======================================= */}
+        {/* ZONE DE DANGER : suppression du compte   */}
+        {/* ======================================= */}
+        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50 p-6">
+          <h2 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2 mb-2">
+            <Trash2 className="w-5 h-5" />
+            {t('deleteAccountModal.sectionTitle')}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('deleteAccountModal.sectionDescription')}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDeleteAccountModal(true)}
+            className="px-4 py-2.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium text-sm"
+          >
+            {t('deleteAccountModal.sectionButton')}
+          </button>
+        </div>
       </div>
+
+      <ConfirmDeleteAccountModal
+        isOpen={showDeleteAccountModal}
+        onClose={() => setShowDeleteAccountModal(false)}
+        onConfirm={handleDeleteAccount}
+        userEmail={user?.email ?? ''}
+        isLoading={isDeletingAccount}
+      />
 
       {/* ======================================= */}
       {/* MODALES D'ABONNEMENT PREMIUM */}
@@ -1056,13 +1204,16 @@ export default function ProfilePage() {
 
       {/* 1. Modale de choix de la durée */}
       {premiumStep === 'SELECT_DURATION' && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && setPremiumStep('NONE')}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold flex items-center text-gray-900 dark:text-white">
                 <Crown className="mr-2 text-yellow-500" /> {t('premiumModal.title')}
               </h2>
-              <button onClick={() => setPremiumStep('NONE')} className="text-gray-400 hover:text-gray-600 font-bold text-xl">×</button>
+              <button onClick={() => setPremiumStep('NONE')} aria-label="Close" className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-bold text-xl leading-none">×</button>
             </div>
 
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
@@ -1135,7 +1286,7 @@ export default function ProfilePage() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               {t('premiumModal.successMessage', { months: premiumDuration })}
             </p>
-            <button onClick={() => setPremiumStep('NONE')} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold">
+            <button onClick={() => setPremiumStep('NONE')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl font-bold">
               {t('premiumModal.successButton')}
             </button>
           </div>

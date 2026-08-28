@@ -13,7 +13,7 @@ function LoginContent() {
   const redirectTo = searchParams.get('redirect') || '/';
 
   return (
-    <div className="bg-card dark:bg-card p-8 rounded-xl shadow-lg border border-border dark:border-border">
+    <div className="bg-card dark:bg-card p-6 sm:p-8 rounded-xl shadow-lg border border-border dark:border-border">
       {registrationSuccess && (
         <div className="mb-6 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg" role="alert">
           <p className="font-bold">{t('registrationSuccessTitle')}</p>
@@ -22,13 +22,13 @@ function LoginContent() {
       )}
 
       {redirectTo !== '/' && (
-        <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 text-blue-700 dark:text-blue-400 px-4 py-3 rounded-lg" role="alert">
+        <div className="mb-6 bg-muted border-l-4 border-primary text-foreground px-4 py-3 rounded-lg" role="alert">
           <p className="font-medium">{t('loginRequiredTitle')}</p>
           <p className="text-sm">{t('loginRequiredMessage')}</p>
         </div>
       )}
 
-      <h1 className="text-3xl font-bold text-center text-foreground dark:text-foreground mb-6">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-foreground dark:text-foreground mb-6">
         {t('title')}
       </h1>
 

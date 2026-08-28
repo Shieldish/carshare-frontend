@@ -36,13 +36,13 @@ const FAQPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 dark:from-blue-800 dark:via-purple-800 dark:to-blue-900">
+      <div className="bg-primary">
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
               {t('headerTitle')}
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
               {t('headerSubtitle')}
             </p>
           </div>
@@ -60,7 +60,7 @@ const FAQPage = () => {
                 placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-6 py-4 text-lg border border-border rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-card text-foreground shadow-lg placeholder:text-muted-foreground"
+                className="w-full px-6 py-4 text-lg border border-border rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent bg-card text-foreground shadow-lg placeholder:text-muted-foreground"
               />
               <Search className="absolute right-4 top-4 h-6 w-6 text-muted-foreground" />
             </div>
@@ -82,9 +82,9 @@ const FAQPage = () => {
                       {item.question}
                     </span>
                     {openItems.includes(item.id) ? (
-                      <ChevronUp className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      <ChevronUp className="h-6 w-6 text-primary flex-shrink-0" />
                     ) : (
-                      <ChevronDown className="h-6 w-6 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+                      <ChevronDown className="h-6 w-6 text-primary flex-shrink-0" />
                     )}
                   </button>
                   
@@ -107,11 +107,11 @@ const FAQPage = () => {
           </div>
 
           {/* Contact Section */}
-          <div className="mt-16 bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-800 dark:to-purple-800 rounded-3xl p-8 text-center text-white shadow-xl">
+          <div className="mt-16 bg-primary rounded-3xl p-8 text-center text-white shadow-xl">
             <h2 className="text-2xl font-bold mb-4">
               {t('contactTitle')}
             </h2>
-            <p className="text-blue-100 mb-6 text-lg">
+            <p className="text-white/80 mb-6 text-lg">
               {t('contactSubtitle')}
             </p>
             <div className="flex flex-col md:flex-row gap-4 justify-center">
@@ -119,13 +119,13 @@ const FAQPage = () => {
                 href="https://wa.me/25779123456?text=Bonjour%2C%20j%27ai%20une%20question%20concernant%20BudaxDrive."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-white text-blue-600 px-8 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                className="bg-white text-primary px-8 py-3 rounded-xl font-semibold hover:bg-primary/10 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 {t('contactButton')}
               </a>
               <a
-                href="mailto:support@carshareburundi.com"
-                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-blue-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+                href="mailto:contact@budaxdrive.bi"
+                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 {t('emailButton')}
               </a>

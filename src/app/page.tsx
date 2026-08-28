@@ -1,6 +1,6 @@
 // app/page.tsx
 import { serverApiClient } from '@/lib/apiClient'; // ✅ Import du serverApiClient
-import { Vehicle } from './types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import HomeClient from './components/HomeClient';
 
 // ✅ Type pour les données du slider

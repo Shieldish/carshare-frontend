@@ -34,7 +34,8 @@ import {
   ClipboardCheck,
   Crown,
   ImagePlus,
-  Star
+  Star,
+  Heart
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
@@ -341,7 +342,7 @@ const TopAppBar = () => {
               <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
               <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             </div>
-            <div className="hidden md:block h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            <div className="hidden lg:block h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
           </div>
         </header>
@@ -391,7 +392,7 @@ const TopAppBar = () => {
               <Link href="/" className="flex items-center space-x-2 group">
                 <Image
                   src="/assets/icons/logo.svg"
-                  alt="OurCarShare Logo"
+                  alt="BudaxDrive Logo"
                   width={150}
                   height={45}
                   className="group-hover:scale-105 transition-transform md:w-[192px] md:h-[58px]"
@@ -400,10 +401,10 @@ const TopAppBar = () => {
             </div>
 
             {/* Bouton "Pourquoi OurCarShare" (Caché sur mobile, visible sur Desktop) */}
-            <div className="hidden md:flex flex-1 justify-center">
+            <div className="hidden lg:flex flex-1 justify-center">
               <Link
                 href="/how-it-works"
-                className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 {t('whyOurCarShare')}
               </Link>
@@ -411,7 +412,19 @@ const TopAppBar = () => {
 
             {/* Droite: Notifications + Menus */}
             <div className="flex-shrink-0 flex items-center space-x-2 md:space-x-4">
-              
+
+              {/* Favoris (Visible partout, uniquement si connecté) */}
+              {user && (
+                <Link
+                  href="/favorites"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  title={t('favorites')}
+                  aria-label={t('favorites')}
+                >
+                  <Heart className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                </Link>
+              )}
+
               {/* Notifications (Visible partout) */}
               {user && (
                 <div className="relative">
@@ -429,7 +442,7 @@ const TopAppBar = () => {
                   </button>
                   
                   {isNotificationMenuOpen && (
-                    <div ref={notificationMenuRef} className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                    <div ref={notificationMenuRef} className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-w-sm sm:max-w-none bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                       {/* ✅ NOUVEAU : En-tête avec bouton "Tout marquer comme lu" */}
                       <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
                         <div className="font-semibold text-gray-900 dark:text-white">
@@ -443,7 +456,7 @@ const TopAppBar = () => {
                             className={`text-xs font-medium px-2 py-1 rounded transition-colors ${
                               isLoadingMarkAll
                                 ? 'text-gray-400 cursor-not-allowed'
-                                : 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700'
+                                : 'text-primary hover:text-primary/80 hover:bg-primary/10 dark:hover:bg-gray-700'
                             }`}
                           >
                             {isLoadingMarkAll ? '⏳' : '✓'} {t('markAllAsRead')}
@@ -466,7 +479,7 @@ const TopAppBar = () => {
                               >
                                 <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 flex items-start gap-2">
                                   {NotifIcon && translatedText && (
-                                    <NotifIcon className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                                    <NotifIcon className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                                   )}
                                   <div>
                                     {/* ✅ SÉCURITÉ : On s'assure d'afficher uniquement des strings */}
@@ -495,7 +508,7 @@ const TopAppBar = () => {
                         <div className="border-t border-gray-100 dark:border-gray-600 p-2">
                           <button
                             onClick={() => setShowAllNotifications(true)}
-                            className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium py-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10 dark:hover:bg-gray-700"
                           >
                             {t('viewHistory')}
                           </button>
@@ -507,7 +520,7 @@ const TopAppBar = () => {
                         <div className="border-t border-gray-100 dark:border-gray-600 p-2">
                           <button
                             onClick={() => setShowAllNotifications(false)}
-                            className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium py-2 rounded transition-colors hover:bg-blue-50 dark:hover:bg-gray-700"
+                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10 dark:hover:bg-gray-700"
                           >
                             {t('viewNewOnly')}
                           </button>
@@ -519,12 +532,12 @@ const TopAppBar = () => {
               )}
 
               {/* Sélecteur de langue (Caché sur Mobile, Visible Desktop) */}
-              <div className="hidden md:block">
+              <div className="hidden lg:block">
                 <LanguageSwitcher variant="desktop" />
               </div>
 
               {/* Menu profil (Caché sur Mobile, Visible Desktop) */}
-              <div className="hidden md:block relative">
+              <div className="hidden lg:block relative">
                 <button
                   ref={profileButtonRef}
                   onClick={handleProfileButtonClick}
@@ -542,12 +555,12 @@ const TopAppBar = () => {
                         />
                       </div>
                     ) : (
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold">
+                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
                         {user.sub.split('@')[0].charAt(0).toUpperCase()}
                       </div>
                     )
                   ) : (
-                    <UserCircle className="h-10 w-10 text-gray-600 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400" />
+                    <UserCircle className="h-10 w-10 text-gray-600 dark:text-gray-400 group-hover:text-primary" />
                   )}
                   <ChevronDown className={`h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
@@ -568,7 +581,7 @@ const TopAppBar = () => {
                               />
                             </div>
                           ) : (
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                            <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
                               {user.sub.split('@')[0].charAt(0).toUpperCase()}
                             </div>
                           )}
@@ -598,7 +611,7 @@ const TopAppBar = () => {
               </div>
 
               {/* BOUTON MENU BURGER (Visible Uniquement sur Mobile) */}
-              <div className="md:hidden flex items-center">
+              <div className="lg:hidden flex items-center">
                 <button
                   onClick={() => {
                     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -616,15 +629,15 @@ const TopAppBar = () => {
 
         {/* --- MENU DÉROULANT COMPLET POUR MOBILE --- */}
         {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-16 left-0 w-full bg-white dark:bg-gray-900 shadow-2xl border-t border-gray-200 dark:border-gray-800 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="lg:hidden absolute top-16 left-0 w-full bg-white dark:bg-gray-900 shadow-2xl border-t border-gray-200 dark:border-gray-800 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
               
               <Link
                 href="/how-it-works"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg font-medium"
+                className="flex items-center space-x-3 px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg font-medium"
               >
-                <HelpCircle className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <HelpCircle className="h-5 w-5 text-primary" />
                 <span>{t('whyOurCarShare')}</span>
               </Link>
 
@@ -646,7 +659,7 @@ const TopAppBar = () => {
                       />
                     </div>
                   ) : (
-                    <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-sm flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg shadow-sm flex-shrink-0">
                       {user.sub.split('@')[0].charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -668,7 +681,7 @@ const TopAppBar = () => {
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
+                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
@@ -680,7 +693,7 @@ const TopAppBar = () => {
                         if (item.onClick) item.onClick();
                         setIsMobileMenuOpen(false); 
                       }}
-                      className="flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium"
+                      className="flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium"
                     >
                       <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       <span>{item.label}</span>

@@ -56,12 +56,25 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
 
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'PENDING':
+      // ✅ PENDING_CONFIRMATION = le locataire a déjà payé (en externe) et attend une vraie
+      // décision du propriétaire — c'est le seul cas qui nécessite une action de sa part.
+      case 'PENDING_CONFIRMATION':
         return {
           icon: <Clock className="w-5 h-5 text-orange-500" />,
           text: t('status.pendingConfirmationText'),
           description: t('status.pendingConfirmationDescription'),
           color: "text-orange-600 bg-orange-100 border-orange-200 dark:bg-orange-950 dark:border-orange-700 dark:text-orange-300"
+        };
+      // ✅ PENDING = rien n'a encore été payé ; le propriétaire ne devrait normalement jamais
+      // voir ce statut (filtré côté backend), mais on garde un affichage neutre et sans
+      // bouton d'action au cas où, plutôt que de l'inviter à "confirmer" quelque chose
+      // qui n'a jamais été payé.
+      case 'PENDING':
+        return {
+          icon: <Clock className="w-5 h-5 text-muted-foreground" />,
+          text: t('status.pendingText'),
+          description: t('status.pendingDescription'),
+          color: "text-muted-foreground bg-muted border-border"
         };
       case 'CONFIRMED':
         return {
@@ -101,7 +114,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
     }
   };
 
-  const needsAction = booking.status === 'PENDING';
+  const needsAction = booking.status === 'PENDING_CONFIRMATION';
 
   // Déterminer si le bouton d'inspection doit être affiché
   const canInspect = booking.status === 'CONFIRMED' || booking.status === 'IN_PROGRESS';

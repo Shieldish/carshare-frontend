@@ -2,8 +2,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode, useRef } from 'react';
-import { Client, IMessage as StompMessage } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+// ⚡ @stomp/stompjs et sockjs-client ne sont importés dynamiquement (voir connectWebSocket
+// ci-dessous) qu'au moment où une connexion WebSocket est réellement sur le point d'être
+// ouverte (utilisateur authentifié). Seuls des imports de type restent ici, effacés à la
+// compilation, pour ne pas embarquer ces libs dans le bundle initial des visiteurs anonymes.
+import type { Client, IMessage as StompMessage } from '@stomp/stompjs';
 import { useAuth } from './AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import { useTranslations } from 'next-intl';
@@ -57,14 +60,30 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
   const isConnectingRef = useRef<boolean>(false);
 
   // Fonction pour établir la connexion WebSocket
-  const connectWebSocket = useCallback(() => {
+  const connectWebSocket = useCallback(async () => {
     if (!user || !token || stompClientRef.current?.active || isConnectingRef.current) {
         console.log("WebSocket connection skipped:", { user: !!user, token: !!token, active: stompClientRef.current?.active, connecting: isConnectingRef.current });
       return;
     }
 
     console.log('Attempting WebSocket connection for chat...');
+    // ⚠️ Positionné avant tout point d'await pour continuer à empêcher, de façon synchrone,
+    // deux connexions concurrentes si connectWebSocket est appelé deux fois rapidement.
     isConnectingRef.current = true;
+
+    // ⚡ Téléchargement paresseux des libs STOMP/SockJS : uniquement ici, une fois qu'on sait
+    // qu'une connexion va réellement être ouverte (jamais pour un visiteur anonyme).
+    const [{ Client }, { default: SockJS }] = await Promise.all([
+      import('@stomp/stompjs'),
+      import('sockjs-client'),
+    ]);
+
+    // Les deps ont pu changer pendant le chargement des chunks (déconnexion, changement
+    // d'utilisateur...) : on n'ouvre pas une connexion devenue obsolète.
+    if (!user || !token || stompClientRef.current?.active) {
+      isConnectingRef.current = false;
+      return;
+    }
 
     const client = new Client({
       webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/ws`),
@@ -106,7 +125,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
       onStompError: (frame) => {
         console.error('❌ STOMP Chat Error:', frame.headers['message'], frame.body);
-        setError(`${t('errorWebSocketPrefix')} ${frame.headers['message']}`);
+        setError(t('errorWebSocketConnection'));
         stompClientRef.current = null;
         isConnectingRef.current = false;
       },
