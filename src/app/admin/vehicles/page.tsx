@@ -7,6 +7,7 @@ import { apiClient } from '@/lib/apiClient';
 import { CheckCircle, XCircle, FileText, Car, ShieldAlert, ExternalLink, Loader2, Ban, PlayCircle, CheckCircle2, Flame, Images, ImageOff } from 'lucide-react';
 import type { VehicleImage } from '@/types/vehicle';
 import AdminPagination from '../components/AdminPagination';
+import { openProtectedVehicleDocument } from '@/app/components/ProtectedImage';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -30,6 +31,14 @@ interface AdminVehicle {
   images?: VehicleImage[];
   owner: Owner;
   isBoosted?: boolean; // ✅ NOUVEAU
+  commune?: { name: string };
+  province?: { name: string };
+}
+
+// Ville du véhicule, affichée juste devant le nom du propriétaire dans les listes admin.
+function cityPrefix(vehicle: AdminVehicle): string {
+  const city = vehicle.commune?.name || vehicle.province?.name;
+  return city ? `${city} · ` : '';
 }
 
 type ExpiryState = 'expired' | 'expiringSoon' | 'ok' | 'none';
@@ -109,25 +118,25 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
       <div className="space-y-3">
         <p className="text-sm font-semibold">{t('documentsToVerify')}</p>
         {vehicle.registrationDocumentUrl ? (
-          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
+          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'registration')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
             <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.registration')}</span><ExternalLink className="w-4 h-4" />
-          </a>
+          </button>
         ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.registrationMissing')}</p>}
 
         <div>
           {vehicle.insuranceDocumentUrl ? (
-            <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
+            <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'insurance')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.insurance')}</span><ExternalLink className="w-4 h-4" />
-            </a>
+            </button>
           ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.insuranceMissing')}</p>}
           {formatExpiry(vehicle.insuranceExpiryDate)}
         </div>
 
         <div>
           {vehicle.technicalControlDocumentUrl ? (
-            <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
+            <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'technicalControl')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.technicalControl')}</span><ExternalLink className="w-4 h-4" />
-            </a>
+            </button>
           ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.technicalControlMissing')}</p>}
           {formatExpiry(vehicle.technicalControlExpiryDate)}
         </div>
@@ -328,7 +337,7 @@ export default function AdminVehiclesPage() {
                   <div className="mb-4">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{vehicle.make} {vehicle.model}</h3>
                     <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mt-1">
-                      {vehicle.owner.firstName} {vehicle.owner.lastName}
+                      {cityPrefix(vehicle)}{vehicle.owner.firstName} {vehicle.owner.lastName}
                     </p>
                     <p className="text-xs text-gray-500">{vehicle.owner.email} | {vehicle.owner.phoneNumber || t('noOwnerPhone')}</p>
                   </div>
@@ -381,6 +390,9 @@ export default function AdminVehiclesPage() {
                     </div>
                   </div>
                   <div className="text-xs text-gray-500 mb-4">
+                    {(vehicle.commune?.name || vehicle.province?.name) && (
+                      <span className="block text-gray-400 dark:text-gray-500">{vehicle.commune?.name || vehicle.province?.name}</span>
+                    )}
                     {t('ownerLabel', { name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}` })}
                   </div>
                   <div className="mb-4">
@@ -433,6 +445,9 @@ export default function AdminVehiclesPage() {
                     <Ban className="w-5 h-5 text-red-500" />
                   </div>
                   <div className="text-xs text-red-700/70 mb-4">
+                    {(vehicle.commune?.name || vehicle.province?.name) && (
+                      <span className="block text-red-700/50">{vehicle.commune?.name || vehicle.province?.name}</span>
+                    )}
                     {t('ownerLabel', { name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}` })}
                   </div>
                   <div className="mb-4">

@@ -307,7 +307,7 @@ export default function AddVehicleForm() {
           </div>
           <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
             <label className="block text-sm font-medium mb-1">{t('addressLabel')}</label>
-            <div className="flex flex-col sm:flex-row gap-2"><input type="text" name="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} className="flex-1 min-w-0 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /><button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap} className="bg-primary/10 text-primary px-4 py-2 rounded-md font-semibold whitespace-nowrap">{isSearchingMap ? t('centering') : t('centerButton')}</button></div>
+            <div className="flex flex-col sm:flex-row gap-2"><input type="text" name="address" value={addressText} onChange={(e) => setAddressText(e.target.value)} placeholder={t('addressPlaceholder')} className="flex-1 min-w-0 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600" /><button type="button" onClick={handleSearchLocationOnMap} disabled={isSearchingMap} className="bg-primary/10 text-primary px-4 py-2 rounded-md font-semibold whitespace-nowrap">{isSearchingMap ? t('centering') : t('centerButton')}</button></div>
           </div>
           <div className="mt-6" ref={mapRef}><label className="block text-sm font-medium mb-1">{t('mapLabel')}</label><LocationPickerMap onLocationSelect={(lat, lng) => setLocationGps(`${lat}, ${lng}`)} centerPosition={mapCenter} forceMarkerPosition={locationGps ? [parseFloat(locationGps.split(',')[0]), parseFloat(locationGps.split(',')[1])] : null} /><input type="hidden" name="locationGps" value={locationGps} /></div>
         </div>

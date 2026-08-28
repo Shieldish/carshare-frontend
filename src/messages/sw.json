@@ -44,6 +44,7 @@
     "lightMode": "Hali ya Mwanga",
     "darkMode": "Hali ya Giza",
     "customerService": "Huduma kwa Wateja",
+    "favorites": "Vipendwa Vyangu",
     "signIn": "Ingia",
     "signUp": "Jisajili",
     "notifications": "Arifa",
@@ -113,7 +114,7 @@
     "noResultsTitle": "Hakuna matokeo",
     "noResultsMessage": "Hakuna gari linalolingana.",
     "searchErrorTitle": "Hitilafu",
-    "searchErrorMessage": "Imeshindwa kuwasiliana na seva."
+    "searchErrorMessage": "Imeshindwa kuunganisha. Angalia muunganisho wako wa intaneti."
   },
   "filters": {
     "title": "Vichujio vya utafutaji",
@@ -125,8 +126,8 @@
     "province": "Mkoa",
     "allProvinces": "Mikoa yote",
     "loading": "Inapakia...",
-    "commune": "Wilaya / Mji",
-    "allCommunes": "Wilaya zote",
+    "commune": "Mji",
+    "allCommunes": "Miji yote",
     "vehicleTitle": "Gari",
     "vehicleType": "Aina ya gari",
     "allTypes": "Aina zote",
@@ -267,7 +268,7 @@
     "errors": {
       "generic": "Hitilafu imetokea.",
       "unexpected": "Hitilafu isiyotarajiwa imetokea.",
-      "network": "Imeshindwa kuwasiliana na seva.",
+      "network": "Imeshindwa kuunganisha. Angalia muunganisho wako wa intaneti.",
       "invalidCredentials": "Barua pepe au nenosiri si sahihi.",
       "emailAlreadyExists": "Anwani hii ya barua pepe tayari inatumika.",
       "validationError": "Baadhi ya taarifa ulizoweka si sahihi.",
@@ -276,6 +277,8 @@
       "endDateNotInFuture": "Tarehe ya mwisho lazima iwe wakati ujao.",
       "startAfterEnd": "Tarehe ya kuanza lazima iwe kabla ya tarehe ya mwisho.",
       "bookingTooShort": "Uhifadhi lazima udumu angalau saa moja.",
+      "insuranceExpiresDuringBooking": "Bima ya gari hili inaisha kabla ya mwisho wa muda uliochagua. Chagua tarehe fupi zaidi au wasiliana na mmiliki.",
+      "technicalControlExpiresDuringBooking": "Ukaguzi wa kiufundi wa gari hili unaisha kabla ya mwisho wa muda uliochagua. Chagua tarehe fupi zaidi au wasiliana na mmiliki.",
       "missingDates": "Tarehe za kuanza na mwisho zinahitajika.",
       "tooManyPendingBookings": "Tayari una uhifadhi kadhaa unaosubiri malipo. Tafadhali lipa au ughairi mmoja kabla ya kuunda mpya.",
       "bookingRateLimitExceeded": "Majaribio mengi ya kuhifadhi. Tafadhali jaribu tena baadaye kidogo.",
@@ -420,7 +423,7 @@
       "requiredFieldsError": "Kiasi, Tarehe na Aina vinahitajika.",
       "updateError": "Imeshindwa kusasisha.",
       "addError": "Imeshindwa kuongeza.",
-      "receiptUploadError": "Hitilafu ya kupakia risiti: {error}"
+      "receiptUploadError": "Hitilafu wakati wa kupakia risiti. Tafadhali jaribu tena."
     }
   },
   "profile": {
@@ -453,11 +456,35 @@
       "takePhoto": "Piga picha",
       "uploadFile": "Pakia faili",
       "sending": "Inatuma...",
-      "secureTransfer": "Uhamishaji salama uliosimbwa",
+      "secureTransfer": "Uhamishaji salama na uliolindwa",
+      "consentLabel": "Nakubali kwamba hati hii itatumiwa na BudaxDrive kuthibitisha utambulisho wangu, kwa mujibu wa sera ya faragha.",
       "whyVerifyTitle": "Kwa nini kuthibitisha utambulisho wangu?",
       "whyVerifyText": "Uthibitisho unahakikisha usalama wa wanachama wote wa jumuiya ya BudaxDrive nchini Burundi.",
-      "kycTitle": "Ulinzi wa data (Kiwango cha KYC)",
-      "kycText": "Hati zako zinahifadhiwa katika hifadhi salama ya kidijitali iliyosimbwa. Hazitaonekana hadharani kamwe na zinaharibiwa endapo akaunti itafutwa."
+      "kycTitle": "Ulinzi wa taarifa zako binafsi",
+      "kycText": "Hati zako zinahifadhiwa katika hifadhi salama ya kidijitali. Hazitaonekana hadharani kamwe na zinaharibiwa endapo akaunti itafutwa."
+    },
+    "exportData": {
+      "sectionTitle": "Pakua data yangu",
+      "sectionDescription": "Pata nakala ya data yako binafsi (wasifu, uhifadhi, maoni, magari) katika hati ya PDF.",
+      "sectionButton": "Pakua data yangu",
+      "exporting": "Inaandaa...",
+      "genericError": "Hitilafu wakati wa kupakua data."
+    },
+    "deleteAccountModal": {
+      "sectionTitle": "Futa akaunti yangu",
+      "sectionDescription": "Inafuta data yako binafsi kutoka BudaxDrive. Kitendo hiki hakiwezi kutenguliwa.",
+      "sectionButton": "Futa akaunti yangu",
+      "title": "Ungependa kufuta akaunti yako?",
+      "description": "Taarifa zako binafsi (jina, barua pepe, simu, hati za utambulisho) zitafutwa kabisa.",
+      "point1": "Hati zako za utambulisho, leseni na selfie zinafutwa mara moja.",
+      "point2": "Uhifadhi na maoni yako ya zamani yatabaki, lakini hayataunganishwa tena na utambulisho wako.",
+      "point3": "Hutaweza tena kuingia kwa akaunti hii.",
+      "irreversible": "Kitendo hiki hakiwezi kutenguliwa.",
+      "confirmPrompt": "Kuthibitisha, andika anwani yako ya barua pepe ({email}) hapa chini:",
+      "cancel": "Ghairi",
+      "confirm": "Futa kabisa",
+      "deleting": "Inafuta...",
+      "genericError": "Hitilafu wakati wa kufuta akaunti."
     },
     "roleLabel": "Wadhifa",
     "takePhotoTitle": "Piga picha",
@@ -491,7 +518,9 @@
       "phoneHelp": "Inahitajika kwa mawasiliano na watumiaji wengine",
       "saving": "Inahifadhi...",
       "save": "Hifadhi mabadiliko",
-      "cancel": "Ghairi"
+      "cancel": "Ghairi",
+      "bioPlaceholder": "Waeleze wakodishaji kidogo kukuhusu (uzoefu, upatikanaji, aina za magari...).",
+      "bioCharCount": "Herufi {count}/{max}"
     },
     "webcam": {
       "liveCaptureTitle": "Upigaji picha wa moja kwa moja",
@@ -533,7 +562,9 @@
       "mobilePaymentError": "Hitilafu ya malipo ya simu.",
       "stripeError": "Hitilafu ya Stripe.",
       "stalePendingPayment": "Malipo haya yaliyosubiri hayatumiki tena. Tafadhali anzisha tena usajili wako wa Premium."
-    }
+    },
+    "bioLabel": "Kuhusu mimi",
+    "bioHelp": "Inaonekana hadharani kwenye ukurasa wako wa mwenyeji."
   },
   "vehicles": {
     "myVehicles": {
@@ -599,8 +630,8 @@
       "currentDocSaved": "Hati ya sasa imehifadhiwa",
       "viewDoc": "Angalia",
       "replacementLabel": "Badala: {name}",
-      "addressHelp": "Andika jina la mtaa au alama inayojulikana ili kukaribisha ramani.",
-      "addressPlaceholder": "Mfano: Barabara ya Uprona, Na. 12...",
+      "addressHelp": "Andika mtaa au alama inayojulikana ili kuweka gari kwenye ramani.",
+      "addressPlaceholder": "Mfano: Kinindo, Rohero, Nyakabiga...",
       "centerMapButton": "Kaza ramani katikati",
       "mapVerifyHelp": "Angalia na urekebishe kama inahitajika mahali halisi pa gari lako.",
       "locationSaved": "Mahali pamehifadhiwa! ({location})",
@@ -640,12 +671,12 @@
       "supportsDriverHelpEdit": "Weka alama kama bei ya kila siku tayari inajumuisha huduma ya dereva.",
       "locationSectionTitle": "Mahali",
       "provinceLabel": "Mkoa",
-      "communeLabel": "Wilaya",
-      "communeLabelFull": "Wilaya / Mji",
+      "communeLabel": "Mji",
+      "communeLabelFull": "Mji",
       "provinceNotSpecified": "-- Haijabainishwa --",
       "loadingOption": "Inapakia...",
-      "addressLabel": "Anwani sahihi",
-      "addressOptionalLabel": "Anwani sahihi (Hiari lakini inapendekezwa)",
+      "addressLabel": "Mtaa / Eneo",
+      "addressOptionalLabel": "Mtaa / Eneo (Hiari lakini inapendekezwa)",
       "centerButton": "Kaza katikati",
       "centering": "Inatafuta...",
       "mapLabel": "Mahali *",
@@ -677,7 +708,7 @@
         "unacceptedFormat": "Faili \"{name}\" si muundo wa picha unaokubalika.",
         "fileTooLarge": "Faili \"{name}\" ni kubwa mno (upeo 5MB).",
         "provincesLoadError": "Hitilafu wakati wa kupakia mikoa",
-        "communesLoadError": "Hitilafu wakati wa kupakia wilaya",
+        "communesLoadError": "Hitilafu wakati wa kupakia miji",
         "addressNotFound": "Anwani haikupatikana kwenye ramani.",
         "genericSubmitError": "Hitilafu imetokea",
         "invalidYear": "Mwaka wa utengenezaji si sahihi.",
@@ -740,9 +771,8 @@
       "descriptionTitle": "Maelezo",
       "equipmentTitle": "Vifaa",
       "servicesTitle": "Huduma zilizojumuishwa",
-      "service1": "Bima kamili imejumuishwa",
-      "service2": "Huduma kwa wateja masaa 24/7",
-      "service3": "Msaada wa dharura barabarani",
+      "service1": "Magari yaliyothibitishwa (hati zilizosasishwa)",
+      "service2": "Huduma kwa wateja siku 7 kwa wiki, saa 7 mchana hadi saa 10 usiku",
       "service4": "Ughairi rahisi",
       "importantInfoTitle": "Taarifa muhimu",
       "info1": "Leseni halali ya udereva inahitajika",
@@ -750,7 +780,8 @@
       "info3": "Mafuta ni jukumu la mkodishaji",
       "prevImageAria": "Picha iliyotangulia",
       "nextImageAria": "Picha inayofuata",
-      "imageAria": "Picha {index}"
+      "imageAria": "Picha {index}",
+      "rentedBy": "Inakodishwa na"
     },
     "reviews": {
       "title": "Maoni ya wateja",
@@ -780,7 +811,7 @@
       "errors": {
         "selectPeriod": "Tafadhali chagua kipindi (tarehe mbili) kwenye kalenda.",
         "invalidDates": "Tarehe zilizochaguliwa si sahihi.",
-        "accessDenied": "Ufikiaji umekataliwa. Hakikisha wewe ni mmiliki au kwamba njia hii inapatikana.",
+        "accessDenied": "Ufikiaji umekataliwa. Hakikisha wewe ndiye mmiliki wa gari hili.",
         "loadError": "Imeshindwa kupakia data ya upatikanaji.",
         "addError": "Imeshindwa kuongeza kipindi kilichozuiliwa.",
         "deleteError": "Imeshindwa kufuta kipindi kilichozuiliwa."
@@ -809,14 +840,20 @@
       "ultraDesc": "Nafasi #1, +150% ya watazamaji",
       "notLoggedInError": "Lazima uingie ili kufanya kitendo hiki.",
       "genericBoostError": "Hitilafu wakati wa kuunda boost.",
-      "missingPaymentId": "Kitambulisho cha malipo hakikupokelewa kutoka kwa seva.",
+      "missingPaymentId": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
       "onlinePaymentInitError": "Imeshindwa kuanzisha malipo mtandaoni.",
-      "missingRedirectUrl": "Kiungo cha kuelekeza hakikupokelewa.",
+      "missingRedirectUrl": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
       "onlinePaymentError": "Hitilafu ya malipo.",
       "mobilePaymentError": "Hitilafu wakati wa malipo ya simu.",
       "successTitle": "Malipo yamethibitishwa!",
       "successMessage": "Hongera! Gari lako sasa lina mwonekano ulioboreshwa kwa miezi {months}.",
       "backToDashboard": "Rudi kwenye dashibodi"
+    },
+    "metadata": {
+      "title": "{make} {model} — FBU {price}/siku | BudaxDrive",
+      "descriptionFallback": "Kodisha {make} {model} hii huko {location} kwenye BudaxDrive, ukodishaji wa magari kati ya watu binafsi Burundi.",
+      "genericTitle": "Gari la kukodisha | BudaxDrive",
+      "genericDescription": "Gundua gari hili linalopatikana kukodishwa kwenye BudaxDrive."
     }
   },
   "bookings": {
@@ -850,7 +887,7 @@
       "paymentNote": "Ukibofya “Hifadhi na Ulipe”, utachagua njia yako ya malipo katika hatua inayofuata.",
       "notifications": {
         "errorTitle": "Hitilafu",
-        "missingVehicleId": "Kitambulisho cha gari hakipo.",
+        "missingVehicleId": "Taarifa za gari hazipo.",
         "loginRequiredTitle": "Kuingia kunahitajika",
         "loginRequiredMessage": "Lazima uingie kwenye akaunti ili kuhifadhi.",
         "loadErrorTitle": "Hitilafu ya upakiaji",
@@ -879,7 +916,7 @@
         "mobilePaymentErrorMessage": "Hitilafu wakati wa kutangaza malipo.",
         "sessionExpiredMessage": "Muda wa kikao umeisha.",
         "onlinePaymentInitError": "Imeshindikana kuanzisha malipo mtandaoni.",
-        "redirectUrlMissing": "Kiungo cha kuelekeza hakikupatikana.",
+        "redirectUrlMissing": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
         "onlinePaymentErrorMessage": "Hitilafu ya malipo mtandaoni."
       }
     },
@@ -960,7 +997,7 @@
         "reviewDeleted": "Maoni yamefutwa.",
         "errors": {
           "paymentNotPending": "Malipo haya hayasubiri.",
-          "paymentUrlMissing": "Imeshindikana kupata kiungo cha malipo.",
+          "paymentUrlMissing": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
           "paymentLaunchFailed": "Uzinduzi wa malipo umeshindikana.",
           "authRequired": "Uthibitisho wa akaunti unahitajika",
           "deleteFailed": "Ufutaji umeshindikana",
@@ -1038,12 +1075,12 @@
       "securePayment": "Malipo salama",
       "securePaymentDesc": "BudaxDrive inahakikisha usalama wa muamala wako",
       "intermediationService": "Huduma ya upatanishi",
-      "intermediationDesc": "Ulinzi kwa mkodishaji na mmiliki",
+      "intermediationDesc": "Uthibitisho wa utambulisho na msaada endapo kuna mzozo",
       "dedicatedSupport": "Msaada maalum",
       "dedicatedSupportDesc": "Timu iko tayari kukusaidia endapo kuna tatizo",
       "errors": {
         "paymentNotPending": "Malipo haya hayasubiri.",
-        "paymentUrlMissing": "Imeshindikana kupata kiungo cha malipo.",
+        "paymentUrlMissing": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
         "paymentLaunchFailed": "Uzinduzi wa malipo umeshindikana.",
         "loadFailed": "Imeshindikana kupakia maelezo ya uhifadhi",
         "mobilePaymentDeclareError": "Hitilafu wakati wa kutangaza malipo.",
@@ -1123,6 +1160,8 @@
       "status": {
         "pendingConfirmationText": "Inasubiri Uthibitisho",
         "pendingConfirmationDescription": "Uthibitisho wa upatikanaji unahitajika",
+        "pendingText": "Inasubiri malipo",
+        "pendingDescription": "Mpangaji bado hajalipa — hakuna la kufanya kwa sasa",
         "confirmedText": "Imethibitishwa",
         "confirmedDescription": "Uhifadhi umethibitishwa",
         "cancelledText": "Imeghairiwa",
@@ -1156,7 +1195,7 @@
       "paymentFailedAlert": "Malipo yameshindwa.",
       "sessionExpiredAlert": "Muda wa kikao umeisha. Tafadhali ingia tena.",
       "onlinePaymentInitError": "Imeshindwa kuanzisha malipo mtandaoni.",
-      "missingRedirectUrl": "URL ya kuelekeza haikupokewa.",
+      "missingRedirectUrl": "Imeshindwa kuanzisha malipo. Tafadhali jaribu tena.",
       "genericPaymentError": "Hitilafu ya malipo.",
       "stepBooking": "Uhifadhi",
       "stepConfirmed": "Imethibitishwa",
@@ -1183,9 +1222,9 @@
       "backToBookings": "Rudi kwenye hifadhi zangu",
       "pageTitle": "Ripoti Tukio",
       "forBooking": "Kwa uhifadhi #{id}",
-      "invalidBookingId": "Kitambulisho cha uhifadhi si sahihi.",
+      "invalidBookingId": "Uhifadhi haukupatikana.",
       "successTitle": "Ripoti imetumwa kwa mafanikio!",
-      "successMessage": "Ripoti yako ya tukio (Kitambulisho: {id}) imetumwa.",
+      "successMessage": "Ripoti yako ya tukio #{id} imetumwa.",
       "successMessageLine2": "Timu yetu itaipitia haraka iwezekanavyo.",
       "viewReport": "Angalia ripoti",
       "toastTitle": "Ripoti imetumwa!",
@@ -1200,7 +1239,7 @@
       "accessDenied": "Ufikiaji umekataliwa. Huna idhini ya kuona ripoti hizi.",
       "bookingNotFound": "Uhifadhi haukupatikana.",
       "loadError": "Imeshindikana kupakia ripoti za matukio.",
-      "invalidBookingId": "Kitambulisho cha uhifadhi si sahihi.",
+      "invalidBookingId": "Uhifadhi haukupatikana.",
       "noReports": "Hakuna ripoti ya tukio iliyopatikana kwa uhifadhi huu.",
       "reportNew": "Ripoti tukio jipya"
     },
@@ -1229,7 +1268,7 @@
       "dateTimeLabel": "Tarehe/Saa:",
       "locationLabel": "Mahali:",
       "reportedByLabel": "Iliripotiwa na:",
-      "unknownReporter": "Kitambulisho cha mtumiaji {id}",
+      "unknownReporter": "Mtumiaji #{id}",
       "descriptionLabel": "Maelezo:",
       "photosLabel": "Picha ({count})",
       "resolutionNotesTitle": "Maelezo ya utatuzi",
@@ -1249,7 +1288,7 @@
       "back": "Rudi",
       "pageTitle": "Ukaguzi - Uhifadhi #{id}",
       "loading": "Inapakia...",
-      "invalidBookingId": "Kitambulisho cha uhifadhi si sahihi.",
+      "invalidBookingId": "Uhifadhi haukupatikana.",
       "accessDenied": "Ufikiaji umekataliwa. Huna idhini ya kufikia ukaguzi huu.",
       "loadError": "Imeshindikana kupakia maelezo.",
       "checkOutTitle": "Fanya Check-out",
@@ -1258,7 +1297,7 @@
       "checkInTitle": "Fanya Check-in",
       "renterCodeTitle": "Msimbo Wako wa Check-in",
       "renterCodeDesc": "Tafadhali mpe mmiliki msimbo huu wakati wa kukabidhi funguo ili kuthibitisha hali ya gari.",
-      "renterCodeHint": "Msimbo huu unafanya kazi kama sahihi ya kidijitali.",
+      "renterCodeHint": "Msimbo huu unathibitisha makubaliano yako, kama sahihi.",
       "unauthorizedTitle": "Ufikiaji hauruhusiwi",
       "unauthorizedDesc": "Wewe si mkodishaji wala mmiliki wa uhifadhi huu.",
       "checkInDetailsTitle": "Maelezo ya Check-in",
@@ -1270,7 +1309,7 @@
       "closeAria": "Funga"
     },
     "checkIn": {
-      "locationProofTitle": "Uthibitisho wa mahali (Bima)",
+      "locationProofTitle": "Uthibitisho wa mahali",
       "locatingGps": "Inatafuta ishara ya GPS...",
       "gpsError": "Imeshindikana kupata mahali pako pa GPS. Tafadhali ruhusu ufikiaji wa mahali kwenye kivinjari chako.",
       "gpsUnsupported": "Utambuzi wa mahali haujaungwa mkono na kifaa chako.",
@@ -1283,7 +1322,7 @@
       "photosRequired": "Angalau picha moja inahitajika.",
       "notesLabel": "Maelezo kuhusu hali ya gari (si lazima)",
       "notesPlaceholder": "Mfano: Mkwaruzo kwenye bawa la mbele kushoto, ndani safi...",
-      "validationCodeTitle": "Sahihi ya Kidijitali (Msimbo wa Mkodishaji) *",
+      "validationCodeTitle": "Msimbo wa Uthibitisho (Mkodishaji) *",
       "validationCodeDesc": "Muombe mkodishaji akwambie msimbo wake wa siri wa tarakimu 4 unaoonyeshwa kwenye skrini yake, kisha uuandike hapa ili kuthibitisha ukabidhi wa funguo.",
       "submitButton": "Thibitisha na Sahihisha Check-in",
       "validationErrorTitle": "Hitilafu ya uthibitishaji",
@@ -1723,7 +1762,7 @@
       "subtitleSuffix": "nchini Burundi",
       "badge1": "Rahisi na Salama",
       "badge2": "Bei Nafuu",
-      "badge3": "Bima Imejumuishwa",
+      "badge3": "Magari Yaliyothibitishwa",
       "statVehiclesLabel": "Magari yanayopatikana",
       "statVisitorsLabel": "Wageni/mwaka",
       "statSavingsLabel": "ikilinganishwa na Mashirika",
@@ -1751,7 +1790,7 @@
     "solution": {
       "title": "Suluhisho Letu",
       "securePlatformTitle": "Jukwaa Salama",
-      "securePlatformDescription": "Uthibitishaji wa utambulisho, bima imejumuishwa na malipo salama kupitia Orange Money.",
+      "securePlatformDescription": "Uthibitishaji wa utambulisho, magari yaliyokaguliwa na malipo salama kupitia Orange Money.",
       "affordablePricesTitle": "Bei Nafuu",
       "affordablePricesDescription": "Ukodishaji kuanzia $25/siku na 85% ya mapato kwa wamiliki.",
       "extraIncomeTitle": "Mapato ya Ziada",
@@ -1763,7 +1802,7 @@
       "step1Title": "Chagua",
       "step1Description": "Vinjari orodha yetu ya magari yaliyothibitishwa na uchague linalofaa mahitaji na bajeti yako.",
       "step2Title": "Hifadhi",
-      "step2Description": "Kamilisha uhifadhi wako salama kwa malipo ya mobile money na bima ikiwa imejumuishwa kiotomatiki.",
+      "step2Description": "Kamilisha uhifadhi wako salama kwa malipo ya mobile money.",
       "step3Title": "Furahia",
       "step3Description": "Chukua gari lako, furahia safari yako, na uache maoni kusaidia jamii."
     },
@@ -1771,7 +1810,7 @@
       "title": "Maadili Yetu",
       "subtitle": "Kanuni zinazoongoza dhamira yetu kila siku",
       "securityTitle": "Usalama",
-      "securityDescription": "Ulinzi kamili kwa watumiaji wetu wote na uthibitishaji wa utambulisho na bima imejumuishwa.",
+      "securityDescription": "Ulinzi kamili kwa watumiaji wetu wote na uthibitishaji wa utambulisho na magari yaliyokaguliwa.",
       "trustTitle": "Uaminifu",
       "trustDescription": "Kujenga mahusiano ya kuaminiana ya kudumu kati ya wamiliki na wakodishaji.",
       "excellenceTitle": "Ubora",
@@ -1804,7 +1843,7 @@
     "searchPlaceholder": "Tafuta swali...",
     "noResults": "Hakuna swali lililopatikana kwa \"{term}\"",
     "contactTitle": "Hukupata jibu lako?",
-    "contactSubtitle": "Timu yetu ya msaada iko hapa kukusaidia masaa 24/7",
+    "contactSubtitle": "Timu yetu ya msaada iko hapa kukusaidia, Jumatatu hadi Jumapili kuanzia saa 7 mchana hadi saa 10 usiku",
     "contactButton": "Wasiliana nasi",
     "emailButton": "Tuma barua pepe",
     "items": [
@@ -1826,7 +1865,7 @@
       },
       {
         "question": "Nifanye nini iwapo kuna ajali au hitilafu?",
-        "answer": "Iwapo kuna ajali, wasiliana mara moja na mamlaka na huduma yetu kwa wateja masaa 24/7. Kila ukodishaji unafunikwa na bima. Iwapo kuna hitilafu, tunayo mtandao wa usaidizi barabarani. Namba zote za dharura zinatolewa wakati wa kukabidhi funguo."
+        "answer": "Iwapo kuna ajali, wasiliana mara moja na mamlaka kisha uripoti tukio hilo kupitia programu. Gari lazima lifunikwe na bima binafsi ya mmiliki wake, iliyotangazwa kwa matumizi ya ukodishaji — ni bima hiyo inayotumika, si bima ya BudaxDrive. Iwapo kuna hitilafu, wasiliana moja kwa moja na mmiliki wa gari."
       },
       {
         "question": "Mfumo wa dhamana unafanya kazi vipi?",
@@ -1842,7 +1881,7 @@
       },
       {
         "question": "Je, CarShare Burundi inatoza kamisheni?",
-        "answer": "Ndiyo, tunatoza kamisheni ya huduma ya 15% kwa kila ukodishaji ili kufunika bima, msaada kwa wateja, uchakataji wa malipo na matengenezo ya jukwaa. Kamisheni hii ni wazi na imejumuishwa kwenye bei inayoonyeshwa."
+        "answer": "Ndiyo, tunatoza kamisheni ya huduma ya 15% kwa kila ukodishaji ili kufunika msaada kwa wateja, uchakataji wa malipo na matengenezo ya jukwaa. Kamisheni hii ni wazi na imejumuishwa kwenye bei inayoonyeshwa."
       },
       {
         "question": "CarShare Burundi inapatikana katika miji gani?",
@@ -1850,11 +1889,11 @@
       },
       {
         "question": "Ninawasilianaje na msaada kwa wateja?",
-        "answer": "Timu yetu ya msaada inapatikana Jumatatu hadi Jumapili kuanzia saa 7 mchana hadi saa 10 usiku. Unaweza kuwasiliana nasi kwa simu +257 XX XX XX XX, kwa barua pepe support@carshareburundi.com, au kupitia mazungumzo ya moja kwa moja kwenye tovuti yetu."
+        "answer": "Timu yetu ya msaada inapatikana Jumatatu hadi Jumapili kuanzia saa 7 mchana hadi saa 10 usiku. Unaweza kuwasiliana nasi kwa simu +257 XX XX XX XX, kwa barua pepe contact@budaxdrive.bi, au kupitia mazungumzo ya moja kwa moja kwenye tovuti yetu."
       },
       {
         "question": "Je, magari yamewekewa bima?",
-        "answer": "Ndiyo, magari yote yaliyokodishwa kupitia CarShare Burundi yananufaika na bima kamili ikijumuisha dhima, uharibifu wa gari na wizi. Maelezo ya bima yanapatikana katika masharti yetu ya jumla."
+        "answer": "BudaxDrive si kampuni ya bima: kila mmiliki lazima athibitishe kuwa na bima binafsi halali, iliyotangazwa kwa matumizi ya ukodishaji, kabla ya kuchapisha gari lake. Ni bima hiyo inayotumika endapo kuna tukio — si ulinzi unaotolewa na BudaxDrive. Tunahakiki kuwa ukaguzi wa kiufundi na bima ya gari havijaisha muda kabla ya kila ukodishaji."
       }
     ]
   },
@@ -1892,8 +1931,8 @@
         "details": [
           "Kukutana na mmiliki mahali palipokubaliwa",
           "Ukaguzi wa picha kupitia programu",
-          "Bima imejumuishwa kwa ulinzi wako",
-          "Msaada masaa 24/7 unapohitaji"
+          "Gari lililothibitishwa: bima na ukaguzi wa kiufundi vimesasishwa",
+          "Msaada unapatikana saa 7 mchana hadi saa 10 usiku unapohitaji"
         ]
       }
     ],
@@ -1905,7 +1944,7 @@
           "Bei nafuu kwa 40% kuliko mashirika ya kawaida",
           "Uchaguzi mpana wa magari (nafuu, SUV, pickup, n.k.)",
           "Kodisha kwa saa, siku au wiki",
-          "Bima imejumuishwa kwenye bei",
+          "Magari yaliyothibitishwa (bima na ukaguzi wa kiufundi vimesasishwa)",
           "Uhifadhi 100% kwa simu"
         ]
       },
@@ -1915,7 +1954,7 @@
         "points": [
           "Mapato ya $300 hadi $800/mwezi kulingana na matumizi",
           "85% ya mapato yanakurudia",
-          "Magari yako yamewekewa bima wakati wa ukodishaji",
+          "Wakodishaji waliothibitishwa (utambulisho na leseni vimekaguliwa)",
           "Usimamizi wa kidijitali kikamilifu",
           "Unabaki na udhibiti wa upatikanaji wako"
         ]
@@ -1952,20 +1991,20 @@
         "description": "Leseni ya udereva iliyothibitishwa na ukaguzi wa historia"
       },
       {
-        "title": "Bima kamili",
-        "description": "Ulinzi wa dhima na uharibifu wa gari umejumuishwa"
+        "title": "Magari yaliyothibitishwa",
+        "description": "Ukaguzi wa kiufundi na bima vinavyohitajika kuwa sasa ili gari lichapishwe"
       },
       {
         "title": "Malipo salama",
         "description": "Miamala iliyolindwa na Orange Money na kadi za benki"
       },
       {
-        "title": "Msaada masaa 24/7",
-        "description": "Timu maalum inapatikana wakati wowote kukusaidia"
+        "title": "Msaada siku 7 kwa wiki",
+        "description": "Timu maalum inapatikana saa 7 mchana hadi saa 10 usiku kukusaidia"
       }
     ],
     "techTitle": "Teknolojia ya asilimia 100 ya Kibarundi",
-    "techMobileTitle": "Programu ya simu asilia",
+    "techMobileTitle": "Programu ya simu",
     "techMobileDesc": "iOS na Android zilizoboreshwa kwa soko la ndani",
     "techPaymentTitle": "Malipo ya ndani yaliyounganishwa",
     "techPaymentDesc": "Orange Money, Airtel Money na kadi za benki",
@@ -1976,9 +2015,9 @@
     "whyChooseTitle": "Kwa nini kuchagua CarShare Burundi?",
     "whyPoint1": "Jukwaa la kwanza la ndani linaloaminika",
     "whyPoint2": "Bei nafuu kwa 40%",
-    "whyPoint3": "Bima na ulinzi vimejumuishwa",
+    "whyPoint3": "Magari yanathibitishwa kabla ya kila ukodishaji",
     "whyPoint4": "Jamii iliyothibitishwa na yenye huruma",
-    "whyPoint5": "Msaada kwa wateja masaa 24/7 kwa Kifaransa na Kirundi",
+    "whyPoint5": "Msaada kwa wateja siku 7 kwa wiki (saa 7 mchana - saa 10 usiku) kwa Kifaransa na Kirundi",
     "ctaTitle": "Uko tayari kujiunga na mapinduzi ya usafiri nchini Burundi?",
     "ctaDescription": "Iwe unataka kukodisha gari au kupata mapato na lako, CarShare Burundi imetengenezwa kwa ajili yako.",
     "ctaFindCar": "Tafuta gari",
@@ -2012,9 +2051,9 @@
     "roleRenter": "Mkodishaji",
     "messagePlaceholder": "Andika ujumbe wako...",
     "send": "Tuma",
-    "errorWebSocketPrefix": "Hitilafu ya WebSocket:",
-    "errorWebSocketConnection": "Hitilafu ya muunganisho wa WebSocket.",
-    "errorWebSocketActivation": "Imeshindwa kuwasha muunganisho wa WebSocket.",
+    "errorWebSocketPrefix": "Hitilafu ya muunganisho:",
+    "errorWebSocketConnection": "Mazungumzo hayakuweza kuunganishwa. Jaribu tena.",
+    "errorWebSocketActivation": "Imeshindwa kuwasha mazungumzo ya moja kwa moja.",
     "errorMustBeLoggedIn": "Lazima uwe umeingia ili kuzungumza.",
     "errorLoadMessages": "Imeshindwa kupakia ujumbe.",
     "errorSendUnavailable": "Imeshindwa kutuma ujumbe. Angalia muunganisho wako.",
@@ -2108,7 +2147,18 @@
     "available": "Linapatikana",
     "notAvailable": "Halipatikani",
     "clickForMore": "Bofya kuona zaidi",
-    "seeDetails": "Angalia maelezo"
+    "seeDetails": "Angalia maelezo",
+    "addToFavorites": "Ongeza kwenye vipendwa",
+    "removeFromFavorites": "Ondoa kwenye vipendwa"
+  },
+  "favorites": {
+    "pageTitle": "Vipendwa Vyangu",
+    "subtitleSingular": "Gari {count} lililohifadhiwa",
+    "subtitlePlural": "Magari {count} yaliyohifadhiwa",
+    "emptyTitle": "Bado hakuna vipendwa",
+    "emptyDescription": "Bofya alama ya moyo kwenye gari ili kulihifadhi hapa na kuweza kulipata kwa urahisi baadaye.",
+    "browseCta": "Angalia magari",
+    "loadError": "Imeshindikana kupakia vipendwa vyako. Tafadhali jaribu tena."
   },
   "notifications": {
     "NEW_BOOKING_REQUEST": "💰 Uhifadhi mpya uliolipwa kwa {vehicleMake} {vehicleModel} yako!",
@@ -2151,5 +2201,24 @@
       "INSURANCE": "Bima",
       "TECHNICAL_CONTROL": "Ukaguzi wa Kiufundi"
     }
+  },
+  "hosts": {
+    "metaTitle": "{name} — Mwenyeji wa BudaxDrive",
+    "metaDescriptionFallback": "Gundua wasifu wa {name} kwenye BudaxDrive, ukodishaji wa magari kati ya watu binafsi Burundi.",
+    "genericTitle": "Wasifu wa mwenyeji | BudaxDrive",
+    "genericDescription": "Gundua wasifu huu wa mwenyeji kwenye BudaxDrive, ukodishaji wa magari kati ya watu binafsi Burundi.",
+    "loading": "Inapakia wasifu...",
+    "verifiedBadge": "Amethibitishwa",
+    "memberSince": "Mwanachama tangu {year}",
+    "statVehicleSingular": "gari",
+    "statVehiclePlural": "magari",
+    "reviewCount": "(maoni {count})",
+    "noReviewsYet": "Hakuna maoni bado",
+    "aboutTitle": "Kuhusu",
+    "vehiclesSectionTitle": "Magari yanayotolewa",
+    "noVehiclesListed": "Mwenyeji huyu hana gari lolote lililoorodheshwa kwa sasa.",
+    "notFoundTitle": "Wasifu haukupatikana",
+    "notFoundText": "Wasifu huu haupo au haupatikani tena.",
+    "backToHome": "Rudi mwanzo"
   }
 }

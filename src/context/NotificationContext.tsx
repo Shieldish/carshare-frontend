@@ -2,8 +2,11 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+// ⚡ @stomp/stompjs et sockjs-client ne sont importés dynamiquement (voir plus bas, dans l'effet
+// de connexion) qu'au moment où une connexion WebSocket est réellement sur le point d'être
+// ouverte (utilisateur authentifié). On ne garde ici qu'un import de type, effacé à la
+// compilation, pour ne pas embarquer ces libs dans le bundle initial des visiteurs anonymes.
+import type { Client } from '@stomp/stompjs';
 import { useAuth } from './AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import { usePathname } from 'next/navigation';
@@ -99,38 +102,61 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     fetchInitialNotifications();
 
     const userId = user.id;
-    const client = new Client({
-      webSocketFactory: () => new SockJS('http://127.0.0.1:8081/ws'),
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
 
-      onConnect: () => {
-        client.subscribe(`/topic/notifications/${userId}`, (message) => {
-          try {
-            const newNotification: Notification = JSON.parse(message.body);
-            setNotifications(prev => [newNotification, ...prev]);
-            setUnreadCount(prev => prev + 1);
-          } catch (error) {
-            console.error('❌ Error parsing notification:', error);
-          }
-        });
-      },
-      onStompError: (frame) => console.error('❌ STOMP error for user ID:', userId, frame),
-      onWebSocketError: (error) => console.error('❌ WebSocket error for user ID:', userId, error),
-    });
+    // ⚡ Chargement paresseux de @stomp/stompjs + sockjs-client : ces libs ne sont téléchargées
+    // qu'ici, une fois qu'on sait qu'un utilisateur authentifié est sur le point d'ouvrir une
+    // connexion WebSocket (jamais pour un visiteur anonyme, grâce aux gardes ci-dessus).
+    let cancelled = false;
+    let client: Client | null = null;
 
-    try {
-      client.activate();
-    } catch (error) {
-      console.error('❌ Failed to activate WebSocket:', error);
-    }
+    const connect = async () => {
+      const [{ Client }, { default: SockJS }] = await Promise.all([
+        import('@stomp/stompjs'),
+        import('sockjs-client'),
+      ]);
+
+      // Le composant a pu être démonté / les deps de l'effet ont pu changer pendant le
+      // chargement des chunks : on n'ouvre pas de connexion devenue obsolète.
+      if (cancelled) return;
+
+      const newClient = new Client({
+        webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/ws`),
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+
+        onConnect: () => {
+          newClient.subscribe(`/topic/notifications/${userId}`, (message) => {
+            try {
+              const newNotification: Notification = JSON.parse(message.body);
+              setNotifications(prev => [newNotification, ...prev]);
+              setUnreadCount(prev => prev + 1);
+            } catch (error) {
+              console.error('❌ Error parsing notification:', error);
+            }
+          });
+        },
+        onStompError: (frame) => console.error('❌ STOMP error for user ID:', userId, frame),
+        onWebSocketError: (error) => console.error('❌ WebSocket error for user ID:', userId, error),
+      });
+
+      client = newClient;
+
+      try {
+        client.activate();
+      } catch (error) {
+        console.error('❌ Failed to activate WebSocket:', error);
+      }
+    };
+
+    connect();
 
     return () => {
-      client.deactivate();
+      cancelled = true;
+      client?.deactivate();
     };
   }, [user, isLoading, pathname]);
 

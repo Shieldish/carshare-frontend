@@ -34,7 +34,8 @@ import {
   ClipboardCheck,
   Crown,
   ImagePlus,
-  Star
+  Star,
+  Heart
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
@@ -411,7 +412,19 @@ const TopAppBar = () => {
 
             {/* Droite: Notifications + Menus */}
             <div className="flex-shrink-0 flex items-center space-x-2 md:space-x-4">
-              
+
+              {/* Favoris (Visible partout, uniquement si connecté) */}
+              {user && (
+                <Link
+                  href="/favorites"
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  title={t('favorites')}
+                  aria-label={t('favorites')}
+                >
+                  <Heart className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                </Link>
+              )}
+
               {/* Notifications (Visible partout) */}
               {user && (
                 <div className="relative">

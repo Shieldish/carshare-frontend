@@ -67,7 +67,7 @@ const AboutPage = () => {
                     <div className="text-sm opacity-90">{t('hero.statSavingsLabel')}</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold">24/7</div>
+                    <div className="text-3xl font-bold">7h-22h</div>
                     <div className="text-sm opacity-90">{t('hero.statSupportLabel')}</div>
                   </div>
                 </div>

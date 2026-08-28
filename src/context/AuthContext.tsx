@@ -24,6 +24,8 @@ interface User {
   role: 'USER' | 'ADMIN' | 'OWNER';
   companyName?: string;
   companyId?: number;
+  // ✅ Bio publique affichée sur la page hôte publique (/hosts/{id})
+  bio?: string;
   isIdentityVerified?: boolean;
   isDrivingLicenseVerified?: boolean;
   profilePictureUrl?: string;
@@ -63,7 +65,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   // ✅ On a supprimé la ligne "const router = useRouter();" qui ne servait plus
 
-  const logout = () => {
+  const logout = async () => {
+    // ✅ Révoque le token côté serveur (voir POST /api/auth/logout) avant de nettoyer l'état
+    // local — sans ça, un token volé/copié restait utilisable jusqu'à son expiration (24h)
+    // même après un "logout". On ne bloque jamais le logout local sur cet appel : un échec
+    // réseau ne doit pas empêcher l'utilisateur de se déconnecter de son côté.
+    const currentToken = token || (typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null);
+    if (currentToken) {
+      try {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/auth/logout`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${currentToken}` },
+        });
+      } catch (err) {
+        console.error('Révocation du token échouée (déconnexion locale quand même effectuée)', err);
+      }
+    }
+
     if (typeof window !== 'undefined') {
       localStorage.removeItem('jwt_token');
     }
@@ -109,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           role: profileData.role,
           companyName: profileData.companyName,
           companyId: profileData.companyId ?? profileData.companyForRegistrationId ?? undefined,
+          bio: profileData.bio,
           isIdentityVerified: identityVerified,
           isDrivingLicenseVerified: licenseVerified,
           profilePictureUrl: profileData.profilePictureUrl,
@@ -167,9 +186,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentToken) {
         if (isTokenValid(currentToken)) {
           setToken(currentToken);
-          const mustRedirect = await checkPendingOnboarding(currentToken);
+          // ⚡ checkPendingOnboarding et fetchUserProfile ne dépendent tous les deux que de
+          // currentToken (déjà connu ici) : on les lance en parallèle au lieu de les enchaîner
+          // en séquence, ce qui évite un aller-retour réseau supplémentaire à chaque chargement
+          // de page pour un utilisateur connecté. Les deux fonctions catchent déjà leurs erreurs
+          // en interne (elles ne rejettent jamais), donc Promise.all ne risque pas de masquer un
+          // échec de l'une à cause de l'autre. Si une redirection paiement est requise,
+          // fetchUserProfile se sera quand même exécuté (son résultat, un setUser bénin, est sans
+          // conséquence puisqu'on navigue immédiatement vers /payment juste après).
+          const [mustRedirect] = await Promise.all([
+            checkPendingOnboarding(currentToken),
+            fetchUserProfile(currentToken),
+          ]);
           if (mustRedirect) return;
-          await fetchUserProfile(currentToken);
         } else {
           logout();
         }

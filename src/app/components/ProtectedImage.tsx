@@ -153,8 +153,35 @@ export const openProtectedDocument = async (userId: number, docType: 'identity' 
 
     const blob = await response.blob();
     const objectUrl = URL.createObjectURL(blob);
-    
+
     // Ouvre le document de manière sécurisée dans un nouvel onglet local
+    window.open(objectUrl, '_blank');
+  } catch (error) {
+    console.error("Erreur d'ouverture du document", error);
+    alert("Impossible d'ouvrir ce document. Il est peut-être corrompu ou manquant.");
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Même principe pour les documents légaux du véhicule (carte rose, assurance,
+// contrôle technique) : GET /api/vehicles/{vehicleId}/document/{docType},
+// réservé au propriétaire du véhicule ou à un admin (voir VehicleController).
+// ---------------------------------------------------------------------------
+export const openProtectedVehicleDocument = async (
+  vehicleId: number,
+  docType: 'registration' | 'insurance' | 'technicalControl'
+) => {
+  try {
+    const token = localStorage.getItem('jwt_token');
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${vehicleId}/document/${docType}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!response.ok) throw new Error("Document inaccessible");
+
+    const blob = await response.blob();
+    const objectUrl = URL.createObjectURL(blob);
+
     window.open(objectUrl, '_blank');
   } catch (error) {
     console.error("Erreur d'ouverture du document", error);

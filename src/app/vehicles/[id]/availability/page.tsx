@@ -226,7 +226,7 @@ function AvailabilityPageContent() {
                 </div>
             </div>
 
-            <div className="container mx-auto max-w-6xl py-8 px-4">
+            <div className="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 text-center">
                     {t('title', { id: vehicleId })}
                 </h1>

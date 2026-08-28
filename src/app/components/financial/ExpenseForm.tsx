@@ -93,7 +93,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       return result.secure_url;
     } catch (err: unknown) {
       console.error("Erreur upload reçu:", err);
-      setError(tForm('receiptUploadError', { error: err instanceof Error ? err.message : String(err) }));
+      setError(tForm('receiptUploadError'));
       setIsUploadingReceipt(false);
       throw err;
     }

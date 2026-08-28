@@ -79,8 +79,8 @@ export default function Footer() {
               </p>
               <div className="flex items-center space-x-2 text-gray-400 dark:text-gray-500">
                 <span>{t('contactLabel')}</span>
-                <a href="mailto:orl.ndonse@gmail.com" className="text-primary hover:text-primary/80 transition-colors hover:underline">
-                  orl.ndonse@gmail.com
+                <a href="mailto:contact@budaxdrive.bi" className="text-primary hover:text-primary/80 transition-colors hover:underline">
+                  contact@budaxdrive.bi
                 </a>
               </div>
             </div>

@@ -91,7 +91,7 @@ function OwnerDashboardContent() {
 
   const stats = {
     total: bookings.length,
-    pending: bookings.filter(b => b.status === 'PENDING').length,
+    pending: bookings.filter(b => b.status === 'PENDING_CONFIRMATION').length,
     confirmed: bookings.filter(b => b.status === 'CONFIRMED').length,
     totalRevenue: bookings.filter(b => b.status === 'CONFIRMED').reduce((sum, b) => sum + (b.totalPrice || 0), 0)
   };
@@ -124,7 +124,7 @@ function OwnerDashboardContent() {
         </div>
       </div>
 
-      <div className="container mx-auto max-w-6xl py-8 px-4">
+      <div className="container mx-auto max-w-6xl p-4 sm:p-6 md:p-8">
         {/* Titre et statistiques */}
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{t('title')}</h1>

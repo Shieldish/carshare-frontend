@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { Vehicle } from '@/types/vehicle';
+import { openProtectedVehicleDocument } from '@/app/components/ProtectedImage';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
@@ -558,11 +559,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('registrationLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.registrationDocumentUrl && !registrationFile && (
+                      {vehicle.hasRegistrationDocument && !registrationFile && (
                         <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.registrationDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'registration')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 
@@ -577,11 +578,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('insuranceLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.insuranceDocumentUrl && !insuranceFile && (
+                      {vehicle.hasInsuranceDocument && !insuranceFile && (
                         <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.insuranceDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'insurance')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 
@@ -601,11 +602,11 @@ export default function VehicleEditPage() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('technicalControlLabelShort')}</label>
 
                       {/* Affichage visuel du document s'il existe et qu'on ne l'a pas remplacé */}
-                      {vehicle.technicalControlDocumentUrl && !technicalControlFile && (
+                      {vehicle.hasTechnicalControlDocument && !technicalControlFile && (
                         <div className="flex items-center p-2 bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 rounded-lg mb-3">
                           <svg className="w-4 h-4 text-primary mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                           <span className="text-xs text-primary flex-1 truncate">{tEdit('currentDocSaved')}</span>
-                          <a href={vehicle.technicalControlDocumentUrl} target="_blank" rel="noreferrer" className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</a>
+                          <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'technicalControl')} className="text-xs font-bold text-primary hover:underline uppercase ml-2">{tEdit('viewDoc')}</button>
                         </div>
                       )}
 

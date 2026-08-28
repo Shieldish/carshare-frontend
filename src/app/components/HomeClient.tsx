@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
@@ -9,9 +9,10 @@ import CategoryCardsOverlay from './CategoryCardsOverlay';
 import FilterSidebar from './FilterSidebar';
 import VehicleCard from './VehicleCard';
 import VehicleCarousel from './VehicleCarousel';
-import type { Vehicle } from '../types/vehicle';
+import type { Vehicle } from '@/types/vehicle';
 import type { HeroSliderData } from '../page';
 import { Filter, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Info, LayoutGrid, Map as MapIcon, Car } from 'lucide-react';
+import { useFavoriteIds } from '@/hooks/useFavoriteIds';
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
   ssr: false,
@@ -118,6 +119,7 @@ const toArray = (data: unknown): Vehicle[] => {
 const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, featuredPromotions }) => {
   const router = useRouter();
   const t = useTranslations('home');
+  const favoritedIds = useFavoriteIds();
   const safeInitial = toArray(initialVehicles);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>(safeInitial);
   const [isSearching, setIsSearching] = useState(false);
@@ -134,8 +136,35 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const vehiclesPerPage = 12;
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  // 🌟 MODIFICATION ICI : Séparation de Bujumbura en Mairie et Rural
-  const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Rumonge', 'Cankuzo'];
+  // Niveau "ville" (= les 18 anciennes provinces, réutilisées comme communes pour rester
+  // lisibles), réparties sous les 5 nouvelles provinces officielles (2025).
+  const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Muyinga', 'Ruyigi', 'Kayanza', 'Bururi', 'Rumonge', 'Cankuzo'];
+
+  // Ne montre que les 3 provinces les mieux fournies (seuil minimum pour éviter un carrousel ridicule),
+  // et replie sur une seule carrousel générale si aucune province n'atteint ce seuil.
+  const MIN_VEHICLES_PER_CITY = 3;
+  const MAX_CITY_SECTIONS = 3;
+  const cityCarousels = useMemo(() => {
+    const withVehicles = prioritizedCities.map(city => {
+      const searchTerm = city.toLowerCase();
+      const cityVehicles = allVehicles.filter(v =>
+        v.province?.name?.toLowerCase().includes(searchTerm) ||
+        v.commune?.name?.toLowerCase().includes(searchTerm) ||
+        v.address?.toLowerCase().includes(searchTerm) ||
+        v.locationGps?.toLowerCase().includes(searchTerm)
+      );
+      return { city, vehicles: cityVehicles };
+    });
+
+    const qualifying = withVehicles
+      .filter(c => c.vehicles.length >= MIN_VEHICLES_PER_CITY)
+      .sort((a, b) => b.vehicles.length - a.vehicles.length)
+      .slice(0, MAX_CITY_SECTIONS);
+
+    if (qualifying.length > 0) return qualifying;
+    if (allVehicles.length > 0) return [{ city: null as string | null, vehicles: allVehicles }];
+    return [];
+  }, [allVehicles]);
 
   const addNotification = (type: Notification['type'], title: string, message: string) => {
     const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
@@ -282,29 +311,22 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
 
           <main className="flex-1 min-w-0">
             
-            {/* CARROUSELS PAR VILLE */}
-            {!hasActiveFilters && !isSearching && viewMode === 'list' && (
+            {/* CARROUSELS PAR VILLE (ou carrousel générale de repli) */}
+            {!hasActiveFilters && !isSearching && viewMode === 'list' && cityCarousels.length > 0 && (
               <div className="mb-16">
-                {prioritizedCities.map(city => {
-                  const cityVehicles = allVehicles.filter(v => {
-                  const searchTerm = city.toLowerCase();
-                  return (
-                    v.province?.name?.toLowerCase().includes(searchTerm) ||
-                    v.commune?.name?.toLowerCase().includes(searchTerm) ||
-                    v.address?.toLowerCase().includes(searchTerm) ||
-                    v.locationGps?.toLowerCase().includes(searchTerm)
-                  );
-                });
-                  if (cityVehicles.length === 0) return null;
-                  return (
-                    <VehicleCarousel
-                      key={city} title={t('recommendedVehicles')} city={city} vehicles={cityVehicles}
-                      onViewAll={() => {
+                {cityCarousels.map(({ city, vehicles }) => (
+                  <VehicleCarousel
+                    key={city ?? 'all'} title={t('recommendedVehicles')} city={city ?? undefined} vehicles={vehicles}
+                    favoritedIds={favoritedIds}
+                    onViewAll={() => {
+                      if (city) {
                         router.push(`/search?city=${encodeURIComponent(city)}`);
-                      }}
-                    />
-                  );
-                })}
+                      } else {
+                        router.push('/search');
+                      }
+                    }}
+                  />
+                ))}
               </div>
             )}
 
@@ -364,7 +386,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                   <div className="animate-in fade-in duration-300">
                     <PaginationControls className="mb-8" />
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                      {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} />)}
+                      {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} favoritedIds={favoritedIds} />)}
                     </div>
                     <PaginationControls className="mt-12" />
                   </div>

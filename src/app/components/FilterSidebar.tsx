@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X, Fuel, Settings2, Users, Banknote } from 'lucide-react';
-import { Vehicle } from '../types/vehicle';
+import { Vehicle } from '@/types/vehicle';
 import { apiClient } from '@/lib/apiClient';
 
 // Types pour la localisation
@@ -141,7 +141,8 @@ const FilterContent: React.FC<FilterContentProps> = ({
         </div>
       </div>
 
-      {/* Section Localisation */}
+      {/* Section Localisation — la province en premier, la ville en dessous ne montre
+          que celles de la province choisie (comme avant). */}
       <div className="space-y-4">
         <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
           {t('locationTitle')}
@@ -433,12 +434,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   
-  // États pour la localisation
+  // États pour la localisation — la ville affichée dépend de la province choisie.
   const [provinces, setProvinces] = useState<Province[]>([]);
+  const [provincesWithCommunes, setProvincesWithCommunes] = useState<(Province & { communes: Commune[] })[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [loadingProvinces, setLoadingProvinces] = useState(false);
-  const [loadingCommunes, setLoadingCommunes] = useState(false);
+  const loadingCommunes = loadingProvinces;
 
   // ✅ Guard monté : empêche tout appel API avant que le composant soit
   // hydraté côté client — élimine les erreurs "Failed to fetch" en console
@@ -492,37 +494,22 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     setMakes(uniqueMakes);
   }, [vehicles]);
 
-  // ✅ Charger les provinces — uniquement après montage côté client
+  // ✅ Charger les provinces (avec leurs villes imbriquées) — uniquement après montage
+  // côté client, en un seul appel. La liste des villes affichées est ensuite filtrée
+  // localement selon la province choisie (voir l'effet ci-dessous).
   useEffect(() => {
     if (!mounted) return;
 
     const fetchProvinces = async () => {
       setLoadingProvinces(true);
       try {
-        const data = await apiClient.get('/api/locations/provinces');
-        setProvinces(data || []);
+        const data: (Province & { communes: Commune[] })[] = await apiClient.get('/api/locations/provinces');
+        setProvinces((data || []).map(({ id, name }) => ({ id, name })));
+        setProvincesWithCommunes(data || []);
       } catch (err) {
-        console.error("Impossible de charger les provinces", err);
-        setProvinces([
-          { id: 1, name: 'Bubanza' },
-          { id: 2, name: 'Bujumbura Rural' },
-          { id: 3, name: 'Bujumbura Mairie' },
-          { id: 4, name: 'Bururi' },
-          { id: 5, name: 'Cankuzo' },
-          { id: 6, name: 'Cibitoke' },
-          { id: 7, name: 'Mwaro' },
-          { id: 8, name: 'Karuzi' },
-          { id: 9, name: 'Gitega' },
-          { id: 10, name: 'Kirundo' },
-          { id: 11, name: 'Makamba' },
-          { id: 12, name: 'Muramvya' },
-          { id: 13, name: 'Muyinga' },
-          { id: 14, name: 'Kayanza' },
-          { id: 15, name: 'Ngozi' },
-          { id: 16, name: 'Rumonge' },
-          { id: 17, name: 'Rutana' },
-          { id: 18, name: 'Ruyigi' }
-        ]);
+        console.error("Impossible de charger les provinces/villes", err);
+        setProvinces([]);
+        setProvincesWithCommunes([]);
       } finally {
         setLoadingProvinces(false);
       }
@@ -530,37 +517,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     fetchProvinces();
   }, [mounted]);
 
-  // ✅ Charger les communes quand la province change — uniquement après montage
+  // Filtre les villes affichées selon la province sélectionnée (aucune sélection = vide,
+  // comme avant : on ne montre les villes qu'une fois la province choisie).
   useEffect(() => {
-    if (!mounted) return;
-
-    if (selectedProvince) {
-      const fetchCommunes = async () => {
-        setLoadingCommunes(true);
-        try {
-          const data = await apiClient.get(`/api/locations/provinces/${selectedProvince}/communes`);
-          setCommunes(data || []);
-        } catch (err) {
-          console.error("Impossible de charger les communes", err);
-          if (selectedProvince === '2') {
-            setCommunes([
-              { id: 1, name: 'Mukaza' },
-              { id: 2, name: 'Ntahangwa' },
-              { id: 3, name: 'Muha' }
-            ]);
-          } else {
-            setCommunes([]);
-          }
-        } finally {
-          setLoadingCommunes(false);
-        }
-      };
-      fetchCommunes();
-    } else {
+    if (!selectedProvince) {
       setCommunes([]);
-      setLoadingCommunes(false);
+      return;
     }
-  }, [mounted, selectedProvince]);
+    const province = provincesWithCommunes.find(p => p.id.toString() === selectedProvince);
+    setCommunes(province?.communes ?? []);
+  }, [selectedProvince, provincesWithCommunes]);
 
   // ✅ Charger les entreprises — uniquement après montage côté client
   useEffect(() => {
@@ -595,11 +561,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
     const provinceId = e.target.value;
     setSelectedProvince(provinceId);
     setFilters(prevFilters => {
-      const updatedFilters = {
-        ...prevFilters,
-        provinceId: provinceId,
-        communeId: ''
-      };
+      const updatedFilters = { ...prevFilters, provinceId, communeId: '' };
       setTimeout(() => {
         onFilterChange?.(updatedFilters);
       }, 0);
@@ -620,7 +582,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const handleResetFilters = useCallback(() => {
     setFilters(initialFilters);
     setSelectedProvince('');
-    setCommunes([]);
     setTimeout(() => {
       onFilterChange?.(initialFilters);
     }, 0);

@@ -44,6 +44,7 @@
     "lightMode": "Uburyo bw'Umuco",
     "darkMode": "Uburyo bw'Umwijima",
     "customerService": "Ubufasha ku Bakiriya",
+    "favorites": "Ibikunzwe vyanje",
     "signIn": "Injira",
     "signUp": "Iyandikishe",
     "notifications": "Amamenyesha",
@@ -113,7 +114,7 @@
     "noResultsTitle": "Nta vyavuye",
     "noResultsMessage": "Nta kinyabiziga bijanye.",
     "searchErrorTitle": "Ikosa",
-    "searchErrorMessage": "Ntibishoboka kuvugana na seriveri."
+    "searchErrorMessage": "Ntibishoboka guhuza. Raba interineti yawe."
   },
   "filters": {
     "title": "Ibiyunguruzo vyo kurondera",
@@ -125,8 +126,8 @@
     "province": "Intara",
     "allProvinces": "Intara zose",
     "loading": "Birimwo gupakira...",
-    "commune": "Ikomine / Igisagara",
-    "allCommunes": "Ikomine zose",
+    "commune": "Igisagara",
+    "allCommunes": "Ibisagara vyose",
     "vehicleTitle": "Ikinyabiziga",
     "vehicleType": "Ubwoko bw'ikinyabiziga",
     "allTypes": "Ubwoko bwose",
@@ -267,7 +268,7 @@
     "errors": {
       "generic": "Ikosa ryabaye.",
       "unexpected": "Ikosa ritari ryiteguriwe ryabaye.",
-      "network": "Ntibishoboka kuvugana na seriveri.",
+      "network": "Ntibishoboka guhuza. Raba interineti yawe.",
       "invalidCredentials": "Imeyili canke ijambo ry'ibanga ntibiri ngoga.",
       "emailAlreadyExists": "Iyi aderesi ya imeyili irakoreshwa.",
       "validationError": "Bimwe mu vyo washizemwo ntibimeze.",
@@ -276,6 +277,8 @@
       "endDateNotInFuture": "Itariki yo kurangiza igomba kuba iri mu gihe kizoza.",
       "startAfterEnd": "Itariki yo gutangura igomba kuba imbere y'iyo kurangiza.",
       "bookingTooShort": "Ipangwa rigomba kumara nibura isaha imwe.",
+      "insuranceExpiresDuringBooking": "Ubwishingizi bw'iki kinyabiziga burangira imbere y'uko igihe wasavye kirangira. Hitamwo amatariki magufi canke uvugishe nyene ikinyabiziga.",
+      "technicalControlExpiresDuringBooking": "Igenzura ry'ikoranabuhanga ry'iki kinyabiziga rirangira imbere y'uko igihe wasavye kirangira. Hitamwo amatariki magufi canke uvugishe nyene ikinyabiziga.",
       "missingDates": "Itariki zo gutangura n'iyo kurangiza zirakenewe.",
       "tooManyPendingBookings": "Ufise imipangwa myinshi iracheza kwishurwa. Ishura canke uhagarike imwe mbere yo gukora indi nshasha.",
       "bookingRateLimitExceeded": "Wagerageje gupanga kenshi cane. Ntukagerageze nyuma y'igihe gito.",
@@ -420,7 +423,7 @@
       "requiredFieldsError": "Amafaranga, Itariki n'Ubwoko birasabwa.",
       "updateError": "Guhindura ntibyagenze.",
       "addError": "Kongeraho ntibyagenze.",
-      "receiptUploadError": "Ikosa mu kurungika inyemezabuguzi: {error}"
+      "receiptUploadError": "Ikosa mu kurungika inyemezabuguzi. Ongera ugerageze."
     }
   },
   "profile": {
@@ -453,11 +456,35 @@
       "takePhoto": "Fata ifoto",
       "uploadFile": "Rungika idosiye",
       "sending": "Birimwo kurungika...",
-      "secureTransfer": "Ukwimura gucungerwa kandi kwizigirwa",
+      "secureTransfer": "Ukwimura kw'umutekano kandi kurindwa",
+      "consentLabel": "Ndemera ko iyi nyandiko izokoreshwa na BudaxDrive kugira ngo hemezwe ndamutswa yanje, nk'uko politiki y'ibanga ibivuga.",
       "whyVerifyTitle": "Kubera iki kwemeza ndamutswa yanje?",
       "whyVerifyText": "Iyemeza rirakingira umutekano w'abanyamuryango bose bo mu muryango wa BudaxDrive mu Burundi.",
-      "kycTitle": "Ukurindwa kw'amakuru (Umutindo wa KYC)",
-      "kycText": "Inyandiko zawe zibitswe mu bubiko bw'ikoranabuhanga bucungerwa. Ntizizoboneka ku mugaragaro na rimwe kandi zirasibwa mu gihe konti isibwe."
+      "kycTitle": "Ukurindwa kw'amakuru yawe bwite",
+      "kycText": "Inyandiko zawe zibitswe mu bubiko bw'ikoranabuhanga bw'umutekano. Ntizizoboneka ku mugaragaro na rimwe kandi zirasibwa mu gihe konti isibwe."
+    },
+    "exportData": {
+      "sectionTitle": "Kuramo amakuru yanje",
+      "sectionDescription": "Ronka kopi y'amakuru yawe bwite (umwirongozo, ukwitwa, ivyiyumviro, ibinyabiziga) mu nyandiko ya PDF.",
+      "sectionButton": "Kuramo amakuru yanje",
+      "exporting": "Birategurwa...",
+      "genericError": "Ikosa mu kuramo amakuru."
+    },
+    "deleteAccountModal": {
+      "sectionTitle": "Gusiba konti yanje",
+      "sectionDescription": "Bisiba amakuru yawe bwite kuri BudaxDrive. Iki gikorwa ntikigaruka inyuma.",
+      "sectionButton": "Gusiba konti yanje",
+      "title": "Usiba konti yawe?",
+      "description": "Amakuru yawe bwite (izina, imeyili, telefone, inyandiko z'ikimenyetso) azosibwa burundu.",
+      "point1": "Inyandiko zawe z'ikimenyetso, uruhushya n'ifoto (selfie) birasibwa ako kanya.",
+      "point2": "Ukwitwa kwawe n'ivyiyumviro vyawe vya kera birabikwa, ariko ntibizoba bikijana n'ikimenyetso cawe.",
+      "point3": "Ntuzoshobora kwinjira muri iyi konti ubundi.",
+      "irreversible": "Iki gikorwa ntikigaruka inyuma.",
+      "confirmPrompt": "Kugira wemeze, andika aderesi yawe ya imeyili ({email}) hepfo :",
+      "cancel": "Kureka",
+      "confirm": "Gusiba burundu",
+      "deleting": "Birimwo gusibwa...",
+      "genericError": "Ikosa mu gusiba konti."
     },
     "roleLabel": "Uruhara",
     "takePhotoTitle": "Fata ifoto",
@@ -491,7 +518,9 @@
       "phoneHelp": "Birakenewe kugira ngo hagire ivugana n'abandi bakoresha",
       "saving": "Birimwo kubika...",
       "save": "Bika impinduka",
-      "cancel": "Kureka"
+      "cancel": "Kureka",
+      "bioPlaceholder": "Babwire abakodesha bike kukwerekeye (uburambe, igihe uboneka, ubwoko bw'ibinyabiziga...).",
+      "bioCharCount": "Inyuguti {count}/{max}"
     },
     "webcam": {
       "liveCaptureTitle": "Ugufata ifoto ako kanya",
@@ -533,7 +562,9 @@
       "mobilePaymentError": "Ikosa ryo kwishura kuri terefone.",
       "stripeError": "Ikosa rya Stripe.",
       "stalePendingPayment": "Ubu kwishura kwari kutegerezwa ntibukiriho. Ntugire ushireho bushasha ukwiyandikisha kwawe kwa Premium."
-    }
+    },
+    "bioLabel": "Ivyerekeye jewe",
+    "bioHelp": "Biboneka ku bantu bose ku rupapuro rwawe rw'umukiriya."
   },
   "vehicles": {
     "myVehicles": {
@@ -599,8 +630,8 @@
       "currentDocSaved": "Inyandiko y'ubu yabitswe",
       "viewDoc": "Raba",
       "replacementLabel": "Isubirira: {name}",
-      "addressHelp": "Andika izina ry'ibarabara canke ikimenyetso kizwi kugira ngo wegereze ikarata.",
-      "addressPlaceholder": "Nk'akarorero: Ibarabara rya Uprona, Na. 12...",
+      "addressHelp": "Andika izina ry'agace canke ikimenyetso kizwi kugira ngo wegereze ikarata.",
+      "addressPlaceholder": "Nk'akarorero: Kinindo, Rohero, Nyakabiga...",
       "centerMapButton": "Shiraho ikarata hagati",
       "mapVerifyHelp": "Suzuma kandi utunganye niba bikenewe ahantu nyaho h'ikinyabiziga cawe.",
       "locationSaved": "Ahantu habitswe! ({location})",
@@ -640,12 +671,12 @@
       "supportsDriverHelpEdit": "Shira ikimenyetso niba igiciro c'umusi kimaze kurimwo serivise y'umushoferi.",
       "locationSectionTitle": "Ahantu",
       "provinceLabel": "Intara",
-      "communeLabel": "Ikomine",
-      "communeLabelFull": "Ikomine / Igisagara",
+      "communeLabel": "Igisagara",
+      "communeLabelFull": "Igisagara",
       "provinceNotSpecified": "-- Ntibyavuzwe --",
       "loadingOption": "Birimwo gupakira...",
-      "addressLabel": "Aderesi nyayo",
-      "addressOptionalLabel": "Aderesi nyayo (Bidasabwa ariko birasabwa)",
+      "addressLabel": "Agace",
+      "addressOptionalLabel": "Agace (Bidasabwa ariko birasabwa)",
       "centerButton": "Shira hagati",
       "centering": "Birarondwa...",
       "mapLabel": "Ahantu *",
@@ -677,7 +708,7 @@
         "unacceptedFormat": "Idosiye \"{name}\" si ubwoko bw'ifoto bwemewe.",
         "fileTooLarge": "Idosiye \"{name}\" irarenze urugero (ntarengwa 5MB).",
         "provincesLoadError": "Ikosa mu gupakira intara",
-        "communesLoadError": "Ikosa mu gupakira ikomine",
+        "communesLoadError": "Ikosa mu gupakira ibisagara",
         "addressNotFound": "Aderesi ntiyabonetse ku ikarata.",
         "genericSubmitError": "Ikosa ryabaye",
         "invalidYear": "Umwaka wo gukora ntumeze.",
@@ -740,9 +771,8 @@
       "descriptionTitle": "Ibisobanuro",
       "equipmentTitle": "Ibikoresho",
       "servicesTitle": "Serivisi zirimwo",
-      "service1": "Ubwishingizi bwuzuye burimwo",
-      "service2": "Ubufasha ku bakiriya amasaha 24/7",
-      "service3": "Ubufasha ku barabara",
+      "service1": "Ibinyabiziga vyemejwe (inyandiko zishasha)",
+      "service2": "Ubufasha ku bakiriya iminsi 7 ku ndwi, kuva 7h00 gushika 22h00",
       "service4": "Ukureka kworoshe",
       "importantInfoTitle": "Amakuru y'ingenzi",
       "info1": "Uruhushya rwo gutwara rumeze rurasabwa",
@@ -750,7 +780,8 @@
       "info3": "Amavuta ni uwundi wo gukodesha",
       "prevImageAria": "Ifoto yabanje",
       "nextImageAria": "Ifoto ikurikira",
-      "imageAria": "Ifoto {index}"
+      "imageAria": "Ifoto {index}",
+      "rentedBy": "Gukodeshwa na"
     },
     "reviews": {
       "title": "Ivyiyumviro vy'abakiriya",
@@ -780,7 +811,7 @@
       "errors": {
         "selectPeriod": "Nyabuneka hitamwo igihe (amatariki abiri) kuri kalendari.",
         "invalidDates": "Amatariki yatowe ntameze.",
-        "accessDenied": "Kwinjira kwanse. Raba ko uri umutunzi canke ko iyi ngenzi iraboneka.",
+        "accessDenied": "Kwinjira kwanse. Raba neza ko uri wewe umutunzi w'iki kinyabiziga.",
         "loadError": "Ntibishoboka gupakira amakuru y'uboneka.",
         "addError": "Ntibishoboka kongeraho igihe cabujijwe.",
         "deleteError": "Ntibishoboka gusiba igihe cabujijwe."
@@ -809,14 +840,20 @@
       "ultraDesc": "Umwanya #1, +150% y'abarondera",
       "notLoggedInError": "Ugomba kuba winjiye kugira ngo ukore iki gikorwa.",
       "genericBoostError": "Ikosa mu gushiraho boost.",
-      "missingPaymentId": "Ikimenyetso c'ukwishura ntikiakiriwe na seriveri.",
+      "missingPaymentId": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
       "onlinePaymentInitError": "Ntibishoboka gutangura ukwishura kuri internet.",
-      "missingRedirectUrl": "Ikiyega co kuyobora ntikiakiriwe.",
+      "missingRedirectUrl": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
       "onlinePaymentError": "Ikosa ryo kwishura.",
       "mobilePaymentError": "Ikosa mu kwishura kuri terefone.",
       "successTitle": "Ukwishura kwemejwe!",
       "successMessage": "Amashimwe! Ikinyabiziga cawe ubu gifise ukuboneka kwongerejwe mu mezi {months}.",
       "backToDashboard": "Subira ku rubuga rw'igenzura"
+    },
+    "metadata": {
+      "title": "{make} {model} — FBU {price}/umusi | BudaxDrive",
+      "descriptionFallback": "Kodesha iyi {make} {model} i {location} kuri BudaxDrive, ukodesha ibinyabiziga hagati y'abantu ku giti cabo mu Burundi.",
+      "genericTitle": "Ikinyabiziga gikodeshwa | BudaxDrive",
+      "genericDescription": "Menya iki kinyabiziga giboneka gukodeshwa kuri BudaxDrive."
     }
   },
   "bookings": {
@@ -850,7 +887,7 @@
       "paymentNote": "Iyo ukanze kuri “Panga hanyuma Wishure”, uzohitamwo uburyo bwo kwishura mu ntambwe ikurikira.",
       "notifications": {
         "errorTitle": "Ikosa",
-        "missingVehicleId": "Nta kimenyetso c'ikinyabiziga kihari.",
+        "missingVehicleId": "Amakuru y'ikinyabiziga arabuze.",
         "loginRequiredTitle": "Kwinjira birakenewe",
         "loginRequiredMessage": "Ugomba kuba winjiye kugira ngo upange.",
         "loadErrorTitle": "Ikosa ryo gupakira",
@@ -879,7 +916,7 @@
         "mobilePaymentErrorMessage": "Ikosa mu gutangaza kwishura.",
         "sessionExpiredMessage": "Igihe c'ukwinjira carangiye.",
         "onlinePaymentInitError": "Ntibishoboka gutangura kwishura kuri interineti.",
-        "redirectUrlMissing": "Ihuza ryo kuyobora ntiryabonetse.",
+        "redirectUrlMissing": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
         "onlinePaymentErrorMessage": "Ikosa ryo kwishura kuri interineti."
       }
     },
@@ -960,7 +997,7 @@
         "reviewDeleted": "Igitekerezo casibwe.",
         "errors": {
           "paymentNotPending": "Iri shura ntirichegeje.",
-          "paymentUrlMissing": "Ntibishoboka kuronka ihuza ryo kwishura.",
+          "paymentUrlMissing": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
           "paymentLaunchFailed": "Gutangura kwishura ntibyagenze.",
           "authRequired": "Kwemeza ko uri uwo bavuga birakenewe",
           "deleteFailed": "Gusiba ntibyagenze",
@@ -1038,12 +1075,12 @@
       "securePayment": "Kwishura kw'umutekano",
       "securePaymentDesc": "BudaxDrive irakwizigira umutekano w'igikorwa cawe",
       "intermediationService": "Igikorwa co guhuza",
-      "intermediationDesc": "Ukurinda uwakodesheje n'umutunzi",
+      "intermediationDesc": "Kwemeza ndamutswa no gufasha mu gihe habaye impaka",
       "dedicatedSupport": "Ubufasha bwihariye",
       "dedicatedSupportDesc": "Umurwi witeguriye kugufasha igihe hari ikibazo",
       "errors": {
         "paymentNotPending": "Iri shura ntirichegeje.",
-        "paymentUrlMissing": "Ntibishoboka kuronka ihuza ryo kwishura.",
+        "paymentUrlMissing": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
         "paymentLaunchFailed": "Gutangura kwishura ntibyagenze.",
         "loadFailed": "Ntibishoboka gupakira amakuru y'ipangwa",
         "mobilePaymentDeclareError": "Ikosa mu gutangaza kwishura.",
@@ -1123,6 +1160,8 @@
       "status": {
         "pendingConfirmationText": "Birategerezwa Kwemezwa",
         "pendingConfirmationDescription": "Icemezo c'ukuboneka kirakenewe",
+        "pendingText": "Birategerezwa kwishura",
+        "pendingDescription": "Uwiswe ntarishura — nta co ugomba gukora ubu",
         "confirmedText": "Ryemejwe",
         "confirmedDescription": "Ipangwa ryemejwe",
         "cancelledText": "Ryahagaritswe",
@@ -1156,7 +1195,7 @@
       "paymentFailedAlert": "Kwishura kwaranze.",
       "sessionExpiredAlert": "Igihe c'ukwinjira carangiye. Ntugire umwete winjire nanone.",
       "onlinePaymentInitError": "Ntibishoboka gutangura ukwishura kuri interineti.",
-      "missingRedirectUrl": "URL yo kurungika ntiyaronse.",
+      "missingRedirectUrl": "Ntibishoboka gutangura kwishura, ongera ugerageze.",
       "genericPaymentError": "Ikosa mu kwishura.",
       "stepBooking": "Ipangwa",
       "stepConfirmed": "Byemejwe",
@@ -1183,9 +1222,9 @@
       "backToBookings": "Subira ku mapangwa yanje",
       "pageTitle": "Menyesha Ikibazo",
       "forBooking": "Ku ipangwa #{id}",
-      "invalidBookingId": "Ikimenyetso c'ipangwa ntikikwiye.",
+      "invalidBookingId": "Ipangwa ntiryabonetse.",
       "successTitle": "Raporo yarungitswe neza!",
-      "successMessage": "Raporo yawe y'ikibazo (Ikimenyetso: {id}) yarungitswe.",
+      "successMessage": "Raporo yawe y'ikibazo #{id} yarungitswe.",
       "successMessageLine2": "Umurwi wacu uzoyirabaho vuba bishoboka.",
       "viewReport": "Raba raporo",
       "toastTitle": "Menyesha ryarungitswe!",
@@ -1200,7 +1239,7 @@
       "accessDenied": "Kwinjira ntibyaremewe. Ntufise uruhusha rwo kuraba izi raporo.",
       "bookingNotFound": "Ipangwa ntiribonetse.",
       "loadError": "Ntibishoboka gupakira raporo z'ibibazo.",
-      "invalidBookingId": "Ikimenyetso c'ipangwa ntikikwiye.",
+      "invalidBookingId": "Ipangwa ntiryabonetse.",
       "noReports": "Nta raporo y'ikibazo ibonetse kuri iri pangwa.",
       "reportNew": "Menyesha ikibazo gishasha"
     },
@@ -1229,7 +1268,7 @@
       "dateTimeLabel": "Itariki/Isaha:",
       "locationLabel": "Ahantu:",
       "reportedByLabel": "Yamenyeshejwe na:",
-      "unknownReporter": "Ikimenyetso c'ukoresha {id}",
+      "unknownReporter": "Umukoresha #{id}",
       "descriptionLabel": "Ibisobanuro:",
       "photosLabel": "Amafoto ({count})",
       "resolutionNotesTitle": "Ivyanditswe ku musubirizo",
@@ -1249,7 +1288,7 @@
       "back": "Subira inyuma",
       "pageTitle": "Isuzuma - Ipangwa #{id}",
       "loading": "Birimwo gupakira...",
-      "invalidBookingId": "Ikimenyetso c'ipangwa ntikikwiye.",
+      "invalidBookingId": "Ipangwa ntiryabonetse.",
       "accessDenied": "Kwinjira ntibyaremewe. Ntufise uruhusha rwo kuraba iri suzuma.",
       "loadError": "Ntibishoboka gupakira amakuru.",
       "checkOutTitle": "Kora Check-out",
@@ -1258,7 +1297,7 @@
       "checkInTitle": "Kora Check-in",
       "renterCodeTitle": "Umubare wawe wa Check-in",
       "renterCodeDesc": "Ushobora guha uyu mubare umutunzi mu gihe co gutanga imfunguzo kugira ngo wemeze uko ikinyabiziga kimeze.",
-      "renterCodeHint": "Uyu mubare ukora nk'umukono w'ikoranabuhanga.",
+      "renterCodeHint": "Uyu mubare uremeza uko wemeranije, nk'umukono.",
       "unauthorizedTitle": "Kwinjira ntibyemewe",
       "unauthorizedDesc": "Ntabwo uri uwakodesheje canke umutunzi w'iri pangwa.",
       "checkInDetailsTitle": "Amakuru ya Check-in",
@@ -1270,7 +1309,7 @@
       "closeAria": "Ugara"
     },
     "checkIn": {
-      "locationProofTitle": "Icemezo c'ahantu (Ubwishingizi)",
+      "locationProofTitle": "Icemezo c'ahantu",
       "locatingGps": "Birimwo kurondera ikimenyetso ca GPS...",
       "gpsError": "Ntibishoboka kuronka ahantu hawe ha GPS. Ntukemere kuboneka kw'ahantu kuri navigateri yawe.",
       "gpsUnsupported": "Ugutahura ahantu ntibishoboka kuri igikoresho cawe.",
@@ -1283,7 +1322,7 @@
       "photosRequired": "Nta muhaka ifoto imwe irakenewe.",
       "notesLabel": "Ivyanditswe ku kumera k'ikinyabiziga (Bidasabwa)",
       "notesPlaceholder": "Nk'akarorero: Ikimanyu ku bwiba bw'imbere ibumoso, imbere isukuye...",
-      "validationCodeTitle": "Umukono w'Ikoranabuhanga (Umubare w'Uwakodesheje) *",
+      "validationCodeTitle": "Umubare wo Kwemeza (Uwakodesheje) *",
       "validationCodeDesc": "Saba uwakodesheje akubwire umubare wiwe w'ibanga w'imibare 4 werekanwa kuri ecran yiwe, hanyuma uwandike hano kugira ngo wemeze itangwa ry'imfunguzo.",
       "submitButton": "Emeza kandi Ushire Umukono kuri Check-in",
       "validationErrorTitle": "Ikosa ryo kwemeza",
@@ -1723,7 +1762,7 @@
       "subtitleSuffix": "mu Burundi",
       "badge1": "Vyoroshe kandi Biizigirwa",
       "badge2": "Ibiciro Bihendutse",
-      "badge3": "Ubwishingizi Burimwo",
+      "badge3": "Ibinyabiziga Vyemejwe",
       "statVehiclesLabel": "Ibinyabiziga biboneka",
       "statVisitorsLabel": "Abasura/umwaka",
       "statSavingsLabel": "kuruta Amasosiyete",
@@ -1751,7 +1790,7 @@
     "solution": {
       "title": "Umusubirizo Wacu",
       "securePlatformTitle": "Urubuga Rwizigirwa",
-      "securePlatformDescription": "Kwemeza ikimenyetso, ubwishingizi burimwo n'amafaranga akingiwe biciye kuri Orange Money.",
+      "securePlatformDescription": "Kwemeza ikimenyetso, ibinyabiziga vyagenzuwe n'amafaranga akingiwe biciye kuri Orange Money.",
       "affordablePricesTitle": "Ibiciro Bihendutse",
       "affordablePricesDescription": "Ukukodesha guhera kuri 25$/umusi hamwe na 85% by'amafaranga ku batunzi.",
       "extraIncomeTitle": "Amafaranga y'Inyongera",
@@ -1763,7 +1802,7 @@
       "step1Title": "Hitamwo",
       "step1Description": "Raba urutonde rw'ibinyabiziga vyemejwe hanyuma uhitemwo icokwiye ivyo ukeneye n'amafaranga wafise.",
       "step2Title": "Panga",
-      "step2Description": "Rangiza ipangwa ryawe ryizigirwa hamwe no kwishura kwa mobile money n'ubwishingizi buba burimwo mu buryo bwikora.",
+      "step2Description": "Rangiza ipangwa ryawe ryizigirwa hamwe no kwishura kwa mobile money.",
       "step3Title": "Nezerwa",
       "step3Description": "Fata ikinyabiziga cawe, unezerwe n'urugendo rwawe, kandi usige icyiciro kugira ngo ufashe umuryango."
     },
@@ -1771,7 +1810,7 @@
       "title": "Indero Zacu",
       "subtitle": "Ingingo ziyobora intumbero yacu mu misi yose",
       "securityTitle": "Umutekano",
-      "securityDescription": "Ukurinda kwuzuye ku bakoresha bacu bose hamwe no kwemeza ikimenyetso n'ubwishingizi burimwo.",
+      "securityDescription": "Ukurinda kwuzuye ku bakoresha bacu bose hamwe no kwemeza ikimenyetso n'ibinyabiziga vyagenzuwe.",
       "trustTitle": "Icizigiro",
       "trustDescription": "Kubaka imigenderanire y'icizigiro idashira hagati y'abatunzi n'abakodesheje.",
       "excellenceTitle": "Ubuhizi",
@@ -1804,7 +1843,7 @@
     "searchPlaceholder": "Rondera ikibazo...",
     "noResults": "Nta kibazo cabonetse kuri \"{term}\"",
     "contactTitle": "Ntiwabonye inyishu yawe?",
-    "contactSubtitle": "Umurwi wacu w'ubufasha uri hano kugufasha amasaha 24/7",
+    "contactSubtitle": "Umurwi wacu w'ubufasha uri hano kugufasha, kuva kuwa mbere gushika ku cyumweru kuva 7h00 gushika 22h00",
     "contactButton": "Twandikire",
     "emailButton": "Rungika imeyili",
     "items": [
@@ -1826,7 +1865,7 @@
       },
       {
         "question": "Ni iki nkora igihe hari impanuka canke ikibazo?",
-        "answer": "Igihe hari impanuka, vugana ako kanya n'ababuyobozi hamwe n'igikorwa cacu c'abakiriya amasaha 24/7. Buri gukodesha kurizigirwa n'ubwishingizi. Igihe hari ikibazo, dufise urusobe rw'ubufasha mu nzira. Imibare yose y'ihutirwa itangwa mu gihe co gutanga imfunguzo."
+        "answer": "Igihe hari impanuka, vugana ako kanya n'ababuyobozi hanyuma umenyeshe ikibazo biciye kuri porogaramu. Ikinyabiziga kigomba kuba gifashwe n'ubwishingizi bwite bw'umutunzi wako, bwatangajwe ku bijanye no gukodeshwa — ni ubwo bwishingizi bukoreshwa, atari ubwishingizi bwa BudaxDrive. Igihe hari ikibazo, vugana ako kanya n'umutunzi w'ikinyabiziga."
       },
       {
         "question": "Uburyo bw'intererano bukora gute?",
@@ -1842,7 +1881,7 @@
       },
       {
         "question": "CarShare Burundi ikuramwo amafaranga y'ivyunguzo?",
-        "answer": "Ego, dukuramwo amafaranga y'igikorwa ya 15% kuri buri gukodesha kugira ngo tugwize ubwishingizi, ubufasha ku bakiriya, ugutunganya kwishura n'ugutunganya urubuga. Aya mafaranga aratomoye kandi arimwo mu giciro cerekanwa."
+        "answer": "Ego, dukuramwo amafaranga y'igikorwa ya 15% kuri buri gukodesha kugira ngo tugwize ubufasha ku bakiriya, ugutunganya kwishura n'ugutunganya urubuga. Aya mafaranga aratomoye kandi arimwo mu giciro cerekanwa."
       },
       {
         "question": "CarShare Burundi iraboneka mu bihe bihe?",
@@ -1850,11 +1889,11 @@
       },
       {
         "question": "Nvugana gute n'ubufasha ku bakiriya?",
-        "answer": "Umurwi wacu w'ubufasha uraboneka kuva kuwa mbere gushika ku cyumweru kuva 7h00 gushika 22h00. Urashobora kudukorera kuri telefone +257 XX XX XX XX, kuri imeyili support@carshareburundi.com, canke biciye ku kiganiro co ku rubuga rwacu."
+        "answer": "Umurwi wacu w'ubufasha uraboneka kuva kuwa mbere gushika ku cyumweru kuva 7h00 gushika 22h00. Urashobora kudukorera kuri telefone +257 XX XX XX XX, kuri imeyili contact@budaxdrive.bi, canke biciye ku kiganiro co ku rubuga rwacu."
       },
       {
         "question": "Ibinyabiziga vyafashwe ubwishingizi?",
-        "answer": "Ego, ibinyabiziga vyose vyakodeshejwe biciye kuri CarShare Burundi bironkera ubwishingizi bwuzuye burimwo ukwishura ku bandi, ivyononekaye by'ikinyabiziga n'ubwiba. Amakuru arambuye y'ubwishingizi araboneka mu mabwirizwa yacu rusangi."
+        "answer": "BudaxDrive si sosiyete y'ubwishingizi: umutunzi wese agomba kwemeza ko afise ubwishingizi bwite bwemewe, bwatangajwe ku bijanye no gukodeshwa, imbere yo gutangaza ikinyabiziga ciwe. Ni ubwo bwishingizi bukoreshwa igihe habaye ikibazo — atari ukurindwa gutangwa na BudaxDrive. Turaraba ko igenzura ry'ikoranabuhanga n'ubwishingizi vy'ikinyabiziga bitarangiye imbere ya buri gukodesha."
       }
     ]
   },
@@ -1892,8 +1931,8 @@
         "details": [
           "Guhura n'umutunzi ahantu hemejwe",
           "Isuzuma ry'amafoto biciye kuri porogaramu",
-          "Ubwishingizi burimwo kugira ngo wirindwe",
-          "Ubufasha amasaha 24/7 igihe ubikeneye"
+          "Ikinyabiziga cemejwe : ubwishingizi n'igenzura ry'ikoranabuhanga birashasha",
+          "Ubufasha buraboneka kuva 7h00 gushika 22h00 igihe ubikeneye"
         ]
       }
     ],
@@ -1905,7 +1944,7 @@
           "Ibiciro bihendutse ku 40% kuruta amasosiyete asanzwe",
           "Amahitamwo menshi y'ibinyabiziga (agatoyi, SUV, pickup, n'ibindi)",
           "Kodesha ku isaha, ku musi canke ku ndwi",
-          "Ubwishingizi burimwo mu giciro",
+          "Ibinyabiziga vyemejwe (ubwishingizi n'igenzura ry'ikoranabuhanga birashasha)",
           "Ipangwa 100% kuri terefone ngendanwa"
         ]
       },
@@ -1915,7 +1954,7 @@
         "points": [
           "Amafaranga ya 300 gushika 800$/ukwezi bivanye n'ukoreshwa",
           "85% by'amafaranga arakugarukira",
-          "Ibinyabiziga vyawe vyafashwe ubwishingizi mu gihe co gukodeshwa",
+          "Abakodesha bemejwe (ndamutswa n'uruhushya vyagenzuwe)",
           "Ugucungwa kwuzuye mu buryo bw'ikoranabuhanga",
           "Uguma ufise ubushobozi bwo kugenzura uboneka bwawe"
         ]
@@ -1952,16 +1991,16 @@
         "description": "Uruhushya rwo gutwara rwemejwe hamwe no gusuzuma akahise"
       },
       {
-        "title": "Ubwishingizi bwuzuye",
-        "description": "Ukurinda ku vyononekaye n'ivyononekaye vy'ikinyabiziga birimwo"
+        "title": "Ibinyabiziga vyemejwe",
+        "description": "Igenzura ry'ikoranabuhanga n'ubwishingizi birashasha bisabwa kugira ngo ikinyabiziga gitangazwe"
       },
       {
         "title": "Amafaranga akingiwe",
         "description": "Ivyakozwe birindwe hamwe na Orange Money n'amakarita ya banki"
       },
       {
-        "title": "Ubufasha amasaha 24/7",
-        "description": "Umurwi wihariye uraboneka igihe cose kugufasha"
+        "title": "Ubufasha iminsi 7 ku ndwi",
+        "description": "Umurwi wihariye uraboneka kuva 7h00 gushika 22h00 kugufasha"
       }
     ],
     "techTitle": "Ikoranabuhanga rya 100% ry'Uburundi",
@@ -1976,9 +2015,9 @@
     "whyChooseTitle": "Kubera iki gutorana CarShare Burundi?",
     "whyPoint1": "Urubuga rwa mbere rwo mu gace rwizigirwa",
     "whyPoint2": "Ibiciro bihendutse ku 40%",
-    "whyPoint3": "Ubwishingizi n'ukurinda birimwo",
+    "whyPoint3": "Ibinyabiziga biraremezwa imbere ya buri gukodesha",
     "whyPoint4": "Umuryango wemejwe kandi ufise impuhwe",
-    "whyPoint5": "Ubufasha ku bakiriya amasaha 24/7 mu Gifaransa no mu Kirundi",
+    "whyPoint5": "Ubufasha ku bakiriya iminsi 7 ku ndwi (7h00-22h00) mu Gifaransa no mu Kirundi",
     "ctaTitle": "Uriteguriye kwinjira mu guhinduka kw'ubwikorezi mu Burundi?",
     "ctaDescription": "Wifuza gukodesha ikinyabiziga canke kuronka amafaranga n'icawe, CarShare Burundi yakozwe kuri wewe.",
     "ctaFindCar": "Rondera ikinyabiziga",
@@ -2012,9 +2051,9 @@
     "roleRenter": "Uwakodesheje",
     "messagePlaceholder": "Andika ubutumwa bwawe...",
     "send": "Ohereza",
-    "errorWebSocketPrefix": "Ikosa rya WebSocket:",
-    "errorWebSocketConnection": "Ikosa ryo guhuza WebSocket.",
-    "errorWebSocketActivation": "Ntibishoboka gutunganya ihuza rya WebSocket.",
+    "errorWebSocketPrefix": "Ikosa ryo guhuza:",
+    "errorWebSocketConnection": "Ikiganiro ntikibashije guhuza. Ongera ugerageze.",
+    "errorWebSocketActivation": "Ntibishoboka gutunganya ikiganiro co mu mwanya nyawo.",
     "errorMustBeLoggedIn": "Ugomba kuba winjiye kugira ngo uganire.",
     "errorLoadMessages": "Ntibishoboka gupakira ubutumwa.",
     "errorSendUnavailable": "Ntibishoboka kohereza ubutumwa. Genzura ihuza ryawe.",
@@ -2108,7 +2147,18 @@
     "available": "Kiraboneka",
     "notAvailable": "Ntikiboneka",
     "clickForMore": "Kanda urabe ibindi",
-    "seeDetails": "Raba amakuru arambuye"
+    "seeDetails": "Raba amakuru arambuye",
+    "addToFavorites": "Ongera mu bikunzwe",
+    "removeFromFavorites": "Kura mu bikunzwe"
+  },
+  "favorites": {
+    "pageTitle": "Ibikunzwe vyanje",
+    "subtitleSingular": "Ikinyabiziga {count} kibitswe",
+    "subtitlePlural": "Ibinyabiziga {count} bibitswe",
+    "emptyTitle": "Nta bikunzwe biraboneka kugeza ubu",
+    "emptyDescription": "Kanda ku mutima uri ku kinyabiziga kugira ngo ukibike ng'aha, maze ubone ukoroherwa no kongera kukibona vuba.",
+    "browseCta": "Raba ibinyabiziga",
+    "loadError": "Ntibishoboka gupakira ibikunzwe vyawe. Ongera ugerageze."
   },
   "notifications": {
     "NEW_BOOKING_REQUEST": "💰 Ipangwa rishasha ryishuwe kuri {vehicleMake} {vehicleModel} yawe!",
@@ -2151,5 +2201,24 @@
       "INSURANCE": "Ubwishingizi",
       "TECHNICAL_CONTROL": "Igenzura ry'Ubuhinga"
     }
+  },
+  "hosts": {
+    "metaTitle": "{name} — Umukiriya wa BudaxDrive",
+    "metaDescriptionFallback": "Menya umwidondoro wa {name} kuri BudaxDrive, ukodesha ibinyabiziga hagati y'abantu ku giti cabo mu Burundi.",
+    "genericTitle": "Umwidondoro w'umukiriya | BudaxDrive",
+    "genericDescription": "Menya uyu mwidondoro w'umukiriya kuri BudaxDrive, ukodesha ibinyabiziga hagati y'abantu ku giti cabo mu Burundi.",
+    "loading": "Turimo gupakira umwidondoro...",
+    "verifiedBadge": "Yemejwe",
+    "memberSince": "Umunywanyi kuva {year}",
+    "statVehicleSingular": "ikinyabiziga",
+    "statVehiclePlural": "ibinyabiziga",
+    "reviewCount": "(ivyiyumviro {count})",
+    "noReviewsYet": "Nta gyiyumviro kiraboneka",
+    "aboutTitle": "Ivyerekeye",
+    "vehiclesSectionTitle": "Ibinyabiziga bitangwa",
+    "noVehiclesListed": "Uyu mukiriya nta kinyabiziga afise kuri ubu.",
+    "notFoundTitle": "Umwidondoro ntiboneka",
+    "notFoundText": "Uyu mwidondoro ntabaho canke ntukiboneka.",
+    "backToHome": "Subira ku rupapuro rw'itangiriro"
   }
 }

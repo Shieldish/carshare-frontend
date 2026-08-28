@@ -691,7 +691,7 @@ function AdminUsersContent() {
 
   if (!adminUser || adminUser.role !== 'ADMIN') {
     return (
-      <div className="container mx-auto p-8 text-center">
+      <div className="container mx-auto p-4 sm:p-6 md:p-8 text-center">
         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h2 className="text-2xl font-bold text-foreground mb-2">{t('accessDeniedTitle')}</h2>
       </div>
@@ -754,7 +754,7 @@ function AdminUsersContent() {
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl py-8 px-6">
+      <div className="container mx-auto max-w-7xl p-4 sm:p-6 md:p-8">
         {error && (
           <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />

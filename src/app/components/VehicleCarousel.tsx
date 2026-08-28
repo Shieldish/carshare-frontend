@@ -4,16 +4,18 @@ import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import VehicleCard from './VehicleCard';
-import type { Vehicle } from '../types/vehicle';
+import type { Vehicle } from '@/types/vehicle';
 
 interface VehicleCarouselProps {
   title: string;
-  city: string;
+  city?: string;
   vehicles: Vehicle[];
   onViewAll?: () => void;
+  // ✅ FAVORIS : transmis tel quel aux VehicleCard du carrousel, voir VehicleCard.tsx.
+  favoritedIds?: Set<number>;
 }
 
-export default function VehicleCarousel({ title, city, vehicles, onViewAll }: VehicleCarouselProps) {
+export default function VehicleCarousel({ title, city, vehicles, onViewAll, favoritedIds }: VehicleCarouselProps) {
   const t = useTranslations('vehicleCarousel');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -59,7 +61,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
       {/* En-tête de la section (Titre à gauche, Flèches à droite) */}
       <div className="flex items-center justify-between mb-6 px-2 sm:px-0">
         <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 group cursor-pointer" onClick={onViewAll}>
-          {title} · <span className="text-primary">{city}</span>
+          {city ? <>{title} · <span className="text-primary">{city}</span></> : title}
           {onViewAll && (
             <ArrowRight className="w-5 h-5 ml-1 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-1" />
           )}
@@ -113,7 +115,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll }: Ve
         >
           {displayVehicles.map((vehicle) => (
             <div key={vehicle.id} className="min-w-[280px] max-w-[320px] snap-start flex-shrink-0">
-              <VehicleCard vehicle={vehicle} />
+              <VehicleCard vehicle={vehicle} favoritedIds={favoritedIds} />
             </div>
           ))}
           

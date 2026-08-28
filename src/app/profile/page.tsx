@@ -4,17 +4,22 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
-import { BadgeCheck, BadgeAlert, User, Mail, Phone, Building2, Shield, AlertTriangle, CheckCircle, XCircle, Edit2, Save, X, Camera, Upload, Lock, Crown, Loader2 } from 'lucide-react';
+import { BadgeCheck, BadgeAlert, User, Mail, Phone, Building2, Shield, AlertTriangle, CheckCircle, XCircle, Edit2, Save, X, Camera, Upload, Lock, Crown, Loader2, Trash2, Download } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
+import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
 
 type UserFormData = {
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber?: string;
+  bio?: string;
 };
+
+// ✅ Bio publique (page hôte /hosts/{id}) — limite alignée sur la contrainte backend (max 500).
+const MAX_BIO_LENGTH = 500;
 
 // ✅ COMPOSANT : La fenêtre de la Webcam
 function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCapture: (file: File) => void, onClose: () => void, isProfilePicture?: boolean }) {
@@ -130,7 +135,7 @@ export default function ProfilePage() {
   const t = useTranslations('profile');
   const locale = useLocale();
   const router = useRouter();
-  const { user, isLoading: isAuthLoading, refreshUser } = useAuth();
+  const { user, isLoading: isAuthLoading, refreshUser, logout } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -139,9 +144,14 @@ export default function ProfilePage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   
   const [uploadingDocType, setUploadingDocType] = useState<string | null>(null);
-  
+  const [kycConsentGiven, setKycConsentGiven] = useState(false);
+
   const [showWebcamModal, setShowWebcamModal] = useState(false);
   const [showProfileWebcamModal, setShowProfileWebcamModal] = useState(false);
+
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [isExportingData, setIsExportingData] = useState(false);
 
   // ✅ NOUVEAUX ÉTATS POUR L'ABONNEMENT PREMIUM
   const [premiumStep, setPremiumStep] = useState<'NONE' | 'SELECT_DURATION' | 'PAYMENT' | 'SUCCESS'>('NONE');
@@ -165,6 +175,7 @@ export default function ProfilePage() {
     lastName: '',
     email: '',
     phoneNumber: '',
+    bio: '',
   });
 
   useEffect(() => {
@@ -174,11 +185,12 @@ export default function ProfilePage() {
         lastName: user.lastName || '',
         email: user.email || user.sub || '',
         phoneNumber: user.phoneNumber || '',
+        bio: user.bio || '',
       });
     }
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setEditFormData(prev => ({
       ...prev,
@@ -202,6 +214,7 @@ export default function ProfilePage() {
         lastName: user.lastName || '',
         email: user.email || user.sub || '',
         phoneNumber: user.phoneNumber || '',
+        bio: user.bio || '',
       });
     }
   };
@@ -286,6 +299,43 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (file) {
       processDocumentUpload(file, docType);
+    }
+  };
+
+  // ✅ DROIT À L'EFFACEMENT : suppression du compte (anonymisation côté serveur, voir
+  // UserService.deleteUser), puis déconnexion locale et retour à l'accueil.
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    setIsDeletingAccount(true);
+    setError(null);
+    try {
+      await apiClient.delete(`/api/users/${user.id}`);
+      setShowDeleteAccountModal(false);
+      await logout();
+      router.push('/');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t('deleteAccountModal.genericError');
+      setError(errorMessage);
+      setIsDeletingAccount(false);
+    }
+  };
+
+  // ✅ DROIT À LA PORTABILITÉ : télécharge un export PDF lisible des données
+  // personnelles (profil, réservations, véhicules possédés, avis) depuis
+  // GET /api/users/me/export — le backend renvoie du JSON structuré, mis en
+  // forme ici en PDF pour rester exploitable par quelqu'un de non technique.
+  const handleExportData = async () => {
+    setIsExportingData(true);
+    setError(null);
+    try {
+      const data = await apiClient.get('/api/users/me/export');
+      const { generateDataExportPdf } = await import('@/lib/exportPdf');
+      generateDataExportPdf(data);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : t('exportData.genericError');
+      setError(errorMessage);
+    } finally {
+      setIsExportingData(false);
     }
   };
 
@@ -510,6 +560,18 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-3 mt-4">
+                {!isFullyVerified && (
+                  <label className="flex items-start gap-2 p-3 rounded-lg border border-border bg-muted/40 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={kycConsentGiven}
+                      onChange={(e) => setKycConsentGiven(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                    />
+                    <span className="text-xs text-muted-foreground">{t('verification.consentLabel')}</span>
+                  </label>
+                )}
+
                 {/* BLOC PIÈCE D'IDENTITÉ */}
                 <div className={`p-3 rounded-lg border ${
                   user?.isIdentityVerified
@@ -559,7 +621,7 @@ export default function ProfilePage() {
                             accept="image/*,.pdf"
                             className="hidden"
                             onChange={(e) => handleFileInputChange(e, 'IDENTITY')}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
@@ -619,7 +681,7 @@ export default function ProfilePage() {
                             accept="image/*,.pdf"
                             className="hidden"
                             onChange={(e) => handleFileInputChange(e, 'DRIVING_LICENSE')}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                           />
                         </label>
                         <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
@@ -677,7 +739,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col sm:flex-row gap-3">
                           <button
                             onClick={() => setShowWebcamModal(true)}
-                            disabled={uploadingDocType !== null}
+                            disabled={uploadingDocType !== null || !kycConsentGiven}
                             className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}
                           >
                             <Camera className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -696,7 +758,7 @@ export default function ProfilePage() {
                               accept="image/*"
                               className="hidden"
                               onChange={(e) => handleFileInputChange(e, 'SELFIE')}
-                              disabled={uploadingDocType !== null}
+                              disabled={uploadingDocType !== null || !kycConsentGiven}
                             />
                           </label>
                         </div>
@@ -875,6 +937,18 @@ export default function ProfilePage() {
                     </div>
                   )}
 
+                  {user?.bio && (
+                    <div className="group">
+                      <label className="block text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        {t('bioLabel')}
+                      </label>
+                      <p className="text-base text-foreground bg-muted/30 p-3 rounded-lg whitespace-pre-line leading-relaxed">
+                        {user.bio}
+                      </p>
+                    </div>
+                  )}
+
                   <div className="mt-6">
                     <h3 className="text-lg font-semibold text-foreground mb-2">{t('subscription.title')}</h3>
 
@@ -1024,6 +1098,30 @@ export default function ProfilePage() {
                     </p>
                   </div>
 
+                  <div>
+                    <label htmlFor="bio" className="block text-sm font-medium text-foreground mb-2">
+                      {t('bioLabel')}
+                    </label>
+                    <textarea
+                      id="bio"
+                      name="bio"
+                      rows={4}
+                      maxLength={MAX_BIO_LENGTH}
+                      value={editFormData.bio}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-border rounded-lg shadow-sm bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                      placeholder={t('form.bioPlaceholder')}
+                    />
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-xs text-muted-foreground">
+                        {t('bioHelp')}
+                      </p>
+                      <p className="text-xs text-muted-foreground flex-shrink-0 ml-3">
+                        {t('form.bioCharCount', { count: (editFormData.bio || '').length, max: MAX_BIO_LENGTH })}
+                      </p>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border">
                     <button
                       type="submit"
@@ -1048,7 +1146,57 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* ======================================= */}
+        {/* MES DONNÉES : export (droit à la portabilité) */}
+        {/* ======================================= */}
+        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-border p-6">
+          <h2 className="text-lg font-bold text-foreground flex items-center gap-2 mb-2">
+            <Download className="w-5 h-5 text-primary" />
+            {t('exportData.sectionTitle')}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('exportData.sectionDescription')}
+          </p>
+          <button
+            type="button"
+            onClick={handleExportData}
+            disabled={isExportingData}
+            className="flex items-center gap-2 px-4 py-2.5 border border-border text-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+          >
+            {isExportingData ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+            {isExportingData ? t('exportData.exporting') : t('exportData.sectionButton')}
+          </button>
+        </div>
+
+        {/* ======================================= */}
+        {/* ZONE DE DANGER : suppression du compte   */}
+        {/* ======================================= */}
+        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50 p-6">
+          <h2 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2 mb-2">
+            <Trash2 className="w-5 h-5" />
+            {t('deleteAccountModal.sectionTitle')}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {t('deleteAccountModal.sectionDescription')}
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowDeleteAccountModal(true)}
+            className="px-4 py-2.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium text-sm"
+          >
+            {t('deleteAccountModal.sectionButton')}
+          </button>
+        </div>
       </div>
+
+      <ConfirmDeleteAccountModal
+        isOpen={showDeleteAccountModal}
+        onClose={() => setShowDeleteAccountModal(false)}
+        onConfirm={handleDeleteAccount}
+        userEmail={user?.email ?? ''}
+        isLoading={isDeletingAccount}
+      />
 
       {/* ======================================= */}
       {/* MODALES D'ABONNEMENT PREMIUM */}

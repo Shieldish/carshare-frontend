@@ -65,15 +65,24 @@ export interface Vehicle {
   companyName?: string;
   isAvailable?: boolean;
 
+  // ✅ Pour lier vers la page hôte publique (jamais d'email/téléphone ici)
+  ownerId?: number;
+  ownerFirstName?: string;
+  ownerLastInitial?: string;
+  ownerProfilePictureUrl?: string;
+
   // ✅ CHAMP POUR LE CHAUFFEUR (sans le prix)
   supportsDriver?: boolean;
 
   // ==========================================
   // ✅ DOCUMENTS LÉGAUX ET DATES D'EXPIRATION
   // ==========================================
-  registrationDocumentUrl?: string;
-  insuranceDocumentUrl?: string;
-  technicalControlDocumentUrl?: string;
+  // Les documents eux-mêmes (carte rose, assurance, contrôle technique) ne sont jamais
+  // envoyés au client — seule leur présence l'est. Consultation via
+  // openProtectedVehicleDocument(vehicleId, docType) → GET /api/vehicles/{id}/document/{docType}.
+  hasRegistrationDocument?: boolean;
+  hasInsuranceDocument?: boolean;
+  hasTechnicalControlDocument?: boolean;
   insuranceExpiryDate?: string | Date;
   technicalControlExpiryDate?: string | Date;
   // ==========================================

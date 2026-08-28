@@ -1,18 +1,25 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import type { Vehicle } from '../types/vehicle';
+import { Heart } from 'lucide-react';
+import type { Vehicle } from '@/types/vehicle';
 import ConfirmDeleteVehicleModal from './ConfirmDeleteVehicleModal';
 import VehicleStatusToggle from './VehicleStatusToggle';
 import { useTranslations } from 'next-intl';
+import { useAuth } from '@/context/AuthContext';
+import { apiClient } from '@/lib/apiClient';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
   onDelete: (id: number) => void;
   onBoostClick?: (vehicle: Vehicle) => void;
-  onActiveChange?: (vehicleId: number, newIsActive: boolean) => void; 
+  onActiveChange?: (vehicleId: number, newIsActive: boolean) => void;
+  // ✅ FAVORIS : ids déjà favoris de l'utilisateur connecté — voir VehicleCard.tsx
+  // (src/app/components) pour le détail, même convention ici.
+  favoritedIds?: Set<number>;
+  onFavoriteChange?: (vehicleId: number, isFavorited: boolean) => void;
 }
 
 const Toast = ({ 
@@ -56,13 +63,54 @@ const Toast = ({
   );
 };
 
-export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveChange }: VehicleCardProps) {
+export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveChange, favoritedIds, onFavoriteChange }: VehicleCardProps) {
   const t = useTranslations('vehicles.myVehicles');
+  const tFav = useTranslations('vehicleCard');
   const router = useRouter();
+  const pathname = usePathname();
+  const { user } = useAuth();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-  
+
+  // ✅ FAVORIS : même logique optimiste que sur la carte de navigation publique.
+  const [isFavorited, setIsFavorited] = useState(() => favoritedIds?.has(vehicle.id) ?? false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+
+  useEffect(() => {
+    setIsFavorited(favoritedIds?.has(vehicle.id) ?? false);
+  }, [favoritedIds, vehicle.id]);
+
+  const handleToggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Le conteneur image/titre a son propre onClick de navigation : on empêche la
+    // propagation pour que le clic sur le cœur ne fasse QUE (dé)favoriser.
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    const nextState = !isFavorited;
+    setIsFavorited(nextState);
+    setIsTogglingFavorite(true);
+
+    try {
+      if (nextState) {
+        await apiClient.post(`/api/favorites/${vehicle.id}`, {});
+      } else {
+        await apiClient.delete(`/api/favorites/${vehicle.id}`);
+      }
+      onFavoriteChange?.(vehicle.id, nextState);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des favoris:', error);
+      setIsFavorited(!nextState);
+    } finally {
+      setIsTogglingFavorite(false);
+    }
+  };
+
   const getImageUrl = () => {
     if (vehicle.images && Array.isArray(vehicle.images) && vehicle.images.length > 0) {
       return vehicle.images[0].url;
@@ -75,9 +123,10 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
     if (vehicle.address && vehicle.address.trim() !== '') {
       parts.push(vehicle.address);
     }
+    // La commune est désormais le niveau "ville" pertinent (découpage 2025) : on
+    // n'affiche la province que si on n'a même pas de commune.
     if (vehicle.commune) {
       parts.push(vehicle.commune.name);
-      parts.push(vehicle.commune.province.name);
     } else if (vehicle.province) {
       parts.push(vehicle.province.name);
     }
@@ -178,6 +227,23 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
               {vehicle.images.length}
             </div>
           )}
+
+          {/* Bouton favoris */}
+          <button
+            type="button"
+            onClick={handleToggleFavorite}
+            disabled={isTogglingFavorite}
+            aria-pressed={isFavorited}
+            aria-label={isFavorited ? tFav('removeFromFavorites') : tFav('addToFavorites')}
+            title={isFavorited ? tFav('removeFromFavorites') : tFav('addToFavorites')}
+            className="absolute top-3 right-3 flex items-center justify-center h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm shadow-lg hover:bg-black/60 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            <Heart
+              className={`w-5 h-5 transition-colors ${
+                isFavorited ? 'fill-red-500 text-red-500' : 'text-white'
+              }`}
+            />
+          </button>
         </div>
         
         <div className="p-4">

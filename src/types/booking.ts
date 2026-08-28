@@ -22,7 +22,9 @@ export type BookingStatus =
   | 'CONFIRMED'
   | 'CANCELLED'
   | 'IN_PROGRESS'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'CONTACT_INITIATED'
+  | 'PENDING_CONFIRMATION';
 
 export interface Booking {
   id: number;

@@ -124,7 +124,7 @@ const FAQPage = () => {
                 {t('contactButton')}
               </a>
               <a
-                href="mailto:support@carshareburundi.com"
+                href="mailto:contact@budaxdrive.bi"
                 className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-xl font-semibold hover:bg-white hover:text-primary transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
               >
                 {t('emailButton')}

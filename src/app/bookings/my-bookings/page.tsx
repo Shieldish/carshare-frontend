@@ -806,7 +806,7 @@ function MyBookingsContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
         <FilterTabs activeFilter={activeFilter} onFilterChange={handleFilterChange} totalCounts={statusCounts} />
 
         {filteredBookings.length > 0 ? (

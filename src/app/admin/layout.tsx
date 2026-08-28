@@ -119,7 +119,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden lg:block p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="hidden lg:block p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <ChevronRight className={`h-5 w-5 transition-transform ${!isSidebarOpen && 'rotate-180'}`} />
           </button>

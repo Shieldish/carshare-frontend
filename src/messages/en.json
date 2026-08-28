@@ -42,6 +42,7 @@
     "lightMode": "Light mode",
     "darkMode": "Dark mode",
     "customerService": "Customer Service",
+    "favorites": "My Favorites",
     "signIn": "Sign In",
     "signUp": "Sign Up",
     "notifications": "Notifications",
@@ -111,7 +112,7 @@
     "noResultsTitle": "No results",
     "noResultsMessage": "No vehicle matches.",
     "searchErrorTitle": "Error",
-    "searchErrorMessage": "Unable to reach the server."
+    "searchErrorMessage": "Unable to connect. Please check your internet connection."
   },
   "filters": {
     "title": "Search filters",
@@ -123,8 +124,8 @@
     "province": "Province",
     "allProvinces": "All provinces",
     "loading": "Loading...",
-    "commune": "Commune / City",
-    "allCommunes": "All communes",
+    "commune": "City",
+    "allCommunes": "All cities",
     "vehicleTitle": "Vehicle",
     "vehicleType": "Vehicle type",
     "allTypes": "All types",
@@ -265,7 +266,7 @@
     "errors": {
       "generic": "An error occurred.",
       "unexpected": "An unexpected error occurred.",
-      "network": "Unable to reach the server.",
+      "network": "Unable to connect. Please check your internet connection.",
       "invalidCredentials": "The email address or password is incorrect.",
       "emailAlreadyExists": "This email address is already in use.",
       "validationError": "Some of the information entered is invalid.",
@@ -274,6 +275,8 @@
       "endDateNotInFuture": "End date must be in the future.",
       "startAfterEnd": "Start date must be before end date.",
       "bookingTooShort": "The booking must be at least 1 hour long.",
+      "insuranceExpiresDuringBooking": "This vehicle's insurance expires before the end of the requested period. Choose shorter dates or contact the owner.",
+      "technicalControlExpiresDuringBooking": "This vehicle's technical control expires before the end of the requested period. Choose shorter dates or contact the owner.",
       "missingDates": "Start and end dates are required.",
       "tooManyPendingBookings": "You already have several bookings awaiting payment. Please pay or cancel one before creating a new one.",
       "bookingRateLimitExceeded": "Too many booking attempts. Please try again a little later.",
@@ -418,7 +421,7 @@
       "requiredFieldsError": "Amount, Date and Category are required.",
       "updateError": "Failed to update.",
       "addError": "Failed to add.",
-      "receiptUploadError": "Receipt upload error: {error}"
+      "receiptUploadError": "Error uploading the receipt. Please try again."
     }
   },
   "profile": {
@@ -451,11 +454,35 @@
       "takePhoto": "Take a photo",
       "uploadFile": "Upload a file",
       "sending": "Sending...",
-      "secureTransfer": "Secure encrypted transfer",
+      "secureTransfer": "Secure, protected upload",
+      "consentLabel": "I agree that this document will be used by BudaxDrive to verify my identity, in accordance with the privacy policy.",
       "whyVerifyTitle": "Why verify my identity?",
       "whyVerifyText": "Verification ensures the safety of all members of the BudaxDrive community in Burundi.",
-      "kycTitle": "Data protection (KYC standard)",
-      "kycText": "Your documents are stored in an encrypted digital vault. They will never appear publicly and are destroyed if the account is deleted."
+      "kycTitle": "Protection of your personal data",
+      "kycText": "Your documents are stored in a secure digital vault. They will never appear publicly and are destroyed if the account is deleted."
+    },
+    "exportData": {
+      "sectionTitle": "Download my data",
+      "sectionDescription": "Get a copy of your personal data (profile, bookings, reviews, vehicles) as a PDF document.",
+      "sectionButton": "Download my data",
+      "exporting": "Preparing...",
+      "genericError": "Error exporting the data."
+    },
+    "deleteAccountModal": {
+      "sectionTitle": "Delete my account",
+      "sectionDescription": "Erases your personal data from BudaxDrive. This action is permanent.",
+      "sectionButton": "Delete my account",
+      "title": "Delete your account?",
+      "description": "Your personal information (name, email, phone, identity documents) will be permanently erased.",
+      "point1": "Your identity, license and selfie documents are deleted immediately.",
+      "point2": "Your past bookings and reviews are kept, but will no longer be linked to your identity.",
+      "point3": "You will no longer be able to sign in with this account.",
+      "irreversible": "This action cannot be undone.",
+      "confirmPrompt": "To confirm, type your email address ({email}) below:",
+      "cancel": "Cancel",
+      "confirm": "Permanently delete",
+      "deleting": "Deleting...",
+      "genericError": "Error deleting the account."
     },
     "roleLabel": "Role",
     "takePhotoTitle": "Take a photo",
@@ -489,7 +516,9 @@
       "phoneHelp": "Needed for communication with other users",
       "saving": "Saving...",
       "save": "Save changes",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "bioPlaceholder": "Tell renters a bit about yourself (experience, availability, types of vehicles...).",
+      "bioCharCount": "{count}/{max} characters"
     },
     "webcam": {
       "liveCaptureTitle": "Live capture",
@@ -531,7 +560,9 @@
       "mobilePaymentError": "Mobile payment error.",
       "stripeError": "Stripe error.",
       "stalePendingPayment": "This pending payment is no longer valid. Please start your Premium subscription again."
-    }
+    },
+    "bioLabel": "Bio",
+    "bioHelp": "Publicly visible on your host profile page."
   },
   "vehicles": {
     "myVehicles": {
@@ -597,8 +628,8 @@
       "currentDocSaved": "Current doc saved",
       "viewDoc": "View",
       "replacementLabel": "Replacement: {name}",
-      "addressHelp": "Type a street name or a known landmark to center the map.",
-      "addressPlaceholder": "E.g.: Uprona Avenue, No. 12...",
+      "addressHelp": "Enter the neighborhood or a known landmark to place the car on the map.",
+      "addressPlaceholder": "E.g.: Kinindo, Rohero, Nyakabiga...",
       "centerMapButton": "Center the map",
       "mapVerifyHelp": "Check and adjust your vehicle's exact location if needed.",
       "locationSaved": "Location saved! ({location})",
@@ -638,12 +669,12 @@
       "supportsDriverHelpEdit": "Check this if the daily price already includes a driver's service.",
       "locationSectionTitle": "Location",
       "provinceLabel": "Province",
-      "communeLabel": "Commune",
-      "communeLabelFull": "Commune / City",
+      "communeLabel": "City",
+      "communeLabelFull": "City",
       "provinceNotSpecified": "-- Not specified --",
       "loadingOption": "Loading...",
-      "addressLabel": "Precise address",
-      "addressOptionalLabel": "Precise address (Optional but recommended)",
+      "addressLabel": "Neighborhood / Area",
+      "addressOptionalLabel": "Neighborhood / Area (Optional but recommended)",
       "centerButton": "Center",
       "centering": "Searching...",
       "mapLabel": "Location *",
@@ -661,7 +692,7 @@
       "expiryDateLabel": "Expires on *",
       "expiryDateLabelShort": "Expiry date",
       "imagesTitle": "Vehicle images",
-      "insuranceCheckLabel": "I certify that I have informed my insurer that this vehicle is used for peer-to-peer rental on the BudaxDrive platform. I acknowledge that BudaxDrive is only a trusted third party and disclaims all liability in case of false declaration.",
+      "insuranceCheckLabel": "I certify that I have informed my insurer that this vehicle is used for car rental between individuals on the BudaxDrive platform. I acknowledge that BudaxDrive is only a trusted third party and disclaims all liability in case of false declaration.",
       "submitAdd": "Submit vehicle for validation",
       "submittingAdd": "Adding...",
       "errors": {
@@ -675,7 +706,7 @@
         "unacceptedFormat": "The file \"{name}\" is not an accepted image format.",
         "fileTooLarge": "The file \"{name}\" is too large (max 5MB).",
         "provincesLoadError": "Error loading provinces",
-        "communesLoadError": "Error loading communes",
+        "communesLoadError": "Error loading cities",
         "addressNotFound": "Address not found on the map.",
         "genericSubmitError": "An error occurred",
         "invalidYear": "The manufacturing year is not valid.",
@@ -738,9 +769,8 @@
       "descriptionTitle": "Description",
       "equipmentTitle": "Equipment",
       "servicesTitle": "Included services",
-      "service1": "Comprehensive insurance included",
-      "service2": "Customer support 24/7",
-      "service3": "Roadside assistance",
+      "service1": "Verified vehicles (documents up to date)",
+      "service2": "Customer support 7 days a week, 7am to 10pm",
       "service4": "Flexible cancellation",
       "importantInfoTitle": "Important information",
       "info1": "Valid driving license required",
@@ -748,7 +778,8 @@
       "info3": "Fuel is the renter's responsibility",
       "prevImageAria": "Previous image",
       "nextImageAria": "Next image",
-      "imageAria": "Image {index}"
+      "imageAria": "Image {index}",
+      "rentedBy": "Rented by"
     },
     "reviews": {
       "title": "Customer reviews",
@@ -778,7 +809,7 @@
       "errors": {
         "selectPeriod": "Please select a period (two dates) on the calendar.",
         "invalidDates": "Selected dates are invalid.",
-        "accessDenied": "Access denied. Check that you are the owner or that the endpoint is accessible.",
+        "accessDenied": "Access denied. Please check that you are the owner of this vehicle.",
         "loadError": "Unable to load availability data.",
         "addError": "Unable to add the blocked period.",
         "deleteError": "Unable to delete the blocked period."
@@ -807,14 +838,20 @@
       "ultraDesc": "Position #1, +150% views",
       "notLoggedInError": "You must be logged in to perform this action.",
       "genericBoostError": "Error creating the boost.",
-      "missingPaymentId": "Payment ID not received from server.",
+      "missingPaymentId": "Unable to start the payment. Please try again.",
       "onlinePaymentInitError": "Unable to initiate online payment.",
-      "missingRedirectUrl": "Redirect URL not received.",
+      "missingRedirectUrl": "Unable to start the payment. Please try again.",
       "onlinePaymentError": "Payment error.",
       "mobilePaymentError": "Error during mobile payment.",
       "successTitle": "Payment confirmed!",
       "successMessage": "Congratulations! Your vehicle now has boosted visibility for {months} months.",
       "backToDashboard": "Back to dashboard"
+    },
+    "metadata": {
+      "title": "{make} {model} — {price} FBU/day | BudaxDrive",
+      "descriptionFallback": "Rent this {make} {model} in {location} on BudaxDrive, car rental between individuals in Burundi.",
+      "genericTitle": "Vehicle for rent | BudaxDrive",
+      "genericDescription": "Discover this vehicle available for rent on BudaxDrive."
     }
   },
   "bookings": {
@@ -848,7 +885,7 @@
       "paymentNote": "By clicking “Book and Pay”, you'll choose your payment method on the next step.",
       "notifications": {
         "errorTitle": "Error",
-        "missingVehicleId": "Missing vehicle ID.",
+        "missingVehicleId": "Missing vehicle information.",
         "loginRequiredTitle": "Login required",
         "loginRequiredMessage": "You must be logged in to book.",
         "loadErrorTitle": "Loading error",
@@ -875,9 +912,9 @@
         "paymentValidatedMessage": "Your booking is now confirmed.",
         "paymentErrorTitle": "Payment error",
         "mobilePaymentErrorMessage": "Error while declaring the payment.",
-        "sessionExpiredMessage": "Session expired.",
+        "sessionExpiredMessage": "You have been logged out.",
         "onlinePaymentInitError": "Unable to initiate online payment.",
-        "redirectUrlMissing": "Redirect URL not received.",
+        "redirectUrlMissing": "Unable to start the payment. Please try again.",
         "onlinePaymentErrorMessage": "Online payment error."
       }
     },
@@ -958,9 +995,9 @@
         "reviewDeleted": "Review deleted.",
         "errors": {
           "paymentNotPending": "This payment is not pending.",
-          "paymentUrlMissing": "Unable to obtain the payment URL.",
+          "paymentUrlMissing": "Unable to start the payment. Please try again.",
           "paymentLaunchFailed": "Payment could not be launched.",
-          "authRequired": "Authentication required",
+          "authRequired": "You must be logged in to continue.",
           "deleteFailed": "Deletion failed",
           "deleteSuccess": "Booking deleted successfully.",
           "genericError": "An error occurred."
@@ -1036,12 +1073,12 @@
       "securePayment": "Secure payment",
       "securePaymentDesc": "BudaxDrive guarantees the security of your transaction",
       "intermediationService": "Intermediation service",
-      "intermediationDesc": "Protection for the renter and the owner",
+      "intermediationDesc": "Identity verification and support in case of a dispute",
       "dedicatedSupport": "Dedicated support",
       "dedicatedSupportDesc": "A team ready to help in case of a problem",
       "errors": {
         "paymentNotPending": "This payment is not pending.",
-        "paymentUrlMissing": "Unable to obtain the payment URL.",
+        "paymentUrlMissing": "Unable to start the payment. Please try again.",
         "paymentLaunchFailed": "Payment could not be launched.",
         "loadFailed": "Unable to load booking details",
         "mobilePaymentDeclareError": "Error while declaring the payment.",
@@ -1121,6 +1158,8 @@
       "status": {
         "pendingConfirmationText": "Awaiting Confirmation",
         "pendingConfirmationDescription": "Availability confirmation required",
+        "pendingText": "Awaiting payment",
+        "pendingDescription": "The renter hasn't paid yet — nothing for you to do for now",
         "confirmedText": "Confirmed",
         "confirmedDescription": "Booking confirmed",
         "cancelledText": "Cancelled",
@@ -1152,9 +1191,9 @@
       "errorEndBeforeStart": "The end date must be after the start date",
       "errorCreatingBooking": "Error creating the booking",
       "paymentFailedAlert": "The payment failed.",
-      "sessionExpiredAlert": "Session expired. Please log in again.",
+      "sessionExpiredAlert": "You have been logged out, please log in again.",
       "onlinePaymentInitError": "Unable to initiate the online payment.",
-      "missingRedirectUrl": "Redirect URL not received.",
+      "missingRedirectUrl": "Unable to start the payment. Please try again.",
       "genericPaymentError": "Payment error.",
       "stepBooking": "Booking",
       "stepConfirmed": "Confirmed",
@@ -1181,9 +1220,9 @@
       "backToBookings": "Back to my bookings",
       "pageTitle": "Report an Incident",
       "forBooking": "For booking #{id}",
-      "invalidBookingId": "Invalid booking ID.",
+      "invalidBookingId": "Booking not found.",
       "successTitle": "Report sent successfully!",
-      "successMessage": "Your incident report (ID: {id}) has been submitted.",
+      "successMessage": "Your incident report #{id} has been sent.",
       "successMessageLine2": "Our team will review it as soon as possible.",
       "viewReport": "View report",
       "toastTitle": "Report sent!",
@@ -1198,7 +1237,7 @@
       "accessDenied": "Access denied. You are not authorized to view these reports.",
       "bookingNotFound": "Booking not found.",
       "loadError": "Unable to load incident reports.",
-      "invalidBookingId": "Invalid booking ID.",
+      "invalidBookingId": "Booking not found.",
       "noReports": "No incident report found for this booking.",
       "reportNew": "Report a new incident"
     },
@@ -1227,7 +1266,7 @@
       "dateTimeLabel": "Date/Time:",
       "locationLabel": "Location:",
       "reportedByLabel": "Reported by:",
-      "unknownReporter": "User ID {id}",
+      "unknownReporter": "User #{id}",
       "descriptionLabel": "Description:",
       "photosLabel": "Photos ({count})",
       "resolutionNotesTitle": "Resolution notes",
@@ -1247,7 +1286,7 @@
       "back": "Back",
       "pageTitle": "Inspection - Booking #{id}",
       "loading": "Loading...",
-      "invalidBookingId": "Invalid booking ID.",
+      "invalidBookingId": "Booking not found.",
       "accessDenied": "Access denied. You don't have permission to access this inspection.",
       "loadError": "Unable to load details.",
       "checkOutTitle": "Perform Check-out",
@@ -1256,7 +1295,7 @@
       "checkInTitle": "Perform Check-in",
       "renterCodeTitle": "Your Check-in Code",
       "renterCodeDesc": "Please give this code to the owner when handing over the keys to validate the vehicle condition.",
-      "renterCodeHint": "This code acts as a digital signature.",
+      "renterCodeHint": "This code confirms your agreement, like a signature.",
       "unauthorizedTitle": "Unauthorized access",
       "unauthorizedDesc": "You are neither the renter nor the owner of this booking.",
       "checkInDetailsTitle": "Check-in Details",
@@ -1268,7 +1307,7 @@
       "closeAria": "Close"
     },
     "checkIn": {
-      "locationProofTitle": "Proof of location (Insurance)",
+      "locationProofTitle": "Proof of location",
       "locatingGps": "Searching for GPS signal...",
       "gpsError": "Unable to obtain your GPS location. Please allow location access in your browser.",
       "gpsUnsupported": "Geolocation is not supported by your device.",
@@ -1281,7 +1320,7 @@
       "photosRequired": "At least one photo is required.",
       "notesLabel": "Notes on vehicle condition (optional)",
       "notesPlaceholder": "E.g: Scratch on the front left wing, interior clean...",
-      "validationCodeTitle": "Digital Signature (Renter Code) *",
+      "validationCodeTitle": "Confirmation Code (Renter) *",
       "validationCodeDesc": "Ask the renter to tell you their secret 4-digit code shown on their screen, then enter it here to validate the key handover.",
       "submitButton": "Confirm and Sign Check-in",
       "validationErrorTitle": "Validation error",
@@ -1714,14 +1753,14 @@
   },
   "about": {
     "metaTitle": "About Us - CarShare Burundi",
-    "metaDescription": "Discover CarShare Burundi, the first peer-to-peer car rental platform in Burundi. Simple, secure and affordable.",
+    "metaDescription": "Discover CarShare Burundi, the first platform for car rental between individuals in Burundi. Simple, secure and affordable.",
     "hero": {
       "subtitlePrefix": "The first",
-      "subtitleHighlight": "peer-to-peer car rental",
+      "subtitleHighlight": "car rental between individuals",
       "subtitleSuffix": "platform in Burundi",
       "badge1": "Simple & Secure",
       "badge2": "Affordable Prices",
-      "badge3": "Insurance Included",
+      "badge3": "Verified Vehicles",
       "statVehiclesLabel": "Available vehicles",
       "statVisitorsLabel": "Visitors/year",
       "statSavingsLabel": "vs Agencies",
@@ -1749,7 +1788,7 @@
     "solution": {
       "title": "Our Solution",
       "securePlatformTitle": "Secure Platform",
-      "securePlatformDescription": "Identity verification, insurance included, and secure payments via Orange Money.",
+      "securePlatformDescription": "Identity verification, checked vehicles, and secure payments via Orange Money.",
       "affordablePricesTitle": "Affordable Prices",
       "affordablePricesDescription": "Rentals from $25/day with 85% of revenue going to owners.",
       "extraIncomeTitle": "Extra Income",
@@ -1761,7 +1800,7 @@
       "step1Title": "Choose",
       "step1Description": "Browse our catalog of verified vehicles and choose the one that fits your needs and budget.",
       "step2Title": "Book",
-      "step2Description": "Complete your secure booking with mobile money payment and insurance automatically included.",
+      "step2Description": "Complete your secure booking with mobile money payment.",
       "step3Title": "Enjoy",
       "step3Description": "Pick up your vehicle, enjoy your trip, and leave a review to help the community."
     },
@@ -1769,7 +1808,7 @@
       "title": "Our Values",
       "subtitle": "The principles that guide our mission every day",
       "securityTitle": "Security",
-      "securityDescription": "Complete protection for all our users with identity verification and insurance included.",
+      "securityDescription": "Complete protection for all our users with identity verification and checked vehicles.",
       "trustTitle": "Trust",
       "trustDescription": "Building lasting trusted relationships between owners and renters.",
       "excellenceTitle": "Excellence",
@@ -1796,18 +1835,18 @@
   },
   "faq": {
     "metaTitle": "FAQ - CarShare Burundi",
-    "metaDescription": "Frequently asked questions about CarShare Burundi. Quickly find answers about peer-to-peer car rental in Burundi.",
+    "metaDescription": "Frequently asked questions about CarShare Burundi. Quickly find answers about car rental between individuals in Burundi.",
     "headerTitle": "Frequently Asked Questions",
     "headerSubtitle": "Quickly find answers to your questions about CarShare Burundi",
     "searchPlaceholder": "Search a question...",
     "noResults": "No question found for \"{term}\"",
     "contactTitle": "Can't find your answer?",
-    "contactSubtitle": "Our support team is here to help you 24/7",
+    "contactSubtitle": "Our support team is here to help you, Monday to Sunday from 7am to 10pm",
     "contactButton": "Contact us",
     "emailButton": "Send an email",
     "items": [
       {
-        "question": "How does peer-to-peer car rental work?",
+        "question": "How does car rental between individuals work?",
         "answer": "CarShare Burundi connects car owners with people wanting to rent a vehicle. Owners publish their listings with photos, price and availability. Renters can browse offers, book directly online, and pick up the car at the agreed location."
       },
       {
@@ -1824,7 +1863,7 @@
       },
       {
         "question": "What should I do in case of an accident or breakdown?",
-        "answer": "In case of an accident, immediately contact the authorities and our 24/7 customer service. Every rental is covered by insurance. In case of a breakdown, we have a roadside assistance network. All emergency numbers are provided when the keys are handed over."
+        "answer": "In case of an accident, immediately contact the authorities, then report the incident from the app. The vehicle must be covered by its owner's personal insurance, declared for rental use — that insurance is what applies, not a BudaxDrive insurance policy. In case of a breakdown, contact the vehicle owner directly."
       },
       {
         "question": "How does the deposit system work?",
@@ -1840,7 +1879,7 @@
       },
       {
         "question": "Does CarShare Burundi charge commissions?",
-        "answer": "Yes, we charge a 15% service commission on each rental to cover insurance, customer support, payment processing, and platform maintenance. This commission is transparent and included in the displayed price."
+        "answer": "Yes, we charge a 15% service commission on each rental to cover customer support, payment processing, and platform maintenance. This commission is transparent and included in the displayed price."
       },
       {
         "question": "In which cities is CarShare Burundi available?",
@@ -1848,19 +1887,19 @@
       },
       {
         "question": "How do I contact customer support?",
-        "answer": "Our support team is available Monday to Sunday from 7am to 10pm. You can reach us by phone at +257 XX XX XX XX, by email at support@carshareburundi.com, or via live chat on our website."
+        "answer": "Our support team is available Monday to Sunday from 7am to 10pm. You can reach us by phone at +257 XX XX XX XX, by email at contact@budaxdrive.bi, or via live chat on our website."
       },
       {
         "question": "Are the vehicles insured?",
-        "answer": "Yes, all vehicles rented through CarShare Burundi benefit from full insurance coverage including liability, vehicle damage and theft. Coverage details are available in our terms and conditions."
+        "answer": "BudaxDrive is not an insurer: every owner must certify they hold valid personal insurance, declared for rental use, before they can list a vehicle. That insurance is what applies in the event of an incident — not coverage provided by BudaxDrive. We check that the vehicle's technical inspection and insurance haven't expired before every rental."
       }
     ]
   },
   "howItWorks": {
-    "metaTitle": "How CarShare Burundi Works | Peer-to-Peer Car Rental",
-    "metaDescription": "Discover how CarShare Burundi is revolutionizing peer-to-peer car rental in Burundi. Simple, secure and economical.",
+    "metaTitle": "How CarShare Burundi Works | Car Rental Between Individuals",
+    "metaDescription": "Discover how CarShare Burundi is revolutionizing car rental between individuals in Burundi. Simple, secure and economical.",
     "heroTitle": "How CarShare Burundi Works",
-    "heroSubtitle": "The first peer-to-peer car sharing platform in Burundi. Simple, secure and economical.",
+    "heroSubtitle": "The first car sharing platform between individuals in Burundi. Simple, secure and economical.",
     "rentersTitle": "Renting a car has never been so simple",
     "rentersSubtitle": "In 3 steps, access hundreds of cars near you",
     "steps": [
@@ -1890,8 +1929,8 @@
         "details": [
           "Meet the owner at the agreed location",
           "Photographic inspection via the app",
-          "Insurance included for your protection",
-          "24/7 support whenever you need it"
+          "Verified vehicle: insurance and technical inspection up to date",
+          "Support available from 7am to 10pm whenever you need it"
         ]
       }
     ],
@@ -1903,7 +1942,7 @@
           "Prices up to 40% cheaper than traditional agencies",
           "Wide choice of vehicles (economy, SUV, pickup, etc.)",
           "Rent by the hour, day or week",
-          "Insurance included in the price",
+          "Verified vehicles (insurance and technical inspection up to date)",
           "100% mobile booking"
         ]
       },
@@ -1913,7 +1952,7 @@
         "points": [
           "Income from $300 to $800/month depending on usage",
           "85% of revenue goes to you",
-          "Your vehicles are insured during rentals",
+          "Verified renters (identity and license checked)",
           "Fully digitized management",
           "You keep control of your availability"
         ]
@@ -1950,20 +1989,20 @@
         "description": "Verified driving license and background check"
       },
       {
-        "title": "Full insurance",
-        "description": "Liability and vehicle damage protection included"
+        "title": "Verified vehicles",
+        "description": "Up-to-date technical inspection and insurance required to be listed"
       },
       {
         "title": "Secure payments",
         "description": "Protected transactions with Orange Money and bank cards"
       },
       {
-        "title": "24/7 support",
-        "description": "Dedicated team available at any time to help you"
+        "title": "Support 7 days a week",
+        "description": "Dedicated team available from 7am to 10pm to help you"
       }
     ],
     "techTitle": "100% Burundian technology",
-    "techMobileTitle": "Native mobile app",
+    "techMobileTitle": "Mobile app",
     "techMobileDesc": "iOS and Android optimized for the local market",
     "techPaymentTitle": "Integrated local payments",
     "techPaymentDesc": "Orange Money, Airtel Money and bank cards",
@@ -1974,9 +2013,9 @@
     "whyChooseTitle": "Why choose CarShare Burundi?",
     "whyPoint1": "First trusted local platform",
     "whyPoint2": "Prices up to 40% cheaper",
-    "whyPoint3": "Insurance and protection included",
+    "whyPoint3": "Vehicles verified before every rental",
     "whyPoint4": "Verified and caring community",
-    "whyPoint5": "24/7 customer support in French and Kirundi",
+    "whyPoint5": "Customer support 7 days a week (7am-10pm) in French and Kirundi",
     "ctaTitle": "Ready to join the transportation revolution in Burundi?",
     "ctaDescription": "Whether you want to rent a car or earn money with yours, CarShare Burundi is made for you.",
     "ctaFindCar": "Find a car",
@@ -1993,7 +2032,7 @@
   },
   "terms": {
     "metaTitle": "Terms of Use - CarShare Burundi",
-    "metaDescription": "CarShare Burundi's general terms of use. Review our terms and conditions for peer-to-peer car rental."
+    "metaDescription": "CarShare Burundi's general terms of use. Review our terms and conditions for car rental between individuals."
   },
   "privacy": {
     "metaTitle": "Privacy Policy - CarShare Burundi",
@@ -2010,9 +2049,9 @@
     "roleRenter": "Renter",
     "messagePlaceholder": "Write your message...",
     "send": "Send",
-    "errorWebSocketPrefix": "WebSocket error:",
-    "errorWebSocketConnection": "WebSocket connection error.",
-    "errorWebSocketActivation": "Unable to activate the WebSocket connection.",
+    "errorWebSocketPrefix": "Connection error:",
+    "errorWebSocketConnection": "The chat couldn't connect. Please try again.",
+    "errorWebSocketActivation": "Unable to activate live chat.",
     "errorMustBeLoggedIn": "You must be logged in to chat.",
     "errorLoadMessages": "Unable to load messages.",
     "errorSendUnavailable": "Unable to send the message. Check your connection.",
@@ -2106,7 +2145,18 @@
     "available": "Available",
     "notAvailable": "Not available",
     "clickForMore": "Click to see more",
-    "seeDetails": "View details"
+    "seeDetails": "View details",
+    "addToFavorites": "Add to favorites",
+    "removeFromFavorites": "Remove from favorites"
+  },
+  "favorites": {
+    "pageTitle": "My Favorites",
+    "subtitleSingular": "{count} saved vehicle",
+    "subtitlePlural": "{count} saved vehicles",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Tap the heart on a vehicle to save it here and find it again easily later.",
+    "browseCta": "Browse vehicles",
+    "loadError": "Unable to load your favorites. Please try again."
   },
   "notifications": {
     "NEW_BOOKING_REQUEST": "💰 New paid booking for your {vehicleMake} {vehicleModel}!",
@@ -2149,5 +2199,24 @@
       "INSURANCE": "Insurance",
       "TECHNICAL_CONTROL": "Technical inspection"
     }
+  },
+  "hosts": {
+    "metaTitle": "{name} — BudaxDrive Host",
+    "metaDescriptionFallback": "Discover {name}'s profile on BudaxDrive, car rental between individuals in Burundi.",
+    "genericTitle": "Host profile | BudaxDrive",
+    "genericDescription": "Discover this host's profile on BudaxDrive, car rental between individuals in Burundi.",
+    "loading": "Loading profile...",
+    "verifiedBadge": "Verified",
+    "memberSince": "Member since {year}",
+    "statVehicleSingular": "vehicle",
+    "statVehiclePlural": "vehicles",
+    "reviewCount": "({count} reviews)",
+    "noReviewsYet": "No reviews yet",
+    "aboutTitle": "About",
+    "vehiclesSectionTitle": "Listed vehicles",
+    "noVehiclesListed": "This host has no vehicles listed right now.",
+    "notFoundTitle": "Profile not found",
+    "notFoundText": "This profile doesn't exist or is no longer available.",
+    "backToHome": "Back to home"
   }
 }
