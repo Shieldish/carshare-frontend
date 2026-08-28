@@ -9,7 +9,9 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/backend/:path*',
-        destination: `${process.env.INTERNAL_API_URL ?? 'http://localhost:8082'}/:path*`,
+        // Même repli que dans apiClient.ts : INTERNAL_API_URL d'abord (local / Docker),
+        // puis NEXT_PUBLIC_API_URL, sinon le proxy pointerait sur localhost en production.
+        destination: `${process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8082'}/:path*`,
       },
     ];
   },

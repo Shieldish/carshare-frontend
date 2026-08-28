@@ -31,8 +31,13 @@ export interface PaginatedResponse<T> {
   empty: boolean;
 }
 
+// Côté serveur (SSR / composants serveur) : INTERNAL_API_URL en priorité — utile en local
+// et en Docker où le backend est joignable par un nom interne. Repli sur NEXT_PUBLIC_API_URL :
+// sans ce repli, un déploiement où seule NEXT_PUBLIC_API_URL est définie (cas de Vercel)
+// appelait http://localhost:8082 depuis la fonction serverless, échouait silencieusement, et
+// la page d'accueil affichait « Aucun véhicule disponible » alors que l'API répondait.
 const API_BASE_URL = typeof window === 'undefined'
-  ? (process.env.INTERNAL_API_URL ?? 'http://localhost:8082')
+  ? (process.env.INTERNAL_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8082')
   : (process.env.NEXT_PUBLIC_API_URL ?? '/backend');
 
 const formatDateForApi = (date: Date | null | undefined): string | undefined => {
@@ -133,7 +138,8 @@ const serverFetch = async (path: string, options: RequestInit = {}) => {
   });
 
   if (!response.ok) {
-    console.error(`❌ Server API Error - Status: ${response.status} ${response.statusText}`);
+    const body = await response.text().catch(() => '');
+    console.error(`❌ Server API Error - ${response.status} ${response.statusText} sur ${API_BASE_URL}${path}${body ? ` — ${body.slice(0, 500)}` : ''}`);
     return null;
   }
 
