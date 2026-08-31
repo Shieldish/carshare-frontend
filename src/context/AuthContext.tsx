@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { usePathname } from 'next/navigation'; // ✅ On a retiré useRouter d'ici
 import { useTranslations } from 'next-intl';
@@ -65,7 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   // ✅ On a supprimé la ligne "const router = useRouter();" qui ne servait plus
 
-  const logout = async () => {
+  // ✅ Mémoïsé (useCallback) : logout est exposé via le contexte et lu par refreshUser (voir plus
+  // bas). Sans ça, sa référence changeait à chaque rendu de AuthProvider, ce qui rendait
+  // refreshUser instable à son tour — voir le commentaire sur refreshUser pour le bug concret
+  // que ça causait.
+  const logout = useCallback(async () => {
     // ✅ Révoque le token côté serveur (voir POST /api/auth/logout) avant de nettoyer l'état
     // local — sans ça, un token volé/copié restait utilisable jusqu'à son expiration (24h)
     // même après un "logout". On ne bloque jamais le logout local sur cet appel : un échec
@@ -88,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setToken(null);
     console.log('Déconnexion effectuée - état nettoyé');
-  };
+  }, [token]);
 
   const isTokenValid = (authToken: string): boolean => {
     try {
@@ -100,7 +104,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchUserProfile = async (authToken: string) => {
+  // ✅ Mémoïsé : ne dépend que de son paramètre authToken (setUser est stable par nature), donc
+  // une référence figée une fois pour toutes ([]) est correcte ici et permet à refreshUser
+  // (qui l'appelle) de rester stable lui aussi.
+  const fetchUserProfile = useCallback(async (authToken: string) => {
     try {
       const decodedToken: DecodedToken = jwtDecode(authToken);
 
@@ -151,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       setUser(null);
     }
-  };
+  }, []);
 
   const checkPendingOnboarding = async (authToken: string): Promise<boolean> => {
     if (pathname && pathname.startsWith('/payment')) {
@@ -210,14 +217,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const refreshUser = async () => {
+  // ✅ Mémoïsé : refreshUser est exposé via le contexte et utilisé dans des tableaux de
+  // dépendances de useEffect ailleurs (ex: la page de callback de paiement). Sans ça, sa
+  // référence changeait à CHAQUE rendu de AuthProvider — y compris ceux déclenchés par son
+  // propre appel à fetchUserProfile (qui fait setUser) — ce qui rebouclait l'effet appelant et
+  // renvoyait plusieurs fois la confirmation de paiement (bug des notifications en double).
+  const refreshUser = useCallback(async () => {
     const storedToken = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
     if (storedToken && isTokenValid(storedToken)) {
       await fetchUserProfile(storedToken);
     } else if (storedToken) {
       logout();
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchUserProfile, logout]);
 
   // 1️⃣ Premier chargement de l'application
   useEffect(() => {

@@ -8,14 +8,12 @@ import { VehicleCardSkeleton } from '../components/VehicleCard';
 import BoostModal from '../components/BoostModal';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
-import { useFavoriteIds } from '@/hooks/useFavoriteIds';
 
 function MyVehiclesContent() {
   const t = useTranslations('vehicles.myVehicles');
   const router = useRouter();
   const searchParams = useSearchParams();
   const highlightedVehicleId = searchParams.get('highlight') ? Number(searchParams.get('highlight')) : null;
-  const favoritedIds = useFavoriteIds();
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -257,7 +255,6 @@ function MyVehiclesContent() {
                   onDelete={handleDeleteVehicle}
                   onBoostClick={handleOpenBoostModal}
                   onActiveChange={handleActiveChange}
-                  favoritedIds={favoritedIds}
                 />
               </div>
             ))}
