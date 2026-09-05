@@ -274,7 +274,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
 
         {/* CÔTÉ GAUCHE : La liste */}
         <div id="search-results-container" className={`w-full lg:w-[60%] xl:w-[55%] h-full overflow-y-auto p-4 sm:p-6 pb-24 scroll-smooth ${mobileView === 'map' ? 'hidden lg:block' : 'block'}`}>
-          <h1 className="text-2xl font-bold mb-2">
+          <h1 className="font-display text-h1 mb-2">
             {t('titleForCity', { city })}
           </h1>
           <p className="text-muted-foreground mb-6">
@@ -325,7 +325,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
                   <button
                     onClick={(e) => handlePageChange(Math.max(1, currentPage - 1), e)}
                     disabled={currentPage === 1}
-                    className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-2 rounded-lg border border-input bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     aria-label={t('previousPage')}
                   >
                     <ChevronLeft className="w-5 h-5" />
@@ -338,7 +338,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
                   <button
                     onClick={(e) => handlePageChange(Math.min(totalPages, currentPage + 1), e)}
                     disabled={currentPage === totalPages}
-                    className="p-2 rounded-lg border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-2 rounded-lg border border-input bg-background hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     aria-label={t('nextPage')}
                   >
                     <ChevronRight className="w-5 h-5" />

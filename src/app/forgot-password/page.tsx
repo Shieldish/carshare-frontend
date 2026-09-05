@@ -5,6 +5,7 @@ import { apiClient } from '@/lib/apiClient';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
+import { Input, Label, Button, Card } from '@/app/components/ui';
 
 export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword');
@@ -33,60 +34,53 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 py-12 px-4 sm:px-6 lg:px-8 transition-colors">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8 transition-colors">
+      <Card className="max-w-md w-full space-y-8 p-8 shadow-md">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-center font-display text-display text-foreground">
             {t('title')}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-center text-small text-muted-foreground">
             {t('subtitle')}
           </p>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {message && (
-            <div className="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-md text-sm">
+            <div className="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800 rounded-md text-small">
               {message}
             </div>
           )}
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-md text-sm">
+            <div className="p-4 bg-destructive/10 text-destructive border border-destructive/30 rounded-md text-small">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="sr-only">{t('emailLabel')}</label>
-            <input
+            <Label htmlFor="email" className="sr-only">{t('emailLabel')}</Label>
+            <Input
               id="email"
               name="email"
               type="email"
               required
-              className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-500 text-gray-900 dark:text-white bg-white dark:bg-gray-900 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm transition-colors"
               placeholder={t('emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary focus:ring-offset-white dark:focus:ring-offset-gray-800 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
-            >
-              {isLoading ? t('submitting') : t('submitButton')}
-            </button>
-          </div>
+          <Button type="submit" disabled={isLoading} size="lg" className="w-full">
+            {isLoading ? t('submitting') : t('submitButton')}
+          </Button>
 
           <div className="text-center mt-4">
-            <Link href="/login" className="font-medium text-primary hover:text-primary/80 text-sm">
+            <Link href="/login" className="font-medium text-primary hover:text-primary/80 text-small">
               {t('backToLogin')}
             </Link>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

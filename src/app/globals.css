@@ -26,13 +26,16 @@ input[type="radio"] {
 }
 
 :root {
-  --background: 249 250 251; /* bg-gray-50 */
+  /* Neutres légèrement teintés (une pointe de la teinte du vert Kibira mélangée
+     au gris) plutôt que du gris Tailwind pur — évite le rendu "SaaS générique"
+     sans tomber dans le cliché crème/terracotta. */
+  --background: 250 249 246;
   --foreground: 31 41 55;   /* text-gray-800 */
 
   --card: 255 255 255; /* bg-white */
   --card-foreground: 17 24 39; /* text-gray-900 */
 
-  --muted: 243 244 246; /* bg-gray-100 */
+  --muted: 241 240 236;
   --muted-foreground: 107 114 128; /* text-gray-500 */
 
   --primary: 27 107 74; /* #1B6B4A — vert Kibira (marque) */
@@ -41,21 +44,23 @@ input[type="radio"] {
   --secondary: 156 163 175; /* bg-gray-400 */
   --secondary-foreground: 17 24 39; /* text-gray-900 */
 
-  --accent: 243 244 246; /* bg-gray-100 */
-  --accent-foreground: 15 20 25; /* text-gray-900 */
+  /* Rôle dédié : mise en avant "boosté" / "propriétaire premium" (badges de
+     VehicleCard) — avant, dupliquait --muted à l'identique (couleur morte). */
+  --accent: 217 119 6; /* amber-600 */
+  --accent-foreground: 255 255 255;
 
   --destructive: 220 38 38; /* bg-red-600 */
   --destructive-foreground: 255 255 255; /* text-white */
 
-  --border: 229 231 235; /* border-gray-200 */
-  --input: 229 231 235; /* border-gray-200 */
+  --border: 226 224 217;
+  --input: 226 224 217;
   --ring: 27 107 74; /* #1B6B4A — vert Kibira */
 }
 
 .dark {
   --background: 17 24 39;   /* bg-gray-900 */
   --foreground: 229 231 235; /* text-gray-200 */
-  
+
   --card: 31 41 55; /* bg-gray-800 */
   --card-foreground: 249 250 251; /* text-gray-50 */
 
@@ -68,14 +73,17 @@ input[type="radio"] {
   --secondary: 75 85 99; /* bg-gray-600 */
   --secondary-foreground: 249 250 251; /* text-gray-50 */
 
-  --accent: 55 65 81; /* bg-gray-700 */
-  --accent-foreground: 249 250 251; /* text-gray-50 */
+  --accent: 245 158 11; /* amber-500 — plus clair pour le contraste en dark mode */
+  --accent-foreground: 17 24 39;
 
   --destructive: 239 68 68; /* bg-red-500 - plus clair en dark mode */
   --destructive-foreground: 249 250 251; /* text-gray-50 */
 
-  --border: 55 65 81; /* border-gray-700 */
-  --input: 55 65 81; /* border-gray-700 */
+  /* border distinct de --muted (avant : les deux valaient bg-gray-700, donc
+     aucune ligne de séparation n'était réellement visible sur une surface
+     "muted"). */
+  --border: 75 85 99; /* border-gray-600 */
+  --input: 75 85 99; /* border-gray-600 */
   --ring: 41 163 113; /* #29A371 */
 }
 

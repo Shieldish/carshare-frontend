@@ -103,7 +103,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Dates */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('datesTitle')}
         </h4>
         <div className="space-y-3">
@@ -144,7 +144,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
       {/* Section Localisation — la province en premier, la ville en dessous ne montre
           que celles de la province choisie (comme avant). */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('locationTitle')}
         </h4>
         <div className="space-y-3">
@@ -204,7 +204,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Véhicule */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('vehicleTitle')}
         </h4>
         <div className="space-y-3">
@@ -256,7 +256,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Caractéristiques */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('characteristicsTitle')}
         </h4>
         <div className="space-y-3">
@@ -324,7 +324,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Prix */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('priceTitle')}
         </h4>
         <div className="grid grid-cols-2 gap-3">
@@ -364,7 +364,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Options */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('optionsTitle')}
         </h4>
         <div>
@@ -384,7 +384,7 @@ const FilterContent: React.FC<FilterContentProps> = ({
 
       {/* Section Entreprise */}
       <div className="space-y-4">
-        <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
+        <h4 className="font-semibold text-muted-foreground text-small">
           {t('companyTitle')}
         </h4>
         <div>

@@ -60,11 +60,11 @@ export default function LanguageSwitcher({ variant = 'desktop', onSelect }: Lang
         disabled={isPending}
         className={
           variant === 'desktop'
-            ? 'flex items-center space-x-1.5 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-400 disabled:opacity-50'
-            : 'flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium disabled:opacity-50'
+            ? 'flex items-center space-x-1.5 p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground disabled:opacity-50'
+            : 'flex items-center space-x-3 w-full px-4 py-3 text-foreground hover:bg-primary/10 rounded-lg transition-colors text-left font-medium disabled:opacity-50'
         }
       >
-        <Globe className={variant === 'desktop' ? 'h-5 w-5' : 'h-5 w-5 text-gray-500 dark:text-gray-400'} />
+        <Globe className={variant === 'desktop' ? 'h-5 w-5' : 'h-5 w-5 text-muted-foreground'} />
         <span className={variant === 'desktop' ? 'hidden lg:inline text-sm font-medium' : ''}>
           {localeNames[locale]}
         </span>
@@ -76,8 +76,8 @@ export default function LanguageSwitcher({ variant = 'desktop', onSelect }: Lang
           role="menu"
           className={
             variant === 'desktop'
-              ? 'absolute right-0 mt-2 w-44 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50'
-              : 'mt-1 w-full bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 py-1'
+              ? 'absolute right-0 mt-2 w-44 bg-card rounded-xl shadow-lg border border-border py-2 z-50'
+              : 'mt-1 w-full bg-muted rounded-lg border border-border py-1'
           }
         >
           {locales.map((l) => (
@@ -87,7 +87,7 @@ export default function LanguageSwitcher({ variant = 'desktop', onSelect }: Lang
               role="menuitemradio"
               aria-checked={l === locale}
               onClick={() => handleSelect(l)}
-              className="flex items-center justify-between w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center justify-between w-full px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
             >
               <span>{localeNames[l]}</span>
               {l === locale && <Check className="h-4 w-4 text-primary" />}

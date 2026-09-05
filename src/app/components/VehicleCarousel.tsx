@@ -60,7 +60,7 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll, favo
     <div className="mb-12 relative w-full">
       {/* En-tête de la section (Titre à gauche, Flèches à droite) */}
       <div className="flex items-center justify-between mb-6 px-2 sm:px-0">
-        <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 group cursor-pointer" onClick={onViewAll}>
+        <h2 className="font-display text-h1 text-foreground flex items-center gap-2 group cursor-pointer" onClick={onViewAll}>
           {city ? <>{title} · <span className="text-primary">{city}</span></> : title}
           {onViewAll && (
             <ArrowRight className="w-5 h-5 ml-1 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-1" />

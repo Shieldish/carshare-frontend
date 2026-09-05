@@ -11,6 +11,7 @@ import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import type { VehicleRatingSummary } from '@/types/review';
 import VehicleReviews, { StarRating } from '@/app/components/reviews/VehicleReviews';
+import { Badge, Button } from '@/app/components/ui';
 
 async function getVehicleDetails(id: string): Promise<Vehicle> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${id}`, {
@@ -353,18 +354,14 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                   )}
                 </div>
                 {vehicle.isAvailable !== undefined && (
-                  <div className={`flex items-center px-3 py-2 rounded-full text-sm font-medium ${
-                    vehicle.isAvailable
-                      ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                      : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
-                  }`}>
+                  <Badge variant={vehicle.isAvailable ? 'success' : 'destructive'} className="text-small px-3 py-2">
                     {vehicle.isAvailable ? (
-                      <CheckCircle className="w-4 h-4 mr-2" />
+                      <CheckCircle className="w-4 h-4" />
                     ) : (
-                      <XCircle className="w-4 h-4 mr-2" />
+                      <XCircle className="w-4 h-4" />
                     )}
                     {vehicle.isAvailable ? t('available') : t('unavailable')}
-                  </div>
+                  </Badge>
                 )}
               </div>
 
@@ -385,7 +382,7 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                   href={`/hosts/${vehicle.ownerId}`}
                   className="flex items-center text-foreground mb-4 bg-muted hover:bg-muted/70 px-4 py-3 rounded-lg transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 mr-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex items-center justify-center flex-shrink-0 mr-3">
                     {vehicle.ownerProfilePictureUrl ? (
                       <Image
                         src={vehicle.ownerProfilePictureUrl}
@@ -395,7 +392,7 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User className="w-5 h-5 text-gray-400" />
+                      <User className="w-5 h-5 text-muted-foreground" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -451,7 +448,7 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
 
               {/* 🛡️ MESSAGE D'ALERTE SI PERMIS NON VÉRIFIÉ */}
               {showVerificationAlert && (
-                <div className="mb-4 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 animate-in fade-in slide-in-from-top-2">
+                <div className="mb-4 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg p-4 animate-fade-in-up">
                   <div className="flex items-start">
                     <ShieldAlert className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
                     <div className="ml-3">
@@ -474,20 +471,18 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
 
               {/* Boutons d'action */}
               <div className="mt-6 space-y-3">
-                <button
+                <Button
                   onClick={handleBookingClick}
                   disabled={vehicle.isAvailable === false}
-                  className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  size="lg"
+                  className="w-full text-body font-semibold shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 >
                   {vehicle.isAvailable === false ? t('unavailableButton') : t('bookButton')}
-                </button>
+                </Button>
 
-                <button
-                  onClick={() => router.push('/')}
-                  className="w-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3 px-6 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600 transition-colors font-medium"
-                >
+                <Button variant="outline" size="lg" onClick={() => router.push('/')} className="w-full">
                   {t('seeOtherVehicles')}
-                </button>
+                </Button>
               </div>
             </div>
           </div>

@@ -17,7 +17,7 @@ export default function Footer() {
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <h3 className="text-xl font-semibold mb-4 text-primary">
+            <h3 className="font-display text-h1 font-bold mb-4 text-primary">
               BudaxDrive
             </h3>
             <p className="text-gray-300 dark:text-gray-400 text-sm leading-relaxed">

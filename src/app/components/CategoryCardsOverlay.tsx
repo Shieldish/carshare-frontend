@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Car, Key } from 'lucide-react';
+import { Card, Button } from './ui';
 
 const CategoryCardsOverlay: React.FC = () => {
   const t = useTranslations('home');
@@ -32,34 +32,27 @@ const CategoryCardsOverlay: React.FC = () => {
         {/* Changement de la grille pour afficher 2 colonnes au lieu de 3 */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {overlayData.map((card, index) => (
-            <div
+            <Card
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 md:p-8 shadow-2xl border border-gray-100/50 dark:border-gray-700/50 
-                         transition-all duration-300 hover:shadow-primary/10 dark:hover:shadow-primary/20 hover:-translate-y-2"
+              className="p-6 md:p-8 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-primary/10 dark:hover:shadow-primary/20 hover:-translate-y-2"
             >
               <div className="flex items-center gap-4 mb-5">
-                <div className="p-3.5 rounded-full bg-primary/10 dark:bg-primary/30 text-primary">
+                <div className="p-3.5 rounded-full bg-primary/10 dark:bg-primary/25 text-primary">
                   <card.icon className="w-8 h-8" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+                <h3 className="font-display text-h2 text-foreground">
                   {card.title}
                 </h3>
               </div>
-              
-              <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-6 text-sm md:text-base">
+
+              <p className="text-muted-foreground leading-relaxed mb-6 text-body">
                 {card.description}
               </p>
-              
-              <Link
-                href={card.linkHref}
-                className="inline-flex items-center justify-center w-full px-6 py-3
-                           bg-primary text-primary-foreground font-semibold rounded-xl
-                           hover:bg-primary/90 transition-colors duration-200
-                           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-              >
+
+              <Button href={card.linkHref} size="lg" className="w-full">
                 {card.linkText}
-              </Link>
-            </div>
+              </Button>
+            </Card>
           ))}
         </div>
       </div>

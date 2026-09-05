@@ -9,6 +9,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import type { Vehicle } from '@/types/vehicle';
+import { Badge } from './ui';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -127,15 +128,15 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
           
           {/* ✅ HIÉRARCHIE DES BADGES (Simple et Pro : on n'en affiche qu'un seul) */}
           {vehicle.isBoosted ? (
-            <div className="absolute top-2 left-2 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10 animate-pulse">
+            <Badge variant="boost" className="absolute top-2 left-2 z-10 shadow-lg animate-pulse">
               <Flame className="w-3 h-3" />
-              <span>{t('featured')}</span>
-            </div>
+              {t('featured')}
+            </Badge>
           ) : vehicle.isOwnerPremium ? (
-            <div className="absolute top-2 left-2 bg-slate-900/80 backdrop-blur-md border border-slate-700/50 text-yellow-500 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1 z-10">
+            <Badge variant="premium" className="absolute top-2 left-2 z-10">
               <span className="text-[10px]">👑</span>
-              <span className="text-white">{t('premiumOwner')}</span>
-            </div>
+              {t('premiumOwner')}
+            </Badge>
           ) : null}
 
           {/* Bouton favoris + Badge prix, groupés dans une même rangée en haut à droite */}
@@ -172,13 +173,12 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
 
           {/* Badge de statut si disponible */}
           {vehicle.isAvailable !== undefined && (
-            <div className={`absolute top-3 left-3 px-2 py-1 rounded-md text-xs font-medium z-10 ${
-              vehicle.isAvailable 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' 
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
-            }`}>
+            <Badge
+              variant={vehicle.isAvailable ? 'success' : 'destructive'}
+              className="absolute top-3 left-3 z-10"
+            >
               {vehicle.isAvailable ? t('available') : t('notAvailable')}
-            </div>
+            </Badge>
           )}
         </div>
 
@@ -201,10 +201,10 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
           {/* ✅ Badge Chauffeur Inclus */}
           {vehicle.supportsDriver && (
             <div className="mb-3">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300">
-                <User className="w-3 h-3 mr-1" />
+              <Badge variant="neutral">
+                <User className="w-3 h-3" />
                 {t('driverIncluded')}
-              </span>
+              </Badge>
             </div>
           )}
           
