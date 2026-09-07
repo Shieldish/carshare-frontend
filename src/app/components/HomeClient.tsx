@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import HeroSection from './HeroSection ';
+import HeroSection from './HeroSection';
 import CategoryCardsOverlay from './CategoryCardsOverlay';
 import FilterSidebar from './FilterSidebar';
 import VehicleCard from './VehicleCard';
@@ -13,6 +13,7 @@ import type { Vehicle } from '@/types/vehicle';
 import type { HeroSliderData } from '../page';
 import { Filter, ChevronLeft, ChevronRight, X, AlertCircle, CheckCircle, Info, LayoutGrid, Map as MapIcon, Car } from 'lucide-react';
 import { useFavoriteIds } from '@/hooks/useFavoriteIds';
+import { Button, Card } from './ui';
 
 const MapComponent = dynamic(() => import('./MapComponent'), {
   ssr: false,
@@ -260,21 +261,27 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     if (totalPages <= 1) return null;
     return (
       <div className={`flex items-center justify-center space-x-2 ${className}`}>
-        <button onClick={goToPreviousPage} disabled={currentPage === 1} className={`flex items-center px-3 py-2 rounded-lg transition-colors ${currentPage === 1 ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground hover:bg-muted hover:text-primary'}`}>
-          <ChevronLeft className="h-4 w-4 mr-1" /> {t('previous')}
-        </button>
+        <Button variant="ghost" size="sm" onClick={goToPreviousPage} disabled={currentPage === 1}>
+          <ChevronLeft className="h-4 w-4" /> {t('previous')}
+        </Button>
         <div className="flex items-center space-x-1">
           {getPageNumbers().map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? <span className="px-3 py-2 text-muted-foreground">...</span> : (
-                <button onClick={() => goToPage(page as number)} className={`px-3 py-2 rounded-lg transition-colors ${currentPage === page ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted hover:text-primary'}`}>{page}</button>
+                <Button
+                  variant={currentPage === page ? 'primary' : 'ghost'}
+                  size="sm"
+                  onClick={() => goToPage(page as number)}
+                >
+                  {page}
+                </Button>
               )}
             </React.Fragment>
           ))}
         </div>
-        <button onClick={goToNextPage} disabled={currentPage === totalPages} className={`flex items-center px-3 py-2 rounded-lg transition-colors ${currentPage === totalPages ? 'text-muted-foreground cursor-not-allowed' : 'text-foreground hover:bg-muted hover:text-primary'}`}>
-          {t('next')} <ChevronRight className="h-4 w-4 ml-1" />
-        </button>
+        <Button variant="ghost" size="sm" onClick={goToNextPage} disabled={currentPage === totalPages}>
+          {t('next')} <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
     );
   };
@@ -332,7 +339,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
 
             <div id="all-vehicles-grid" className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pt-4">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 className="font-display text-h1 text-foreground mb-2">
                   {hasActiveFilters ? t('searchResultsTitle') : t('allVehiclesTitle')}
                 </h2>
                 <p className="text-muted-foreground">
@@ -361,29 +368,29 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                   </button>
                 </div>
 
-                <button onClick={() => setIsMobileFilterOpen(true)} className="lg:hidden bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-all">
+                <Button variant="primary" className="lg:hidden" onClick={() => setIsMobileFilterOpen(true)}>
                   <Filter className="w-4 h-4" />
                   <span className="sr-only sm:not-sr-only">{t('filtersButton')}</span>
-                  {hasActiveFilters && <span className="bg-primary-foreground text-primary px-2 py-1 rounded-full text-xs font-medium">{getActiveFiltersCount()}</span>}
-                </button>
+                  {hasActiveFilters && <span className="bg-primary-foreground text-primary px-2 py-1 rounded-full text-micro font-medium">{getActiveFiltersCount()}</span>}
+                </Button>
               </div>
             </div>
 
             <div>
               {isSearching ? (
-                <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-border">
+                <Card className="text-center py-16">
                   <div className="flex items-center justify-center space-x-3 mb-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                     <span className="text-card-foreground font-medium">{t('searching')}</span>
                   </div>
-                </div>
+                </Card>
               ) : filteredVehicles.length > 0 ? (
                 viewMode === 'map' ? (
-                  <div className="h-[600px] w-full rounded-xl overflow-hidden border border-border shadow-sm animate-in fade-in duration-300">
+                  <div className="h-[600px] w-full rounded-xl overflow-hidden border border-border shadow-sm animate-fade-in-up">
                     <MapComponent vehicles={filteredVehicles} />
                   </div>
                 ) : (
-                  <div className="animate-in fade-in duration-300">
+                  <div className="animate-fade-in-up">
                     <PaginationControls className="mb-8" />
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
                       {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} favoritedIds={favoritedIds} />)}
@@ -393,7 +400,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                 )
               ) : allVehicles.length === 0 ? (
                 // ✅ CAS 1 : La plateforme est vide → Empty State simple et professionnel
-                <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-dashed border-border">
+                <Card className="text-center py-16 border-dashed">
                   <div className="max-w-md mx-auto">
                     <Car className="w-14 h-14 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-card-foreground mb-2">
@@ -403,24 +410,21 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                       {t('noVehiclesAtAllDescription')}
                     </p>
                   </div>
-                </div>
+                </Card>
               ) : (
                 // ✅ CAS 2 : Des véhicules existent mais le filtre ne retourne rien → bouton reset utile
-                <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-border">
+                <Card className="text-center py-16">
                   <div className="max-w-md mx-auto">
                     <div className="text-6xl mb-6">🔍</div>
                     <h3 className="text-xl font-semibold text-card-foreground mb-2">{t('noVehiclesMatchTitle')}</h3>
                     <p className="text-muted-foreground mb-6">
                       {t('noVehiclesMatchDescription')}
                     </p>
-                    <button
-                      onClick={handleResetAllFilters}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg transition-colors shadow-sm hover:shadow-md font-medium"
-                    >
+                    <Button onClick={handleResetAllFilters}>
                       {t('viewAllVehicles')}
-                    </button>
+                    </Button>
                   </div>
-                </div>
+                </Card>
               )}
             </div>
           </main>

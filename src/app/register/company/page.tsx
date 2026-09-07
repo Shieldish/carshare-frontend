@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Loader2, ArrowLeft, Building2, Eye, EyeOff, Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
+import { Input, Label, Button } from '@/app/components/ui';
 
 export default function RegisterCompanyPage() {
   const t = useTranslations('auth.registerCompany');
@@ -88,59 +89,59 @@ export default function RegisterCompanyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-4">
           <div className="p-3 bg-primary rounded-full shadow-lg">
             <Building2 className="w-8 h-8 text-primary-foreground" />
           </div>
         </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+        <h2 className="mt-6 text-center font-display text-display text-foreground">
           {t('title')}
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-center text-small text-muted-foreground">
           {t('subtitle')}
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-gray-200 dark:border-gray-700">
+        <div className="bg-card py-8 px-4 shadow-xl sm:rounded-2xl sm:px-10 border border-border">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
-                <span className="text-sm font-medium">{error}</span>
+              <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg flex items-start">
+                <span className="text-small font-medium">{error}</span>
               </div>
             )}
 
             <div>
-              <label htmlFor="companyName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                {t('companyNameLabel')} <span className="text-red-500">*</span>
-              </label>
-              <input type="text" name="companyName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.companyName} onChange={handleChange} disabled={isLoading} />
+              <Label htmlFor="companyName">
+                {t('companyNameLabel')} <span className="text-destructive">*</span>
+              </Label>
+              <Input type="text" name="companyName" id="companyName" required value={formData.companyName} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('firstNameLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" name="firstName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.firstName} onChange={handleChange} disabled={isLoading} />
+                <Label htmlFor="firstName">{t('firstNameLabel')} <span className="text-destructive">*</span></Label>
+                <Input type="text" name="firstName" id="firstName" required value={formData.firstName} onChange={handleChange} disabled={isLoading} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('lastNameLabel')} <span className="text-red-500">*</span></label>
-                <input type="text" name="lastName" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.lastName} onChange={handleChange} disabled={isLoading} />
+                <Label htmlFor="lastName">{t('lastNameLabel')} <span className="text-destructive">*</span></Label>
+                <Input type="text" name="lastName" id="lastName" required value={formData.lastName} onChange={handleChange} disabled={isLoading} />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('emailLabel')} <span className="text-red-500">*</span></label>
-              <input type="email" name="email" required className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.email} onChange={handleChange} disabled={isLoading} />
+              <Label htmlFor="email">{t('emailLabel')} <span className="text-destructive">*</span></Label>
+              <Input type="email" name="email" id="email" required value={formData.email} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('passwordLabel')} <span className="text-red-500">*</span></label>
-              <div className="mt-1 relative rounded-md shadow-sm">
-                <input type={showPassword ? 'text' : 'password'} name="password" required minLength={6} className="block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary pr-10" value={formData.password} onChange={handleChange} disabled={isLoading} />
+              <Label htmlFor="password">{t('passwordLabel')} <span className="text-destructive">*</span></Label>
+              <div className="relative">
+                <Input type={showPassword ? 'text' : 'password'} name="password" id="password" required minLength={6} className="pr-10" value={formData.password} onChange={handleChange} disabled={isLoading} />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button type="button" className="text-gray-400 hover:text-gray-500" onClick={() => setShowPassword(!showPassword)}>
+                  <button type="button" className="text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
@@ -148,58 +149,56 @@ export default function RegisterCompanyPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('confirmPasswordLabel')} <span className="text-red-500">*</span></label>
-              <input type="password" name="confirmPassword" required minLength={6} className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.confirmPassword} onChange={handleChange} disabled={isLoading} />
+              <Label htmlFor="confirmPassword">{t('confirmPasswordLabel')} <span className="text-destructive">*</span></Label>
+              <Input type="password" name="confirmPassword" id="confirmPassword" required minLength={6} value={formData.confirmPassword} onChange={handleChange} disabled={isLoading} />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t('phoneLabel')} <span className="text-red-500">*</span></label>
-              <input type="tel" name="phoneNumber" required placeholder="Ex: +257 79 12 34 56" className="mt-1 block w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary" value={formData.phoneNumber} onChange={handleChange} disabled={isLoading} />
+              <Label htmlFor="phoneNumber">{t('phoneLabel')} <span className="text-destructive">*</span></Label>
+              <Input type="tel" name="phoneNumber" id="phoneNumber" required placeholder="Ex: +257 79 12 34 56" value={formData.phoneNumber} onChange={handleChange} disabled={isLoading} />
             </div>
 
             {/* ✅ NOUVEAU : Choix de la formule (1 mois / 1 an) */}
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <label className="block text-sm font-medium text-gray-900 dark:text-white mb-3">
+            <div className="pt-4 border-t border-border">
+              <Label className="mb-3">
                 {t('planLabel')}
-              </label>
+              </Label>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setDuration(1)}
                   className={`p-3 border-2 rounded-xl text-center transition-all ${
-                    duration === 1 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-gray-200 dark:border-gray-600 hover:border-primary/40'
+                    duration === 1 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-border hover:border-primary/40'
                   }`}
                 >
-                  <h4 className="font-bold text-gray-900 dark:text-white">{t('plan1Month')}</h4>
-                  <p className="text-sm font-semibold text-primary">{t('plan1MonthPrice')}</p>
+                  <h4 className="font-bold text-foreground">{t('plan1Month')}</h4>
+                  <p className="text-small font-semibold text-primary">{t('plan1MonthPrice')}</p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setDuration(12)}
                   className={`p-3 border-2 rounded-xl text-center transition-all relative ${
-                    duration === 12 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-gray-200 dark:border-gray-600 hover:border-primary/40'
+                    duration === 12 ? 'border-primary bg-primary/5 dark:bg-primary/20' : 'border-border hover:border-primary/40'
                   }`}
                 >
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-accent-foreground text-micro font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                     {t('plan1YearBadge')}
                   </div>
-                  <h4 className="font-bold text-gray-900 dark:text-white flex items-center justify-center gap-1">
+                  <h4 className="font-bold text-foreground flex items-center justify-center gap-1">
                     <Calendar size={14}/> {t('plan1Year')}
                   </h4>
-                  <p className="text-sm font-semibold text-primary">{t('plan1YearPrice')}</p>
+                  <p className="text-small font-semibold text-primary">{t('plan1YearPrice')}</p>
                 </button>
               </div>
             </div>
 
-            <div className="pt-2">
-              <button type="submit" disabled={isLoading} className="w-full flex justify-center items-center py-4 px-4 rounded-xl shadow-lg text-lg font-bold text-primary-foreground bg-primary hover:bg-primary/90 disabled:opacity-50 transition-all">
-                {isLoading ? <Loader2 className="animate-spin mr-3" size={20} /> : t('submitButton')}
-              </button>
-            </div>
+            <Button type="submit" disabled={isLoading} size="lg" className="w-full text-body font-bold">
+              {isLoading ? <Loader2 className="animate-spin mr-3" size={20} /> : t('submitButton')}
+            </Button>
 
-            <div className="text-center text-sm mt-4">
-              <Link href="/register" className="inline-flex items-center font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <div className="text-center text-small mt-4">
+              <Link href="/register" className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors">
                 <ArrowLeft className="w-4 h-4 mr-1" /> {t('backToIndividual')}
               </Link>
             </div>

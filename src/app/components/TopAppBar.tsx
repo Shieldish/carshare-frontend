@@ -336,14 +336,14 @@ const TopAppBar = () => {
   if (!mounted || isLoading) {
     return (
       <>
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md h-16">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-              <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div className="h-10 w-10 bg-muted rounded animate-pulse"></div>
+              <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
             </div>
-            <div className="hidden lg:block h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            <div className="h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+            <div className="hidden lg:block h-8 w-32 bg-muted rounded animate-pulse"></div>
+            <div className="h-10 w-10 bg-muted rounded-full animate-pulse"></div>
           </div>
         </header>
         {/* ✅ Spacer identique à celui du bas du fichier — évite le saut de page */}
@@ -380,8 +380,8 @@ const TopAppBar = () => {
       <header 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg border-b border-gray-200 dark:border-gray-700' 
-            : 'bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm'
+            ? 'bg-card/95 backdrop-blur-md shadow-lg border-b border-border' 
+            : 'bg-card/80 backdrop-blur-sm'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -404,7 +404,7 @@ const TopAppBar = () => {
             <div className="hidden lg:flex flex-1 justify-center">
               <Link
                 href="/how-it-works"
-                className="px-6 py-2 text-gray-700 dark:text-gray-300 hover:text-primary transition-colors font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="px-6 py-2 text-foreground hover:text-primary transition-colors font-medium rounded-lg hover:bg-muted"
               >
                 {t('whyOurCarShare')}
               </Link>
@@ -417,11 +417,11 @@ const TopAppBar = () => {
               {user && (
                 <Link
                   href="/favorites"
-                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="p-2 rounded-full hover:bg-muted transition-colors"
                   title={t('favorites')}
                   aria-label={t('favorites')}
                 >
-                  <Heart className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                  <Heart className="h-6 w-6 text-muted-foreground" />
                 </Link>
               )}
 
@@ -431,21 +431,21 @@ const TopAppBar = () => {
                   <button
                     ref={notificationButtonRef}
                     onClick={handleNotificationButtonClick}
-                    className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+                    className="p-2 rounded-full hover:bg-muted transition-colors relative"
                   >
-                    <Bell className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                    <Bell className="h-6 w-6 text-muted-foreground" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-medium">
+                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-medium">
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}
                   </button>
                   
                   {isNotificationMenuOpen && (
-                    <div ref={notificationMenuRef} className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-w-sm sm:max-w-none bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                    <div ref={notificationMenuRef} className="fixed inset-x-4 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-w-sm sm:max-w-none bg-card rounded-lg shadow-lg border border-border z-50">
                       {/* ✅ NOUVEAU : En-tête avec bouton "Tout marquer comme lu" */}
-                      <div className="flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700">
-                        <div className="font-semibold text-gray-900 dark:text-white">
+                      <div className="flex justify-between items-center p-3 border-b border-border">
+                        <div className="font-semibold text-foreground">
                           {t('notifications')}
                         </div>
                         {/* Bouton visible seulement s'il y a des notifications non lues */}
@@ -455,8 +455,8 @@ const TopAppBar = () => {
                             disabled={isLoadingMarkAll}
                             className={`text-xs font-medium px-2 py-1 rounded transition-colors ${
                               isLoadingMarkAll
-                                ? 'text-gray-400 cursor-not-allowed'
-                                : 'text-primary hover:text-primary/80 hover:bg-primary/10 dark:hover:bg-gray-700'
+                                ? 'text-muted-foreground cursor-not-allowed'
+                                : 'text-primary hover:text-primary/80 hover:bg-primary/10'
                             }`}
                           >
                             {isLoadingMarkAll ? '⏳' : '✓'} {t('markAllAsRead')}
@@ -477,16 +477,16 @@ const TopAppBar = () => {
                                 onClick={() => handleNotificationClick(notif)}
                                 className="block cursor-pointer"
                               >
-                                <div className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 flex items-start gap-2">
+                                <div className="p-3 hover:bg-muted border-b border-border flex items-start gap-2">
                                   {NotifIcon && translatedText && (
                                     <NotifIcon className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
                                   )}
                                   <div>
                                     {/* ✅ SÉCURITÉ : On s'assure d'afficher uniquement des strings */}
-                                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                                    <p className="text-sm text-foreground">
                                       {translatedText ?? (typeof notif.message === 'string' ? notif.message : JSON.stringify(notif.message))}
                                     </p>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <p className="text-xs text-muted-foreground mt-1">
                                       {notif.createdAt
                                         ? new Date(notif.createdAt).toLocaleString(locale)
                                         : ''}
@@ -497,7 +497,7 @@ const TopAppBar = () => {
                             );
                           })
                         ) : (
-                          <p className="text-sm text-gray-500 p-4 text-center">
+                          <p className="text-sm text-muted-foreground p-4 text-center">
                             {t('noNotifications')}
                           </p>
                         )}
@@ -505,10 +505,10 @@ const TopAppBar = () => {
                       
                       {/* ✅ NOUVEAU : Bouton "Voir l'historique" qui s'affiche seulement si on ne voit pas déjà tout */}
                       {!showAllNotifications && notifications.length > 0 && (
-                        <div className="border-t border-gray-100 dark:border-gray-600 p-2">
+                        <div className="border-t border-border p-2">
                           <button
                             onClick={() => setShowAllNotifications(true)}
-                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10 dark:hover:bg-gray-700"
+                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10"
                           >
                             {t('viewHistory')}
                           </button>
@@ -517,10 +517,10 @@ const TopAppBar = () => {
                       
                       {/* ✅ NOUVEAU : Bouton "Voir seulement les nouvelles" qui s'affiche si on regarde l'historique */}
                       {showAllNotifications && (
-                        <div className="border-t border-gray-100 dark:border-gray-600 p-2">
+                        <div className="border-t border-border p-2">
                           <button
                             onClick={() => setShowAllNotifications(false)}
-                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10 dark:hover:bg-gray-700"
+                            className="w-full text-center text-sm text-primary hover:text-primary/80 font-medium py-2 rounded transition-colors hover:bg-primary/10"
                           >
                             {t('viewNewOnly')}
                           </button>
@@ -541,11 +541,11 @@ const TopAppBar = () => {
                 <button
                   ref={profileButtonRef}
                   onClick={handleProfileButtonClick}
-                  className="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+                  className="flex items-center space-x-2 p-2 rounded-full hover:bg-muted transition-colors group"
                 >
                   {user ? (
                     user.profilePictureUrl ? (
-                      <div className="h-10 w-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <div className="h-10 w-10 rounded-full overflow-hidden border border-border shadow-sm">
                         <Image 
                           src={user.profilePictureUrl} 
                           alt="Profile" 
@@ -560,18 +560,18 @@ const TopAppBar = () => {
                       </div>
                     )
                   ) : (
-                    <UserCircle className="h-10 w-10 text-gray-600 dark:text-gray-400 group-hover:text-primary" />
+                    <UserCircle className="h-10 w-10 text-muted-foreground group-hover:text-primary" />
                   )}
-                  <ChevronDown className={`h-4 w-4 text-gray-600 dark:text-gray-400 transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${isProfileMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
                 {isProfileMenuOpen && (
-                  <div ref={profileMenuRef} className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2">
+                  <div ref={profileMenuRef} className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border py-2">
                     {user && (
-                      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="px-4 py-3 border-b border-border">
                         <div className="flex items-center space-x-3">
                           {user.profilePictureUrl ? (
-                            <div className="h-10 w-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-700 flex-shrink-0">
+                            <div className="h-10 w-10 rounded-full overflow-hidden border border-border flex-shrink-0">
                               <Image 
                                 src={user.profilePictureUrl} 
                                 alt="Profile" 
@@ -586,21 +586,21 @@ const TopAppBar = () => {
                             </div>
                           )}
                           <div className="overflow-hidden">
-                            <p className="font-medium text-gray-900 dark:text-white truncate">{user.firstName || user.sub.split('@')[0]}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.sub}</p>
+                            <p className="font-medium text-foreground truncate">{user.firstName || user.sub.split('@')[0]}</p>
+                            <p className="text-sm text-muted-foreground truncate">{user.sub}</p>
                           </div>
                         </div>
                       </div>
                     )}
                     {profileMenuItems.map((item, index) => (
                       <div key={index}>
-                        {item.divider && <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>}
+                        {item.divider && <div className="border-t border-border my-2"></div>}
                         {item.href ? (
-                          <Link href={item.href} className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" onClick={() => setIsProfileMenuOpen(false)}>
+                          <Link href={item.href} className="flex items-center space-x-3 px-4 py-3 text-foreground hover:bg-muted" onClick={() => setIsProfileMenuOpen(false)}>
                             <item.icon className="h-5 w-5" /><span>{item.label}</span>
                           </Link>
                         ) : (
-                          <button onClick={item.onClick} className="flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 text-left">
+                          <button onClick={item.onClick} className="flex items-center space-x-3 w-full px-4 py-3 text-foreground hover:bg-muted text-left">
                             <item.icon className="h-5 w-5" /><span>{item.label}</span>
                           </button>
                         )}
@@ -617,7 +617,7 @@ const TopAppBar = () => {
                     setIsMobileMenuOpen(!isMobileMenuOpen);
                     setIsNotificationMenuOpen(false);
                   }}
-                  className="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  className="p-2 rounded-md text-muted-foreground hover:bg-muted transition-colors"
                 >
                   {isMobileMenuOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
                 </button>
@@ -629,13 +629,13 @@ const TopAppBar = () => {
 
         {/* --- MENU DÉROULANT COMPLET POUR MOBILE --- */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-16 left-0 w-full bg-white dark:bg-gray-900 shadow-2xl border-t border-gray-200 dark:border-gray-800 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="lg:hidden absolute top-16 left-0 w-full bg-card shadow-2xl border-t border-border max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
               
               <Link
                 href="/how-it-works"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 text-gray-800 dark:text-gray-200 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg font-medium"
+                className="flex items-center space-x-3 px-4 py-3 text-foreground hover:bg-primary/10 rounded-lg font-medium"
               >
                 <HelpCircle className="h-5 w-5 text-primary" />
                 <span>{t('whyOurCarShare')}</span>
@@ -643,13 +643,13 @@ const TopAppBar = () => {
 
               <LanguageSwitcher variant="mobile" onSelect={() => setIsMobileMenuOpen(false)} />
 
-              <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>
+              <div className="border-t border-border my-2"></div>
 
               {/* Infos de l'utilisateur */}
               {user && (
-                <div className="px-4 py-4 flex items-center space-x-4 mb-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="px-4 py-4 flex items-center space-x-4 mb-2 bg-muted rounded-lg">
                   {user.profilePictureUrl ? (
-                    <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-gray-200 dark:border-gray-700 shadow-sm flex-shrink-0">
+                    <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-border shadow-sm flex-shrink-0">
                       <Image 
                         src={user.profilePictureUrl} 
                         alt="Profile" 
@@ -664,10 +664,10 @@ const TopAppBar = () => {
                     </div>
                   )}
                   <div className="overflow-hidden">
-                    <p className="font-semibold text-gray-900 dark:text-white truncate">
+                    <p className="font-semibold text-foreground truncate">
                       {user.firstName || user.sub.split('@')[0]}
                     </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                    <p className="text-sm text-muted-foreground truncate">
                       {user.sub}
                     </p>
                   </div>
@@ -677,14 +677,14 @@ const TopAppBar = () => {
               {/* Tous les autres liens (Mon Profil, Login, Langue, Thème...) injectés automatiquement */}
               {profileMenuItems.map((item, index) => (
                 <div key={index}>
-                  {item.divider && <div className="border-t border-gray-200 dark:border-gray-800 my-2"></div>}
+                  {item.divider && <div className="border-t border-border my-2"></div>}
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className="flex items-center space-x-3 px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors font-medium"
+                      className="flex items-center space-x-3 px-4 py-3 text-foreground hover:bg-primary/10 rounded-lg transition-colors font-medium"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                      <item.icon className="h-5 w-5 text-muted-foreground" />
                       <span>{item.label}</span>
                     </Link>
                   ) : (
@@ -693,9 +693,9 @@ const TopAppBar = () => {
                         if (item.onClick) item.onClick();
                         setIsMobileMenuOpen(false); 
                       }}
-                      className="flex items-center space-x-3 w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-primary/10 dark:hover:bg-gray-800 rounded-lg transition-colors text-left font-medium"
+                      className="flex items-center space-x-3 w-full px-4 py-3 text-foreground hover:bg-primary/10 rounded-lg transition-colors text-left font-medium"
                     >
-                      <item.icon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                      <item.icon className="h-5 w-5 text-muted-foreground" />
                       <span>{item.label}</span>
                     </button>
                   )}

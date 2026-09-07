@@ -13,7 +13,7 @@ function LoginContent() {
   const redirectTo = searchParams.get('redirect') || '/';
 
   return (
-    <div className="bg-card dark:bg-card p-6 sm:p-8 rounded-xl shadow-lg border border-border dark:border-border">
+    <div className="bg-card p-6 sm:p-8 rounded-xl shadow-lg border border-border">
       {registrationSuccess && (
         <div className="mb-6 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 text-green-700 dark:text-green-400 px-4 py-3 rounded-lg" role="alert">
           <p className="font-bold">{t('registrationSuccessTitle')}</p>
@@ -28,17 +28,17 @@ function LoginContent() {
         </div>
       )}
 
-      <h1 className="text-2xl sm:text-3xl font-bold text-center text-foreground dark:text-foreground mb-6">
+      <h1 className="font-display text-display text-center text-foreground mb-6">
         {t('title')}
       </h1>
 
       <LoginForm redirectTo={redirectTo} />
 
-      <p className="text-center text-sm text-muted-foreground dark:text-muted-foreground mt-8">
+      <p className="text-center text-small text-muted-foreground mt-8">
         {t('noAccount')}{' '}
         <Link
           href={`/register${redirectTo !== '/' ? `?redirect=${encodeURIComponent(redirectTo)}` : ''}`}
-          className="font-medium text-primary dark:text-primary hover:underline"
+          className="font-medium text-primary hover:underline"
         >
           {t('signUpLink')}
         </Link>

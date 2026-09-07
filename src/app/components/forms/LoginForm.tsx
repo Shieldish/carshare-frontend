@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { jwtDecode } from 'jwt-decode';
+import { Input, Label, Button } from '@/app/components/ui';
 
 interface LoginFormProps {
   redirectTo?: string;
@@ -82,40 +83,39 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg" role="alert">
+        <div className="bg-destructive/10 border border-destructive/30 text-destructive px-4 py-3 rounded-lg text-small" role="alert">
           <span>{error}</span>
         </div>
       )}
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">{t('emailLabel')}</label>
-        <input
+        <Label htmlFor="email">{t('emailLabel')}</Label>
+        <Input
           type="email"
           name="email"
           id="email"
           required
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
           value={formData.email}
           onChange={handleChange}
         />
       </div>
 
       <div>
-        <div className="flex items-center justify-between">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">{t('passwordLabel')}</label>
-          <div className="text-sm">
+        <div className="flex items-center justify-between mb-1.5">
+          <label htmlFor="password" className="text-small font-medium text-foreground">{t('passwordLabel')}</label>
+          <div className="text-small">
             <Link href="/forgot-password" className="font-medium text-primary hover:text-primary/80">
               {t('forgotPasswordLink')}
             </Link>
           </div>
         </div>
-        <div className="mt-1 relative rounded-md shadow-sm">
-          <input
+        <div className="relative">
+          <Input
             type={showPassword ? 'text' : 'password'}
             name="password"
             id="password"
             required
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
+            className="pr-10 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
             value={formData.password}
             onChange={handleChange}
           />
@@ -124,7 +124,7 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
             onClick={() => setShowPassword((prev) => !prev)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
             aria-pressed={showPassword}
-            className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
+            className="absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-md"
           >
             {showPassword ? (
               <EyeOff className="h-5 w-5" aria-hidden="true" />
@@ -135,15 +135,9 @@ export default function LoginForm({ redirectTo = '/' }: LoginFormProps) {
         </div>
       </div>
 
-      <div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:bg-primary/40"
-        >
-          {isLoading ? t('submitting') : t('submitButton')}
-        </button>
-      </div>
+      <Button type="submit" disabled={isLoading} size="lg" className="w-full">
+        {isLoading ? t('submitting') : t('submitButton')}
+      </Button>
     </form>
   );
 }

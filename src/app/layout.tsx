@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -24,6 +24,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Police d'accent réservée aux titres (hero, en-têtes de section, pages d'auth) —
+// jamais pour le corps de texte, les boutons ou les formulaires. Voir tailwind.config.js
+// (fontFamily.display) et l'échelle fontSize associée.
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('metadata');
   return {
@@ -42,7 +51,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 dark:bg-gray-900 min-h-screen flex flex-col transition-colors`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased min-h-screen flex flex-col transition-colors`}>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <NotificationProvider>

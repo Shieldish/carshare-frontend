@@ -8,6 +8,25 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['var(--font-display)'],
+      },
+      fontSize: {
+        display: ['clamp(1.75rem, 1.35rem + 2vw, 2.75rem)', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
+        h1: ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '700' }],
+        h2: ['1.5rem', { lineHeight: '1.25', fontWeight: '700' }],
+        h3: ['1.125rem', { lineHeight: '1.35', fontWeight: '600' }],
+        body: ['0.9375rem', { lineHeight: '1.6' }],
+        small: ['0.8125rem', { lineHeight: '1.5' }],
+        micro: ['0.6875rem', { lineHeight: '1.4' }],
+      },
+      borderRadius: {
+        sm: '0.375rem',
+        DEFAULT: '0.5rem',
+        md: '0.625rem',
+        lg: '0.75rem',
+        xl: '1rem',
+      },
       colors: {
         background: 'rgb(var(--background))',
         foreground: 'rgb(var(--foreground))',
@@ -41,6 +60,10 @@ module.exports = {
       },
       animation: {
         'fade-in-up': 'fade-in-up 0.2s ease-out',
+        // Séquence d'entrée du hero uniquement (plus lente, easing "overshoot doux") —
+        // même keyframe que fade-in-up, durée distincte pour ne pas la réutiliser
+        // ailleurs comme micro-interaction.
+        'hero-in': 'fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
     },
   },
