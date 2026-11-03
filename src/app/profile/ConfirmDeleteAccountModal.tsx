@@ -1,6 +1,8 @@
 // ConfirmDeleteAccountModal.tsx
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Trash2, Loader2 } from 'lucide-react';
+import { Dialog, DialogBody, DialogFooter, Button, Input } from '@/app/components/ui';
 
 interface ConfirmDeleteAccountModalProps {
   isOpen: boolean;
@@ -21,40 +23,16 @@ const ConfirmDeleteAccountModal: React.FC<ConfirmDeleteAccountModalProps> = ({
   const [typedEmail, setTypedEmail] = useState('');
 
   React.useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isLoading) onClose();
-    };
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, isLoading, onClose]);
-
-  React.useEffect(() => {
     if (!isOpen) setTypedEmail('');
   }, [isOpen]);
-
-  if (!isOpen) return null;
 
   const canConfirm = typedEmail.trim().toLowerCase() === userEmail.trim().toLowerCase();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black transition-opacity duration-300"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-        onClick={!isLoading ? onClose : undefined}
-      />
-
-      <div className="relative bg-card rounded-xl p-6 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-red-100 dark:bg-red-900/30 rounded-full">
-          <svg className="w-8 h-8 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
+    <Dialog open={isOpen} onClose={onClose} size="sm" dismissible={!isLoading}>
+      <DialogBody className="pt-6">
+        <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-destructive/10 rounded-full">
+          <Trash2 className="w-8 h-8 text-destructive" />
         </div>
 
         <div className="text-center mb-6">
@@ -65,50 +43,33 @@ const ConfirmDeleteAccountModal: React.FC<ConfirmDeleteAccountModalProps> = ({
             <li>• {t('point2')}</li>
             <li>• {t('point3')}</li>
           </ul>
-          <p className="text-sm text-red-600 dark:text-red-400 mt-3 font-medium">{t('irreversible')}</p>
+          <p className="text-sm text-destructive mt-3 font-medium">{t('irreversible')}</p>
         </div>
 
-        <div className="mb-4">
+        <div>
           <label className="block text-sm font-medium text-foreground mb-2">
             {t('confirmPrompt', { email: userEmail })}
           </label>
-          <input
+          <Input
             type="text"
             value={typedEmail}
             onChange={(e) => setTypedEmail(e.target.value)}
             disabled={isLoading}
-            className="w-full px-3 py-2.5 border border-border rounded-lg bg-input text-foreground focus:ring-2 focus:ring-red-500 focus:border-red-500 disabled:opacity-50"
             placeholder={userEmail}
             autoComplete="off"
+            className="focus-visible:ring-destructive"
           />
         </div>
-
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1 px-4 py-3 border border-border text-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {t('cancel')}
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isLoading || !canConfirm}
-            className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-red-900/40 disabled:cursor-not-allowed flex items-center justify-center transition-colors font-medium"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                {t('deleting')}
-              </>
-            ) : (
-              t('confirm')
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="flex-1">
+          {t('cancel')}
+        </Button>
+        <Button variant="destructive" onClick={onConfirm} disabled={isLoading || !canConfirm} className="flex-1">
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t('confirm')}
+        </Button>
+      </DialogFooter>
+    </Dialog>
   );
 };
 

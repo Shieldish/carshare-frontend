@@ -5,6 +5,7 @@ import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ArrowLeft, LayoutDashboard, TrendingUp, Receipt } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/app/components/ui';
 
 interface FinancialLayoutProps {
   children: React.ReactNode;
@@ -48,13 +49,10 @@ const FinancialLayout: React.FC<FinancialLayoutProps> = ({ children }) => {
         <div className="container mx-auto max-w-6xl px-4 py-4">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-foreground">{t('title')}</h1>
-            <button
-              onClick={() => router.back()}
-              className="inline-flex items-center text-foreground hover:text-primary transition-colors group text-sm"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1 group-hover:-translate-x-0.5 transition-transform" />
+            <Button variant="ghost" size="sm" onClick={() => router.back()} className="group px-0 hover:bg-transparent hover:text-primary">
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
               {t('back')}
-            </button>
+            </Button>
           </div>
 
           {/* Navigation Tabs */}

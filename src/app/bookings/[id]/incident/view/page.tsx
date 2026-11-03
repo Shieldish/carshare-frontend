@@ -9,7 +9,7 @@ import { apiClient, ApiError } from '@/lib/apiClient';
 import IncidentDetailsDisplay from '@/app/components/incident/IncidentDetailsDisplay';
 import { IncidentReportDetails } from '@/types/incident';
 import { Loader2, AlertCircle, ArrowLeft, PlusCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/app/components/ui';
 
 function IncidentViewPageContent() {
     const t = useTranslations('incident.view');
@@ -98,7 +98,7 @@ function IncidentViewPageContent() {
 
         if (error) {
              return (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-start" role="alert">
+                <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive flex items-start" role="alert">
                     <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
                     <span>{error}</span>
                 </div>
@@ -109,13 +109,10 @@ function IncidentViewPageContent() {
              return (
                  <div className="text-center py-10 bg-muted rounded-lg">
                      <p className="text-muted-foreground mb-4">{t('noReports')}</p>
-                      <Link
-                        href={`/bookings/${bookingId}/incident/report`}
-                         className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-                      >
-                         <PlusCircle className="w-4 h-4 mr-2"/>
+                      <Button href={`/bookings/${bookingId}/incident/report`}>
+                         <PlusCircle className="w-4 h-4"/>
                          {t('reportNew')}
-                     </Link>
+                     </Button>
                  </div>
              );
          }
@@ -140,13 +137,10 @@ function IncidentViewPageContent() {
          <div className="min-h-screen bg-background">
              <div className="bg-card border-b border-border">
                 <div className="container mx-auto max-w-4xl px-4 py-4">
-                     <button
-                        onClick={() => router.push(isOwner ? '/dashboard/owner' : '/bookings/my-bookings')}
-                        className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
-                     >
-                        <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                     <Button variant="ghost" onClick={() => router.push(isOwner ? '/dashboard/owner' : '/bookings/my-bookings')} className="group px-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                         {isOwner ? t('backToDashboard') : t('backToBookings')}
-                     </button>
+                     </Button>
                 </div>
             </div>
              <div className="container mx-auto max-w-2xl py-8 px-4">

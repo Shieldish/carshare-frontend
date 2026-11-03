@@ -5,6 +5,7 @@ import React from 'react';
 import type { OwnerFinancialSummary } from '@/types/financial';
 import { DollarSign, CheckSquare, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { StatCard } from '@/app/components/ui';
 
 interface Props {
   summary: OwnerFinancialSummary | null;
@@ -27,7 +28,7 @@ const FinancialSummaryCard: React.FC<Props> = ({ summary, isLoading, error }) =>
 
   if (error) {
     return (
-      <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-md" role="alert">
+      <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive" role="alert">
         {t('summaryError')}: {error}
       </div>
     );
@@ -41,62 +42,44 @@ const FinancialSummaryCard: React.FC<Props> = ({ summary, isLoading, error }) =>
     );
   }
 
+  const netIsNegative = Boolean(summary.netEarnings && summary.netEarnings < 0);
+
   return (
-    <div className="bg-primary text-white p-6 rounded-xl shadow-lg">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold flex items-center">
-          <TrendingUp className="w-5 h-5 mr-2 opacity-80" />
-          {t('summaryTitle')}
-        </h2>
-      </div>
-      
+    <div>
+      <h2 className="mb-4 flex items-center text-h3 text-foreground">
+        <TrendingUp className="mr-2 h-5 w-5 text-primary" />
+        {t('summaryTitle')}
+      </h2>
+
       {/* Grille à 3 colonnes pour Revenus, Dépenses, Bénéfice */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Revenus */}
-        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-          <div className="flex items-center text-sm font-medium opacity-80 mb-1">
-            <DollarSign size={16} className="mr-1.5 text-green-300" />
-            {t('totalRevenueLabel')}
-          </div>
-          <div className="text-2xl font-bold">
-            {summary.totalEarnings?.toLocaleString('fr-FR') ?? 0} FBu
-          </div>
-        </div>
-        
-        {/* Dépenses */}
-        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-          <div className="flex items-center text-sm font-medium opacity-80 mb-1">
-            <TrendingDown size={16} className="mr-1.5 text-red-300" />
-            {t('totalExpensesLabel')}
-          </div>
-          <div className="text-2xl font-bold">
-            {summary.totalExpenses?.toLocaleString('fr-FR') ?? 0} FBu
-          </div>
-        </div>
-        
-        {/* Bénéfice Net */}
-        <div className="bg-white/20 backdrop-blur-sm p-4 rounded-lg border border-white/30">
-          <div className="flex items-center text-sm font-medium opacity-90 mb-1">
-            <Wallet size={16} className="mr-1.5 text-yellow-300" />
-            {t('netProfitLabel')}
-          </div>
-          <div className={`text-2xl font-bold ${summary.netEarnings && summary.netEarnings < 0 ? 'text-red-300' : 'text-yellow-300'}`}>
-            {summary.netEarnings?.toLocaleString('fr-FR') ?? 0} FBu
-          </div>
-        </div>
-      </div>
-      
-      {/* Réservations complétées */}
-      <div className="mt-4 bg-white/10 backdrop-blur-sm p-3 rounded-lg text-center">
-        <div className="flex items-center justify-center text-sm font-medium opacity-80">
-          <CheckSquare size={16} className="mr-1.5" />
-          {t('completedBookingsLabel')}: {summary.completedBookingsCount ?? 0}
-        </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={DollarSign}
+          label={t('totalRevenueLabel')}
+          value={`${summary.totalEarnings?.toLocaleString('fr-FR') ?? 0} FBu`}
+          tone="success"
+        />
+        <StatCard
+          icon={TrendingDown}
+          label={t('totalExpensesLabel')}
+          value={`${summary.totalExpenses?.toLocaleString('fr-FR') ?? 0} FBu`}
+          tone="destructive"
+        />
+        <StatCard
+          icon={Wallet}
+          label={t('netProfitLabel')}
+          value={`${summary.netEarnings?.toLocaleString('fr-FR') ?? 0} FBu`}
+          tone={netIsNegative ? 'destructive' : 'accent'}
+        />
       </div>
 
-      <p className="text-xs opacity-70 mt-3 text-center">
-        {t('summaryFootnote')}
-      </p>
+      {/* Réservations complétées */}
+      <div className="mt-4 rounded-lg bg-muted p-3 text-center text-small font-medium text-muted-foreground">
+        <CheckSquare size={16} className="-mt-0.5 mr-1.5 inline" />
+        {t('completedBookingsLabel')}: {summary.completedBookingsCount ?? 0}
+      </div>
+
+      <p className="mt-3 text-center text-micro text-muted-foreground">{t('summaryFootnote')}</p>
     </div>
   );
 };

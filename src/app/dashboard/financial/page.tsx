@@ -9,6 +9,7 @@ import FinancialSummaryCard from '@/app/components/financial/FinancialSummaryCar
 import type { OwnerFinancialSummary, TransactionDetail } from '@/types/financial';
 import { Calendar as CalendarIcon, FilterX, ArrowRight, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Card, Input } from '@/app/components/ui';
 
 export default function FinancialDashboardPage() {
   const t = useTranslations('dashboardFinancial');
@@ -150,21 +151,21 @@ export default function FinancialDashboardPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-grow md:flex-grow-0">
-            <input
+            <Input
               type="date"
               value={formatDateForInput(startDate)}
               onChange={handleStartDateChange}
               max={formatDateForInput(endDate || new Date())}
-              className="px-2 py-1.5 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-auto py-1.5 text-small"
             />
             <span className="text-muted-foreground">-</span>
-            <input
+            <Input
               type="date"
               value={formatDateForInput(endDate)}
               onChange={handleEndDateChange}
               min={formatDateForInput(startDate)}
               max={formatDateForInput(new Date())}
-              className="px-2 py-1.5 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-auto py-1.5 text-small"
             />
           </div>
 
@@ -191,34 +192,32 @@ export default function FinancialDashboardPage() {
 
       {/* Actions Rapides */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <button
-          onClick={() => router.push('/dashboard/financial/revenue')}
-          className="bg-card hover:bg-muted border border-border rounded-lg p-6 text-left transition-colors group"
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageRevenueTitle')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('manageRevenueDescription')}
-              </p>
+        <button onClick={() => router.push('/dashboard/financial/revenue')} className="block w-full text-left group">
+          <Card interactive className="p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageRevenueTitle')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('manageRevenueDescription')}
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-          </div>
+          </Card>
         </button>
 
-        <button
-          onClick={() => router.push('/dashboard/financial/expenses')}
-          className="bg-card hover:bg-muted border border-border rounded-lg p-6 text-left transition-colors group"
-        >
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageExpensesTitle')}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t('manageExpensesDescription')}
-              </p>
+        <button onClick={() => router.push('/dashboard/financial/expenses')} className="block w-full text-left group">
+          <Card interactive className="p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{t('manageExpensesTitle')}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {t('manageExpensesDescription')}
+                </p>
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
             </div>
-            <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-          </div>
+          </Card>
         </button>
       </div>
 

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import TransactionList from '@/app/components/financial/TransactionList';
 import { Calendar as CalendarIcon, FilterX, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Input } from '@/app/components/ui';
 
 export default function RevenuePage() {
   const t = useTranslations('dashboardFinancial');
@@ -110,21 +111,21 @@ export default function RevenuePage() {
           </div>
 
           <div className="flex items-center gap-2 flex-grow md:flex-grow-0">
-            <input
+            <Input
               type="date"
               value={formatDateForInput(startDate)}
               onChange={handleStartDateChange}
               max={formatDateForInput(endDate || new Date())}
-              className="px-2 py-1.5 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-auto py-1.5 text-small"
             />
             <span className="text-muted-foreground">-</span>
-            <input
+            <Input
               type="date"
               value={formatDateForInput(endDate)}
               onChange={handleEndDateChange}
               min={formatDateForInput(startDate)}
               max={formatDateForInput(new Date())}
-              className="px-2 py-1.5 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              className="w-auto py-1.5 text-small"
             />
           </div>
 

@@ -64,6 +64,9 @@ module.exports = {
         // même keyframe que fade-in-up, durée distincte pour ne pas la réutiliser
         // ailleurs comme micro-interaction.
         'hero-in': 'fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'overlay-in': 'overlay-in 0.15s ease-out',
+        'dialog-in': 'dialog-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both',
+        'toast-in': 'toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both',
       },
     },
   },

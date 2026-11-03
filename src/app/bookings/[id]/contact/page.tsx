@@ -8,8 +8,9 @@ import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import type { BookingStatus } from '@/types/booking';
 import PhoneInputModal from '@/app/bookings/my-bookings/PhoneInputModal';
-import { MessageCircle, Phone, ArrowLeft, Clock, CheckCircle, AlertCircle, Building2, Shield, Circle, Info } from 'lucide-react';
+import { MessageCircle, Phone, ArrowLeft, Clock, CheckCircle, AlertCircle, Building2, Shield, Circle, Info, CreditCard, Smartphone } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Button } from '@/app/components/ui';
 
 // ✅ TYPE MIS À JOUR : params est une Promise
 type ContactPageProps = {
@@ -240,12 +241,9 @@ export default function BookingContactPage({ params }: ContactPageProps) {
             </div>
             <h3 className="text-lg font-medium text-red-800 dark:text-red-300 mb-2">{t('errorTitle')}</h3>
             <p className="text-red-600 dark:text-red-400 mb-4">{error || t('bookingNotFound')}</p>
-            <button
-              onClick={() => router.push('/bookings/my-bookings')}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-            >
+            <Button variant="destructive" onClick={() => router.push('/bookings/my-bookings')}>
               {t('backToBookings')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -350,13 +348,10 @@ export default function BookingContactPage({ params }: ContactPageProps) {
       {/* Header avec navigation */}
       <div className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <button
-            onClick={() => router.push('/bookings/my-bookings')}
-            className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          <Button variant="ghost" onClick={() => router.push('/bookings/my-bookings')} className="group px-0 text-primary hover:bg-transparent hover:text-primary/80">
+            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             {t('backToBookings')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -377,7 +372,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Colonne gauche : Détails de la réservation */}
           <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border">
-            <div className="relative bg-gray-100 dark:bg-gray-800 h-64 sm:h-80 w-full">
+            <div className="relative bg-muted h-64 sm:h-80 w-full">
               <Image 
                 src={displayImage}
                 alt={`${booking.vehicle.make} ${booking.vehicle.model}`}
@@ -450,10 +445,10 @@ export default function BookingContactPage({ params }: ContactPageProps) {
 
             {/* Message d'erreur pour le paiement */}
             {paymentError && (
-              <div className="bg-red-100 dark:bg-red-900 border-2 border-red-300 dark:border-red-700 rounded-lg p-4 mb-4">
+              <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4 mb-4">
                 <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-red-700 dark:text-red-300 mr-2 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-red-900 dark:text-red-100 font-medium">
+                  <AlertCircle className="w-5 h-5 text-destructive mr-2 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-destructive font-medium">
                     {paymentError}
                   </p>
                 </div>
@@ -463,16 +458,10 @@ export default function BookingContactPage({ params }: ContactPageProps) {
             {/* Boutons de contact et Paiement */}
             <div className="space-y-3 mb-6">
               {contactContent.showPaymentButton && (
-                <button
-                  onClick={handleOnlinePayment}
-                  disabled={isPaymentLoading}
-                  className="w-full flex items-center justify-center bg-primary hover:bg-primary/90 disabled:bg-primary/40 text-primary-foreground py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
-                >
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z" />
-                  </svg>
+                <Button onClick={handleOnlinePayment} disabled={isPaymentLoading} size="lg" className="w-full">
+                  <CreditCard className="w-5 h-5" />
                   {isPaymentLoading ? t('initializing') : t('payNow')}
-                </button>
+                </Button>
               )}
 
               {/* BOUTON MOBILE MONEY */}
@@ -481,9 +470,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
                   onClick={() => setShowMobileModal(true)}
                   className="w-full flex items-center justify-center bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg hover:shadow-xl"
                 >
-                  <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
+                  <Smartphone className="w-5 h-5 mr-3" />
                   {t('payMobileMoney')}
                 </button>
               )}

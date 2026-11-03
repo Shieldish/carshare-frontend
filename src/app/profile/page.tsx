@@ -9,6 +9,70 @@ import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import ConfirmDeleteAccountModal from './ConfirmDeleteAccountModal';
+import { Dialog, DialogHeader, DialogTitle, DialogBody, Button, Badge, type BadgeVariant } from '@/app/components/ui';
+import { cn } from '@/lib/cn';
+
+type VerificationStatus = 'verified' | 'pending' | 'none';
+
+function getVerificationStatus(isVerified?: boolean, documentUrl?: string): VerificationStatus {
+  if (isVerified) return 'verified';
+  if (documentUrl) return 'pending';
+  return 'none';
+}
+
+const VERIFICATION_TONE: Record<VerificationStatus, { panel: string; badge: BadgeVariant; icon: 'check' | 'alert'; iconClass: string }> = {
+  verified: {
+    panel: 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700',
+    badge: 'success',
+    icon: 'check',
+    iconClass: 'text-green-600 dark:text-green-400',
+  },
+  pending: {
+    panel: 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30',
+    badge: 'primary',
+    icon: 'alert',
+    iconClass: 'text-primary',
+  },
+  none: {
+    panel: 'bg-muted border-border',
+    badge: 'neutral',
+    icon: 'alert',
+    iconClass: 'text-muted-foreground',
+  },
+};
+
+// ✅ Unifie les 3 blocs identité/permis/selfie, qui recalculaient chacun leur
+// propre bordure/fond/badge à partir du même triplet verified/pending/none
+// (avec des gris bruts sans variante dark: par endroits). Le contenu
+// d'upload (propre à chaque document) reste passé en `children`.
+function VerificationItemCard({
+  label,
+  status,
+  statusLabel,
+  children,
+}: {
+  label: string;
+  status: VerificationStatus;
+  statusLabel: string;
+  children?: React.ReactNode;
+}) {
+  const tone = VERIFICATION_TONE[status];
+  const Icon = tone.icon === 'check' ? BadgeCheck : BadgeAlert;
+  return (
+    <div className={cn('p-3 rounded-lg border', tone.panel)}>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon className={cn('w-5 h-5', tone.iconClass)} />
+            <span className="font-medium text-sm text-foreground">{label}</span>
+          </div>
+          <Badge variant={tone.badge}>{statusLabel}</Badge>
+        </div>
+        {status !== 'verified' && children}
+      </div>
+    </div>
+  );
+}
 
 type UserFormData = {
   firstName: string;
@@ -68,62 +132,53 @@ function WebcamModal({ onCapture, onClose, isProfilePicture = false }: { onCaptu
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-x-hidden overflow-y-auto shadow-2xl">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
-          <h3 className="font-bold text-lg flex items-center gap-2">
-            <Camera className="w-5 h-5" /> {t('liveCaptureTitle')}
-          </h3>
-          <button onClick={onClose} aria-label="Close" className="p-2 -m-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full transition-colors">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-        
-        <div className="p-6 flex flex-col items-center">
-          {error ? (
-            <div className="text-red-500 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg text-center">
-              <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
-              <p>{error}</p>
-            </div>
-          ) : (
-            <div className={`relative bg-black overflow-hidden border-2 border-gray-300 dark:border-gray-600 shadow-inner ${isProfilePicture ? 'w-64 h-64 rounded-full' : 'w-full aspect-video rounded-lg'}`}>
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                muted 
-                className="w-full h-full object-cover transform -scale-x-100" 
-              />
-              
-              {!isProfilePicture && (
-                <div className="absolute inset-0 pointer-events-none border-4 border-white/20 rounded-lg">
-                  <div className="w-32 h-40 border-2 border-dashed border-white/50 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          <p className="text-sm text-center text-muted-foreground mt-4">
-            {isProfilePicture
-              ? t('profileHint')
-              : t('documentHint')}
-          </p>
+    <Dialog open onClose={onClose} size="md">
+      <DialogHeader onClose={onClose} className="bg-muted/50 border-b border-border">
+        <DialogTitle className="flex items-center gap-2 text-lg">
+          <Camera className="w-5 h-5" /> {t('liveCaptureTitle')}
+        </DialogTitle>
+      </DialogHeader>
 
-          <div className="mt-6 flex gap-4 w-full">
-            <button onClick={onClose} className="flex-1 py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 font-medium transition-colors">
-              {t('cancel')}
-            </button>
-            <button
-              onClick={handleTakeSnapshot}
-              disabled={!!error || !stream}
-              className="flex-1 py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 font-bold shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex justify-center items-center gap-2"
-            >
-              <Camera className="w-5 h-5" /> {t('capture')}
-            </button>
+      <DialogBody className="flex flex-col items-center">
+        {error ? (
+          <div className="text-destructive bg-destructive/10 p-4 rounded-lg text-center">
+            <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+            <p>{error}</p>
           </div>
+        ) : (
+          <div className={cn('relative bg-black overflow-hidden border-2 border-border shadow-inner', isProfilePicture ? 'w-64 h-64 rounded-full' : 'w-full aspect-video rounded-lg')}>
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover transform -scale-x-100"
+            />
+
+            {!isProfilePicture && (
+              <div className="absolute inset-0 pointer-events-none border-4 border-white/20 rounded-lg">
+                <div className="w-32 h-40 border-2 border-dashed border-white/50 rounded-full absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"></div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <p className="text-sm text-center text-muted-foreground mt-4">
+          {isProfilePicture
+            ? t('profileHint')
+            : t('documentHint')}
+        </p>
+
+        <div className="mt-6 flex gap-4 w-full">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            {t('cancel')}
+          </Button>
+          <Button onClick={handleTakeSnapshot} disabled={!!error || !stream} className="flex-1">
+            <Camera className="w-5 h-5" /> {t('capture')}
+          </Button>
         </div>
-      </div>
-    </div>
+      </DialogBody>
+    </Dialog>
   );
 }
 
@@ -422,7 +477,7 @@ export default function ProfilePage() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-primary/5 dark:bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-lg text-foreground">{t('loadingProfile')}</p>
@@ -433,18 +488,15 @@ export default function ProfilePage() {
 
   if (!user && !isAuthLoading) {
     return (
-      <div className="min-h-screen bg-primary/5 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-xl">
-          <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-xl text-red-600 dark:text-red-400 font-semibold">
+      <div className="min-h-screen bg-primary/5 dark:bg-background flex items-center justify-center">
+        <div className="text-center bg-card p-8 rounded-2xl shadow-xl">
+          <AlertTriangle className="w-16 h-16 text-destructive mx-auto mb-4" />
+          <p className="text-xl text-destructive font-semibold">
             {t('mustLoginMessage')}
           </p>
-          <button
-            onClick={() => router.push('/login')}
-            className="mt-6 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-          >
+          <Button onClick={() => router.push('/login')} className="mt-6">
             {t('loginButton')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -454,7 +506,7 @@ export default function ProfilePage() {
   const isPartiallyVerified = user?.isIdentityVerified || user?.isDrivingLicenseVerified || user?.isSelfieVerified;
 
   return (
-    <div className="min-h-screen bg-primary/5 dark:bg-gray-900 py-8 px-4">
+    <div className="min-h-screen bg-primary/5 dark:bg-background py-8 px-4">
       {/* Modal Webcam pour le Selfie KYC */}
       {showWebcamModal && (
         <WebcamModal 
@@ -490,13 +542,10 @@ export default function ProfilePage() {
             </p>
           </div>
           {!isEditing && (
-            <button
-              onClick={handleEditClick}
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
-            >
+            <Button onClick={handleEditClick}>
               <Edit2 className="w-4 h-4" />
               {t('editButton')}
-            </button>
+            </Button>
           )}
         </div>
 
@@ -573,203 +622,127 @@ export default function ProfilePage() {
                 )}
 
                 {/* BLOC PIÈCE D'IDENTITÉ */}
-                <div className={`p-3 rounded-lg border ${
-                  user?.isIdentityVerified
-                    ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
-                    : user?.identityDocumentUrl
-                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
-                    : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                }`}>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {user?.isIdentityVerified ? (
-                          <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.identityDocumentUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
-                        )}
-                        <span className="font-medium text-sm text-foreground">
-                          {t('verification.identityLabel')}
-                        </span>
-                      </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        user?.isIdentityVerified
-                          ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
-                          : user?.identityDocumentUrl
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {user?.isIdentityVerified
-                          ? t('verification.statusVerified')
-                          : user?.identityDocumentUrl
-                          ? t('verification.statusPendingReview')
-                          : t('verification.statusNotSent')}
-                      </span>
-                    </div>
-
-                    {!user?.isIdentityVerified && (
-                      <div className="mt-2">
-                        <label className={`flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${uploadingDocType === 'IDENTITY' ? 'opacity-50 cursor-wait' : ''}`}>
-                          <Upload className="w-4 h-4" />
-                          {uploadingDocType === 'IDENTITY'
-                            ? t('verification.uploading')
-                            : user?.identityDocumentUrl
-                              ? t('verification.replaceIdentity')
-                              : t('verification.uploadIdentity')}
-                          <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            className="hidden"
-                            onChange={(e) => handleFileInputChange(e, 'IDENTITY')}
-                            disabled={uploadingDocType !== null || !kycConsentGiven}
-                          />
-                        </label>
-                        <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
-                        </p>
-                      </div>
-                    )}
+                <VerificationItemCard
+                  label={t('verification.identityLabel')}
+                  status={getVerificationStatus(user?.isIdentityVerified, user?.identityDocumentUrl)}
+                  statusLabel={
+                    user?.isIdentityVerified
+                      ? t('verification.statusVerified')
+                      : user?.identityDocumentUrl
+                      ? t('verification.statusPendingReview')
+                      : t('verification.statusNotSent')
+                  }
+                >
+                  <div className="mt-2">
+                    <label className={cn('flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-border hover:bg-muted cursor-pointer transition-colors', uploadingDocType === 'IDENTITY' && 'opacity-50 cursor-wait')}>
+                      <Upload className="w-4 h-4" />
+                      {uploadingDocType === 'IDENTITY'
+                        ? t('verification.uploading')
+                        : user?.identityDocumentUrl
+                          ? t('verification.replaceIdentity')
+                          : t('verification.uploadIdentity')}
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        className="hidden"
+                        onChange={(e) => handleFileInputChange(e, 'IDENTITY')}
+                        disabled={uploadingDocType !== null || !kycConsentGiven}
+                      />
+                    </label>
+                    <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
+                      <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
+                    </p>
                   </div>
-                </div>
+                </VerificationItemCard>
 
                 {/* BLOC PERMIS DE CONDUIRE */}
-                <div className={`p-3 rounded-lg border ${
-                  user?.isDrivingLicenseVerified
-                    ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
-                    : user?.drivingLicenseUrl
-                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
-                    : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                }`}>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {user?.isDrivingLicenseVerified ? (
-                          <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.drivingLicenseUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
-                        )}
-                        <span className="font-medium text-sm text-foreground">
-                          {t('verification.licenseLabel')}
-                        </span>
-                      </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        user?.isDrivingLicenseVerified
-                          ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
-                          : user?.drivingLicenseUrl
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {user?.isDrivingLicenseVerified
-                          ? t('verification.statusVerified')
-                          : user?.drivingLicenseUrl
-                          ? t('verification.statusPendingReview')
-                          : t('verification.statusNotSent')}
-                      </span>
-                    </div>
-
-                    {!user?.isDrivingLicenseVerified && (
-                      <div className="mt-2">
-                        <label className={`flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors ${uploadingDocType === 'DRIVING_LICENSE' ? 'opacity-50 cursor-wait' : ''}`}>
-                          <Upload className="w-4 h-4" />
-                          {uploadingDocType === 'DRIVING_LICENSE'
-                            ? t('verification.uploading')
-                            : user?.drivingLicenseUrl
-                              ? t('verification.replaceLicense')
-                              : t('verification.uploadLicense')}
-                          <input
-                            type="file"
-                            accept="image/*,.pdf"
-                            className="hidden"
-                            onChange={(e) => handleFileInputChange(e, 'DRIVING_LICENSE')}
-                            disabled={uploadingDocType !== null || !kycConsentGiven}
-                          />
-                        </label>
-                        <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
-                        </p>
-                      </div>
-                    )}
+                <VerificationItemCard
+                  label={t('verification.licenseLabel')}
+                  status={getVerificationStatus(user?.isDrivingLicenseVerified, user?.drivingLicenseUrl)}
+                  statusLabel={
+                    user?.isDrivingLicenseVerified
+                      ? t('verification.statusVerified')
+                      : user?.drivingLicenseUrl
+                      ? t('verification.statusPendingReview')
+                      : t('verification.statusNotSent')
+                  }
+                >
+                  <div className="mt-2">
+                    <label className={cn('flex items-center justify-center gap-2 w-full px-3 py-2 text-sm font-medium rounded-md border border-dashed border-border hover:bg-muted cursor-pointer transition-colors', uploadingDocType === 'DRIVING_LICENSE' && 'opacity-50 cursor-wait')}>
+                      <Upload className="w-4 h-4" />
+                      {uploadingDocType === 'DRIVING_LICENSE'
+                        ? t('verification.uploading')
+                        : user?.drivingLicenseUrl
+                          ? t('verification.replaceLicense')
+                          : t('verification.uploadLicense')}
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        className="hidden"
+                        onChange={(e) => handleFileInputChange(e, 'DRIVING_LICENSE')}
+                        disabled={uploadingDocType !== null || !kycConsentGiven}
+                      />
+                    </label>
+                    <p className="text-[10px] text-center text-muted-foreground mt-1 flex items-center justify-center">
+                      <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
+                    </p>
                   </div>
-                </div>
+                </VerificationItemCard>
 
                 {/* BLOC SELFIE AVEC WEBCAM INTÉGRÉE */}
-                <div className={`p-3 rounded-lg border ${
-                  user?.isSelfieVerified
-                    ? 'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-700'
-                    : user?.selfieUrl
-                    ? 'bg-primary/10 dark:bg-primary/20 border-primary/20 dark:border-primary/30'
-                    : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-                }`}>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {user?.isSelfieVerified ? (
-                          <BadgeCheck className="w-5 h-5 text-green-600 dark:text-green-400" />
-                        ) : (
-                          <BadgeAlert className={`w-5 h-5 ${user?.selfieUrl ? 'text-primary' : 'text-gray-500 dark:text-gray-400'}`} />
-                        )}
-                        <span className="font-medium text-sm text-foreground">{t('verification.selfieLabel')}</span>
-                      </div>
-                      <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                        user?.isSelfieVerified
-                          ? 'bg-green-200 dark:bg-green-800 text-green-800 dark:text-green-200'
-                          : user?.selfieUrl
-                          ? 'bg-primary/20 text-primary'
-                          : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
-                      }`}>
-                        {user?.isSelfieVerified
-                          ? t('verification.statusVerified')
-                          : user?.selfieUrl
-                          ? t('verification.statusPendingReview')
-                          : t('verification.statusNotSent')}
-                      </span>
+                <VerificationItemCard
+                  label={t('verification.selfieLabel')}
+                  status={getVerificationStatus(user?.isSelfieVerified, user?.selfieUrl)}
+                  statusLabel={
+                    user?.isSelfieVerified
+                      ? t('verification.statusVerified')
+                      : user?.selfieUrl
+                      ? t('verification.statusPendingReview')
+                      : t('verification.statusNotSent')
+                  }
+                >
+                  <div className="mt-2">
+                    <div className="mb-3 text-center bg-muted/50 p-3 rounded-md border border-border">
+                      <p className="text-xs font-medium text-foreground mb-1">
+                        {t('verification.selfieHintTitle')}
+                      </p>
+                      <p className="text-[11px] text-primary/80">
+                        {t('verification.selfieHintText')}
+                      </p>
                     </div>
 
-                    {!user?.isSelfieVerified && (
-                      <div className="mt-2">
-                        <div className="mb-3 text-center bg-muted/50 p-3 rounded-md border border-border">
-                          <p className="text-xs font-medium text-foreground mb-1">
-                            {t('verification.selfieHintTitle')}
-                          </p>
-                          <p className="text-[11px] text-primary/80">
-                            {t('verification.selfieHintText')}
-                          </p>
-                        </div>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => setShowWebcamModal(true)}
+                        disabled={uploadingDocType !== null || !kycConsentGiven}
+                        className={cn('flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-border hover:border-primary hover:bg-primary/5 cursor-pointer transition-all', uploadingDocType === 'SELFIE' && 'opacity-50 cursor-wait')}
+                      >
+                        <Camera className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-foreground">
+                          {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.takePhoto')}
+                        </span>
+                      </button>
 
-                        <div className="flex flex-col sm:flex-row gap-3">
-                          <button
-                            onClick={() => setShowWebcamModal(true)}
-                            disabled={uploadingDocType !== null || !kycConsentGiven}
-                            className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}
-                          >
-                            <Camera className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                            <span className="text-gray-800 dark:text-gray-200">
-                              {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.takePhoto')}
-                            </span>
-                          </button>
+                      <label className={cn('flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-border hover:border-primary hover:bg-primary/5 cursor-pointer transition-all', uploadingDocType === 'SELFIE' && 'opacity-50 cursor-wait')}>
+                        <Upload className="w-5 h-5 text-muted-foreground" />
+                        <span className="text-foreground">
+                          {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.uploadFile')}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleFileInputChange(e, 'SELFIE')}
+                          disabled={uploadingDocType !== null || !kycConsentGiven}
+                        />
+                      </label>
+                    </div>
 
-                          <label className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-sm font-medium rounded-lg border-2 border-gray-200 hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:hover:border-primary cursor-pointer transition-all ${uploadingDocType === 'SELFIE' ? 'opacity-50 cursor-wait' : ''}`}>
-                            <Upload className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                            <span className="text-gray-800 dark:text-gray-200">
-                              {uploadingDocType === 'SELFIE' ? t('verification.sending') : t('verification.uploadFile')}
-                            </span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={(e) => handleFileInputChange(e, 'SELFIE')}
-                              disabled={uploadingDocType !== null || !kycConsentGiven}
-                            />
-                          </label>
-                        </div>
-
-                        <p className="text-[10px] text-center text-muted-foreground mt-3 flex items-center justify-center">
-                          <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
-                        </p>
-                      </div>
-                    )}
+                    <p className="text-[10px] text-center text-muted-foreground mt-3 flex items-center justify-center">
+                      <Lock className="w-3 h-3 mr-1" /> {t('verification.secureTransfer')}
+                    </p>
                   </div>
-                </div>
+                </VerificationItemCard>
 
               </div>
             </div>
@@ -792,7 +765,7 @@ export default function ProfilePage() {
             )}
 
             {user?.role && (
-              <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-border">
+              <div className="bg-card p-4 rounded-xl shadow-md border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Shield className="w-5 h-5 text-primary" />
                   <h4 className="font-semibold text-foreground">{t('roleLabel')}</h4>
@@ -811,7 +784,7 @@ export default function ProfilePage() {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-border">
+            <div className="bg-card p-8 rounded-2xl shadow-lg border border-border">
               <h2 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
                 <User className="w-6 h-6 text-primary" />
                 {t('personalInfoTitle')}
@@ -1123,23 +1096,14 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-border">
-                    <button
-                      type="submit"
-                      disabled={isSaving}
-                      className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-all hover:shadow-lg"
-                    >
+                    <Button type="submit" disabled={isSaving} className="flex-1">
                       <Save className="w-4 h-4" />
                       {isSaving ? t('form.saving') : t('form.save')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleCancelEdit}
-                      disabled={isSaving}
-                      className="flex-1 flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-medium transition-all"
-                    >
+                    </Button>
+                    <Button type="button" variant="outline" onClick={handleCancelEdit} disabled={isSaving} className="flex-1">
                       <X className="w-4 h-4" />
                       {t('form.cancel')}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               )}
@@ -1158,35 +1122,32 @@ export default function ProfilePage() {
           <p className="text-sm text-muted-foreground mb-4">
             {t('exportData.sectionDescription')}
           </p>
-          <button
-            type="button"
-            onClick={handleExportData}
-            disabled={isExportingData}
-            className="flex items-center gap-2 px-4 py-2.5 border border-border text-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium text-sm"
-          >
+          <Button type="button" variant="outline" onClick={handleExportData} disabled={isExportingData} size="sm">
             {isExportingData ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             {isExportingData ? t('exportData.exporting') : t('exportData.sectionButton')}
-          </button>
+          </Button>
         </div>
 
         {/* ======================================= */}
         {/* ZONE DE DANGER : suppression du compte   */}
         {/* ======================================= */}
-        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50 p-6">
-          <h2 className="text-lg font-bold text-red-600 dark:text-red-400 flex items-center gap-2 mb-2">
+        <div className="mt-8 bg-card rounded-2xl shadow-sm border border-destructive/20 p-6">
+          <h2 className="text-lg font-bold text-destructive flex items-center gap-2 mb-2">
             <Trash2 className="w-5 h-5" />
             {t('deleteAccountModal.sectionTitle')}
           </h2>
           <p className="text-sm text-muted-foreground mb-4">
             {t('deleteAccountModal.sectionDescription')}
           </p>
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setShowDeleteAccountModal(true)}
-            className="px-4 py-2.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium text-sm"
+            size="sm"
+            className="!border-destructive/30 !text-destructive hover:!bg-destructive/10"
           >
             {t('deleteAccountModal.sectionButton')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -1203,63 +1164,62 @@ export default function ProfilePage() {
       {/* ======================================= */}
 
       {/* 1. Modale de choix de la durée */}
-      {premiumStep === 'SELECT_DURATION' && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-          onClick={(e) => e.target === e.currentTarget && setPremiumStep('NONE')}
-        >
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold flex items-center text-gray-900 dark:text-white">
-                <Crown className="mr-2 text-yellow-500" /> {t('premiumModal.title')}
-              </h2>
-              <button onClick={() => setPremiumStep('NONE')} aria-label="Close" className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors font-bold text-xl leading-none">×</button>
-            </div>
+      <Dialog open={premiumStep === 'SELECT_DURATION'} onClose={() => setPremiumStep('NONE')} size="md">
+        <DialogHeader onClose={() => setPremiumStep('NONE')}>
+          <DialogTitle className="flex items-center gap-2">
+            <Crown className="text-amber-500" /> {t('premiumModal.title')}
+          </DialogTitle>
+        </DialogHeader>
+        <DialogBody className="pt-6">
+          <p className="text-sm text-muted-foreground mb-6">
+            {t('premiumModal.description')}
+          </p>
 
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-              {t('premiumModal.description')}
-            </p>
-
-            <div className="space-y-4">
-              <button
-                onClick={() => setPremiumDuration(1)}
-                className={`w-full p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center ${premiumDuration === 1 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 hover:border-yellow-300'}`}
-              >
-                <div>
-                  <h3 className="font-bold">{t('premiumModal.plan1Month')}</h3>
-                  <p className="text-xs text-gray-500">{t('premiumModal.plan1MonthSub')}</p>
-                </div>
-                <span className="font-bold text-lg">{t('premiumModal.plan1MonthPrice')}</span>
-              </button>
-
-              <button
-                onClick={() => setPremiumDuration(12)}
-                className={`w-full relative p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center ${premiumDuration === 12 ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 hover:border-yellow-300'}`}
-              >
-                <div className="absolute -top-3 right-4 bg-yellow-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
-                  {t('premiumModal.plan1YearBadge')}
-                </div>
-                <div>
-                  <h3 className="font-bold">{t('premiumModal.plan1Year')}</h3>
-                  <p className="text-xs text-gray-500">{t('premiumModal.plan1YearSub')}</p>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-lg">{t('premiumModal.plan1YearPrice')}</span>
-                  <p className="text-xs text-gray-400 line-through">{t('premiumModal.plan1YearOldPrice')}</p>
-                </div>
-              </button>
-            </div>
+          <div className="space-y-4">
+            <button
+              onClick={() => setPremiumDuration(1)}
+              className={cn(
+                'w-full p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center',
+                premiumDuration === 1 ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-border hover:border-amber-300'
+              )}
+            >
+              <div>
+                <h3 className="font-bold text-foreground">{t('premiumModal.plan1Month')}</h3>
+                <p className="text-xs text-muted-foreground">{t('premiumModal.plan1MonthSub')}</p>
+              </div>
+              <span className="font-bold text-lg text-foreground">{t('premiumModal.plan1MonthPrice')}</span>
+            </button>
 
             <button
-              onClick={handleInitiatePremium}
-              disabled={isPremiumLoading}
-              className="w-full mt-6 bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-xl font-bold flex justify-center items-center"
+              onClick={() => setPremiumDuration(12)}
+              className={cn(
+                'w-full relative p-4 rounded-xl border-2 text-left transition-all flex justify-between items-center',
+                premiumDuration === 12 ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-border hover:border-amber-300'
+              )}
             >
-              {isPremiumLoading ? <Loader2 className="animate-spin w-5 h-5" /> : t('premiumModal.continueButton')}
+              <div className="absolute -top-3 right-4 bg-amber-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">
+                {t('premiumModal.plan1YearBadge')}
+              </div>
+              <div>
+                <h3 className="font-bold text-foreground">{t('premiumModal.plan1Year')}</h3>
+                <p className="text-xs text-muted-foreground">{t('premiumModal.plan1YearSub')}</p>
+              </div>
+              <div className="text-right">
+                <span className="font-bold text-lg text-foreground">{t('premiumModal.plan1YearPrice')}</span>
+                <p className="text-xs text-muted-foreground line-through">{t('premiumModal.plan1YearOldPrice')}</p>
+              </div>
             </button>
           </div>
-        </div>
-      )}
+
+          <button
+            onClick={handleInitiatePremium}
+            disabled={isPremiumLoading}
+            className="w-full mt-6 bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white py-3 rounded-xl font-bold flex justify-center items-center"
+          >
+            {isPremiumLoading ? <Loader2 className="animate-spin w-5 h-5" /> : t('premiumModal.continueButton')}
+          </button>
+        </DialogBody>
+      </Dialog>
 
       {/* 2. Modale de paiement unifiée */}
       {premiumStep === 'PAYMENT' && premiumPaymentData && (
@@ -1276,22 +1236,20 @@ export default function ProfilePage() {
       )}
 
       {/* 3. Succès */}
-      {premiumStep === 'SUCCESS' && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-sm w-full text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold mb-2">{t('premiumModal.successTitle')}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              {t('premiumModal.successMessage', { months: premiumDuration })}
-            </p>
-            <button onClick={() => setPremiumStep('NONE')} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 rounded-xl font-bold">
-              {t('premiumModal.successButton')}
-            </button>
+      <Dialog open={premiumStep === 'SUCCESS'} onClose={() => setPremiumStep('NONE')} size="sm">
+        <DialogBody className="pt-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-4">
+            <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
-        </div>
-      )}
+          <h2 className="text-h2 text-foreground mb-2">{t('premiumModal.successTitle')}</h2>
+          <p className="text-muted-foreground mb-6">
+            {t('premiumModal.successMessage', { months: premiumDuration })}
+          </p>
+          <Button onClick={() => setPremiumStep('NONE')} className="w-full">
+            {t('premiumModal.successButton')}
+          </Button>
+        </DialogBody>
+      </Dialog>
 
     </div>
   );

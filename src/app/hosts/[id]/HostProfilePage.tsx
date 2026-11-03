@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { User, BadgeCheck, Calendar, Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -10,6 +9,7 @@ import type { PublicOwnerProfile } from '@/types/user';
 import type { Vehicle } from '@/types/vehicle';
 import VehicleCard from '@/app/components/VehicleCard';
 import { StarRating } from '@/app/components/reviews/VehicleReviews';
+import { Badge, Button } from '@/app/components/ui';
 
 interface HostProfilePageProps {
   id: string;
@@ -97,12 +97,9 @@ export default function HostProfilePage({ id }: HostProfilePageProps) {
           </div>
           <h1 className="text-xl font-bold text-foreground mb-2">{t('notFoundTitle')}</h1>
           <p className="text-muted-foreground mb-6">{t('notFoundText')}</p>
-          <Link
-            href="/"
-            className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-3 rounded-lg font-medium transition-colors"
-          >
+          <Button href="/">
             {t('backToHome')}
-          </Link>
+          </Button>
         </div>
       </div>
     );
@@ -118,7 +115,7 @@ export default function HostProfilePage({ id }: HostProfilePageProps) {
         {/* En-tête du profil */}
         <div className="bg-card rounded-2xl shadow-lg border border-border p-6 sm:p-8 mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-card shadow-lg bg-muted flex items-center justify-center flex-shrink-0">
               {profile.profilePictureUrl ? (
                 <Image
                   src={profile.profilePictureUrl}
@@ -128,7 +125,7 @@ export default function HostProfilePage({ id }: HostProfilePageProps) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <User className="w-14 h-14 text-gray-400" />
+                <User className="w-14 h-14 text-muted-foreground" />
               )}
             </div>
 
@@ -136,10 +133,10 @@ export default function HostProfilePage({ id }: HostProfilePageProps) {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{displayName}</h1>
                 {profile.verified && (
-                  <span className="inline-flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  <Badge variant="success">
                     <BadgeCheck className="w-4 h-4" />
                     {t('verifiedBadge')}
-                  </span>
+                  </Badge>
                 )}
               </div>
 

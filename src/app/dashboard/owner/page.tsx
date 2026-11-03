@@ -8,6 +8,7 @@ import type { Booking } from '@/types/booking';
 import OwnerBookingCard from '@/app/components/OwnerBookingCard';
 import { ArrowLeft, Car, Calendar, DollarSign, Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Button, StatCard } from '@/app/components/ui';
 
 function OwnerDashboardContent() {
   const t = useTranslations('dashboardOwner');
@@ -114,13 +115,14 @@ function OwnerDashboardContent() {
       {/* Header avec navigation */}
       <div className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => router.push('/')}
-            className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
+            className="group px-0 text-primary hover:bg-transparent hover:text-primary/80"
           >
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             {t('backToHome')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -143,66 +145,20 @@ function OwnerDashboardContent() {
         </div>
 
         {/* Cartes de statistiques */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-muted-foreground">{t('statTotal')}</p>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/50 rounded-full flex items-center justify-center">
-                <Car className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-muted-foreground">{t('statPending')}</p>
-                <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.pending}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
-                <Car className="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-muted-foreground">{t('statConfirmed')}</p>
-                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.confirmed}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm text-muted-foreground">{t('statRevenue')}</p>
-                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{stats.totalRevenue.toLocaleString()} FBu</p>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4">
+          <StatCard icon={Calendar} label={t('statTotal')} value={stats.total} tone="primary" />
+          <StatCard icon={Car} label={t('statPending')} value={stats.pending} tone="warning" />
+          <StatCard icon={Car} label={t('statConfirmed')} value={stats.confirmed} tone="success" />
+          <StatCard icon={DollarSign} label={t('statRevenue')} value={`${stats.totalRevenue.toLocaleString()} FBu`} tone="accent" />
         </div>
 
         {/* Message d'erreur */}
         {error && (
           <div className="bg-card border border-border rounded-lg p-4 mb-6">
-            <p className="text-red-600 dark:text-red-400">{error}</p>
-            <button
-              onClick={fetchOwnerBookings}
-              className="mt-2 text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
-            >
+            <p className="text-destructive">{error}</p>
+            <Button variant="destructive" size="sm" onClick={fetchOwnerBookings} className="mt-2">
               {t('retry')}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -234,12 +190,9 @@ function OwnerDashboardContent() {
               <Car className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">{t('emptyTitle')}</h3>
               <p className="text-muted-foreground">{t('emptyDescription')}</p>
-              <button
-                onClick={() => router.push('/vehicles/add')}
-                className="mt-4 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg transition-colors"
-              >
+              <Button onClick={() => router.push('/vehicles/add')} className="mt-4">
                 {t('addVehicleButton')}
-              </button>
+              </Button>
             </div>
           )}
         </div>

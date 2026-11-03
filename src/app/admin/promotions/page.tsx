@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import PromotionRow from './PromotionRow';
 import AdminPagination from '../components/AdminPagination';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/app/components/ui';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -79,8 +80,8 @@ export default function AdminPromotionsPage() {
     );
   };
 
-  if (authLoading || isLoading) return <div className="text-center p-12">{t('loading')}</div>;
-  if (error) return <div className="text-center p-12 text-red-500">{error}</div>;
+  if (authLoading || isLoading) return <div className="text-center p-12 text-muted-foreground">{t('loading')}</div>;
+  if (error) return <div className="text-center p-12 text-destructive">{error}</div>;
   if (!user || user.role !== 'ADMIN') return null; // Pendant la redirection
 
   const totalPages = Math.ceil(boosts.length / ITEMS_PER_PAGE);
@@ -89,36 +90,34 @@ export default function AdminPromotionsPage() {
 
   return (
     <div className="container mx-auto p-4 sm:p-6 md:p-8">
-      <h1 className="text-2xl sm:text-3xl font-bold mb-6">{t('pageTitle')}</h1>
-      <div className="bg-card rounded-lg shadow border overflow-x-auto">
-        <table className="min-w-full divide-y">
-          <thead className="bg-muted/50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">{t('columns.vehicle')}</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">{t('columns.owner')}</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">{t('columns.boostType')}</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">{t('columns.expiration')}</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">{t('columns.sliderImage')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {boosts.length > 0 ? (
-              paginatedBoosts.map(boost => (
-                <PromotionRow
-                  key={boost.boostId}
-                  boost={boost}
-                  onUploadSuccess={handleImageUploadSuccess}
-                  onDeleteSuccess={handleImageDeleteSuccess}
-                />
-              ))
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-8 text-muted-foreground">{t('noPromotions')}</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">{t('pageTitle')}</h1>
+      <Table>
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead>{t('columns.vehicle')}</TableHead>
+            <TableHead>{t('columns.owner')}</TableHead>
+            <TableHead>{t('columns.boostType')}</TableHead>
+            <TableHead>{t('columns.expiration')}</TableHead>
+            <TableHead>{t('columns.sliderImage')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {boosts.length > 0 ? (
+            paginatedBoosts.map(boost => (
+              <PromotionRow
+                key={boost.boostId}
+                boost={boost}
+                onUploadSuccess={handleImageUploadSuccess}
+                onDeleteSuccess={handleImageDeleteSuccess}
+              />
+            ))
+          ) : (
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">{t('noPromotions')}</TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
 
       <AdminPagination
         currentPage={safePage}

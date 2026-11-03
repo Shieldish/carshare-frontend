@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Shield, Eye, Database, Lock, Users, Cookie, FileText, Mail, Clock, AlertCircle, Globe } from 'lucide-react';
+import { LegalSection, LegalSectionPlain } from '@/app/components/legal/LegalSection';
+import { Badge } from '@/app/components/ui';
 
 type DocLang = 'fr' | 'en';
 
@@ -219,13 +221,13 @@ const PrivacyPage = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setDocLang('fr')}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'fr' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'fr' ? 'bg-amber-600 text-white' : 'bg-card text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
                     >
                       {tLegal('viewInFrench')}
                     </button>
                     <button
                       onClick={() => setDocLang('en')}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'en' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'en' ? 'bg-amber-600 text-white' : 'bg-card text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
                     >
                       {tLegal('viewInEnglish')}
                     </button>
@@ -243,147 +245,112 @@ const PrivacyPage = () => {
           </div>
 
           {/* Introduction */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Shield className="w-8 h-8 mr-3 text-green-600" />
-              {c.intro.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p1}</p>
-              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p2}</p>
-              <p className="text-muted-foreground leading-relaxed">{c.intro.p3}</p>
-            </div>
-          </section>
+          <LegalSection icon={Shield} iconClassName="text-green-600 dark:text-green-400" title={c.intro.title}>
+            <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p1}</p>
+            <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p2}</p>
+            <p className="text-muted-foreground leading-relaxed">{c.intro.p3}</p>
+          </LegalSection>
 
           {/* Data Collection */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Database className="w-8 h-8 mr-3 text-blue-600" />
-              {c.collection.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub1Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.collection.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub2Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.collection.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub3Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {c.collection.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </section>
+          <LegalSection icon={Database} iconClassName="text-blue-600 dark:text-blue-400" title={c.collection.title}>
+            <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub1Title}</h3>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
+              {c.collection.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+            <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub2Title}</h3>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
+              {c.collection.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+            <h3 className="font-semibold text-xl mb-4 text-foreground">{c.collection.sub3Title}</h3>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+              {c.collection.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+          </LegalSection>
 
           {/* Data Usage */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Eye className="w-8 h-8 mr-3 text-purple-600" />
-              {c.usage.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.coreTitle}</h3>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
-                    {c.usage.coreItems.map((item, i) => <li key={i}>{item}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.improveTitle}</h3>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
-                    {c.usage.improveItems.map((item, i) => <li key={i}>{item}</li>)}
-                  </ul>
-                </div>
+          <LegalSection icon={Eye} iconClassName="text-purple-600 dark:text-purple-400" title={c.usage.title}>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.coreTitle}</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
+                  {c.usage.coreItems.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-3 text-foreground">{c.usage.improveTitle}</h3>
+                <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
+                  {c.usage.improveItems.map((item, i) => <li key={i}>{item}</li>)}
+                </ul>
               </div>
             </div>
-          </section>
+          </LegalSection>
 
           {/* Data Sharing */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Users className="w-8 h-8 mr-3 text-orange-600" />
-              {c.sharing.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub1Title}</h3>
-              <p className="text-muted-foreground mb-4">{c.sharing.sub1Desc}</p>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.sharing.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
+          <LegalSection icon={Users} iconClassName="text-orange-600 dark:text-orange-400" title={c.sharing.title}>
+            <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub1Title}</h3>
+            <p className="text-muted-foreground mb-4">{c.sharing.sub1Desc}</p>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
+              {c.sharing.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
 
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub2Title}</h3>
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2 text-foreground">{c.sharing.partnersTitle}</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    {c.sharing.partnersItems.map((item, i) => <li key={i}>• {item}</li>)}
-                  </ul>
-                </div>
-                <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-medium mb-2 text-foreground">{c.sharing.authoritiesTitle}</h4>
-                  <ul className="text-sm text-muted-foreground space-y-1">
-                    {c.sharing.authoritiesItems.map((item, i) => <li key={i}>• {item}</li>)}
-                  </ul>
-                </div>
+            <h3 className="font-semibold text-xl mb-4 text-foreground">{c.sharing.sub2Title}</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-foreground">{c.sharing.partnersTitle}</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {c.sharing.partnersItems.map((item, i) => <li key={i}>• {item}</li>)}
+                </ul>
+              </div>
+              <div className="bg-muted p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-foreground">{c.sharing.authoritiesTitle}</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  {c.sharing.authoritiesItems.map((item, i) => <li key={i}>• {item}</li>)}
+                </ul>
               </div>
             </div>
-          </section>
+          </LegalSection>
 
           {/* Data Security */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Lock className="w-8 h-8 mr-3 text-red-600" />
-              {c.security.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+          <LegalSection icon={Lock} iconClassName="text-red-600 dark:text-red-400" title={c.security.title}>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="bg-red-100 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Lock className="w-8 h-8 text-red-600" />
+                    <Lock className="w-8 h-8 text-red-600 dark:text-red-400" />
                   </div>
                   <h3 className="font-semibold mb-2 text-foreground">{c.security.encryptionTitle}</h3>
                   <p className="text-sm text-muted-foreground">{c.security.encryptionDesc}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-blue-100 dark:bg-blue-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Shield className="w-8 h-8 text-blue-600" />
+                    <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                   </div>
                   <h3 className="font-semibold mb-2 text-foreground">{c.security.accessTitle}</h3>
                   <p className="text-sm text-muted-foreground">{c.security.accessDesc}</p>
                 </div>
                 <div className="text-center">
                   <div className="bg-green-100 dark:bg-green-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Database className="w-8 h-8 text-green-600" />
+                    <Database className="w-8 h-8 text-green-600 dark:text-green-400" />
                   </div>
                   <h3 className="font-semibold mb-2 text-foreground">{c.security.backupTitle}</h3>
                   <p className="text-sm text-muted-foreground">{c.security.backupDesc}</p>
                 </div>
               </div>
 
-              <div className="mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
                 <div className="flex items-start">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mr-3 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mr-3 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">{c.security.extraTitle}</h4>
-                    <ul className="text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+                    <h4 className="font-medium text-amber-800 dark:text-amber-200 mb-2">{c.security.extraTitle}</h4>
+                    <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
                       {c.security.extraItems.map((item, i) => <li key={i}>• {item}</li>)}
                     </ul>
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+          </LegalSection>
 
           {/* Cookies */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Cookie className="w-8 h-8 mr-3 text-amber-600" />
-              {c.cookies.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+          <LegalSection icon={Cookie} iconClassName="text-amber-600 dark:text-amber-400" title={c.cookies.title}>
               <p className="text-muted-foreground leading-relaxed mb-6">{c.cookies.intro}</p>
 
               <div className="overflow-x-auto">
@@ -406,34 +373,28 @@ const PrivacyPage = () => {
                   </tbody>
                 </table>
               </div>
-            </div>
-          </section>
+          </LegalSection>
 
           {/* Your Rights */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <FileText className="w-8 h-8 mr-3 text-indigo-600" />
-              {c.rights.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+          <LegalSection icon={FileText} iconClassName="text-indigo-600 dark:text-indigo-400" title={c.rights.title}>
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
                   <h3 className="font-semibold text-lg mb-4 text-foreground">{c.rights.accessTitle}</h3>
                   <ul className="space-y-3">
                     <li className="flex items-start">
-                      <span className="bg-green-100 dark:bg-green-900/20 text-green-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightAccessBadge}</span>
+                      <Badge variant="success" className="mr-3 mt-0.5">{c.rights.rightAccessBadge}</Badge>
                       <span className="text-muted-foreground text-sm">{c.rights.rightAccessLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-blue-100 dark:bg-blue-900/20 text-blue-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightEditBadge}</span>
+                      <Badge variant="info" className="mr-3 mt-0.5">{c.rights.rightEditBadge}</Badge>
                       <span className="text-muted-foreground text-sm">{c.rights.rightEditLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-red-100 dark:bg-red-900/20 text-red-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightDeleteBadge}</span>
+                      <Badge variant="destructive" className="mr-3 mt-0.5">{c.rights.rightDeleteBadge}</Badge>
                       <span className="text-muted-foreground text-sm">{c.rights.rightDeleteLabel}</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="bg-purple-100 dark:bg-purple-900/20 text-purple-600 text-xs font-medium px-2 py-1 rounded mr-3 mt-0.5">{c.rights.rightPortBadge}</span>
+                      <Badge variant="purple" className="mr-3 mt-0.5">{c.rights.rightPortBadge}</Badge>
                       <span className="text-muted-foreground text-sm">{c.rights.rightPortLabel}</span>
                     </li>
                   </ul>
@@ -456,14 +417,10 @@ const PrivacyPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+          </LegalSection>
 
           {/* Data Retention */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground">
-              {c.retention.title}
-            </h2>
+          <LegalSectionPlain title={c.retention.title}>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
@@ -471,38 +428,35 @@ const PrivacyPage = () => {
                     <h3 className="font-medium text-foreground">{c.retention.activeTitle}</h3>
                     <p className="text-sm text-muted-foreground">{c.retention.activeDesc}</p>
                   </div>
-                  <span className="text-green-600 font-medium">{c.retention.activeValue}</span>
+                  <span className="text-green-600 dark:text-green-400 font-medium">{c.retention.activeValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h3 className="font-medium text-foreground">{c.retention.deletedTitle}</h3>
                     <p className="text-sm text-muted-foreground">{c.retention.deletedDesc}</p>
                   </div>
-                  <span className="text-blue-600 font-medium">{c.retention.deletedValue}</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">{c.retention.deletedValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h3 className="font-medium text-foreground">{c.retention.legalTitle}</h3>
                     <p className="text-sm text-muted-foreground">{c.retention.legalDesc}</p>
                   </div>
-                  <span className="text-orange-600 font-medium">{c.retention.legalValue}</span>
+                  <span className="text-orange-600 dark:text-orange-400 font-medium">{c.retention.legalValue}</span>
                 </div>
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div>
                     <h3 className="font-medium text-foreground">{c.retention.anonTitle}</h3>
                     <p className="text-sm text-muted-foreground">{c.retention.anonDesc}</p>
                   </div>
-                  <span className="text-purple-600 font-medium">{c.retention.anonValue}</span>
+                  <span className="text-purple-600 dark:text-purple-400 font-medium">{c.retention.anonValue}</span>
                 </div>
               </div>
             </div>
-          </section>
+          </LegalSectionPlain>
 
           {/* Contact */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground">
-              {c.contact.title}
-            </h2>
+          <LegalSectionPlain title={c.contact.title}>
             <div className="bg-gradient-to-r from-green-600 to-teal-600 dark:from-green-800 dark:to-teal-800 rounded-2xl p-8 text-white shadow-lg">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
@@ -528,10 +482,10 @@ const PrivacyPage = () => {
                 </p>
               </div>
             </div>
-          </section>
+          </LegalSectionPlain>
 
           {/* Updates */}
-          <section className="mb-12">
+          <LegalSectionPlain>
             <div className="bg-muted rounded-2xl p-8 shadow-lg border border-border">
               <h3 className="text-xl font-bold mb-4 text-foreground">
                 {c.updates.title}
@@ -540,7 +494,7 @@ const PrivacyPage = () => {
               <p className="text-muted-foreground leading-relaxed mb-4">{c.updates.p2}</p>
               <p className="text-muted-foreground text-sm">{c.updates.versionLabel}</p>
             </div>
-          </section>
+          </LegalSectionPlain>
         </div>
       </div>
     </div>

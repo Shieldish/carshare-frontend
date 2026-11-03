@@ -7,6 +7,8 @@ import type { Vehicle } from '@/types/vehicle';
 import ConfirmDeleteVehicleModal from './ConfirmDeleteVehicleModal';
 import VehicleStatusToggle from './VehicleStatusToggle';
 import { useTranslations } from 'next-intl';
+import { AlertCircle, CheckCircle2, X, Images, MapPin, Calendar, Zap, Edit2, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/cn';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -26,20 +28,17 @@ const Toast = ({
 }) => {
   return (
     <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 max-w-md z-50">
-      <div className={`p-4 rounded-lg shadow-lg flex items-center justify-between border ${
-        type === 'error' 
-          ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300' 
+      <div className={cn(
+        'p-4 rounded-lg shadow-lg flex items-center justify-between border',
+        type === 'error'
+          ? 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'
           : 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
-      }`}>
+      )}>
         <div className="flex items-center">
           {type === 'error' ? (
-            <svg className="w-5 h-5 mr-3 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <AlertCircle className="w-5 h-5 mr-3 text-red-600 dark:text-red-400" />
           ) : (
-            <svg className="w-5 h-5 mr-3 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <CheckCircle2 className="w-5 h-5 mr-3 text-green-600 dark:text-green-400" />
           )}
           <span className="text-sm font-medium">{message}</span>
         </div>
@@ -47,9 +46,7 @@ const Toast = ({
           onClick={onClose}
           className="ml-4 text-foreground/60 hover:text-foreground p-2 -m-2"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -173,9 +170,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
 
           {vehicle.images && Array.isArray(vehicle.images) && vehicle.images.length > 1 && (
             <div className="absolute bottom-3 left-3 bg-black/60 text-white px-2 py-1 rounded-md text-xs flex items-center backdrop-blur-sm">
-              <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2v12a2 2 0 002 2z" />
-              </svg>
+              <Images className="w-3 h-3 mr-1" />
               {vehicle.images.length}
             </div>
           )}
@@ -217,10 +212,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
 
           <div className="mt-2">
             <p className="text-sm text-foreground/60 flex items-center">
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <MapPin className="w-4 h-4 mr-1" />
               {displayLocation}
             </p>
           </div>
@@ -232,9 +224,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
               className="text-sm font-semibold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors flex items-center"
               title={t('calendarTitle')}
             >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <Calendar className="w-4 h-4 mr-1" />
               {t('calendarLink')}
             </Link>
 
@@ -243,9 +233,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
                 onClick={handleBoostClick}
                 className="text-sm font-semibold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors flex items-center"
               >
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <Zap className="w-4 h-4 mr-1" />
                 {t('boostLink')}
               </button>
             )}
@@ -257,15 +245,17 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
             </Link>
             <Link
               href={`/vehicles/edit/${vehicle.id}`}
-              className="text-sm text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300 font-medium transition-colors"
+              className="text-sm font-semibold text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors flex items-center"
             >
+              <Edit2 className="w-4 h-4 mr-1" />
               {t('editLink')}
             </Link>
             <button
               onClick={handleDeleteClick}
               disabled={isDeletingVehicle}
-              className="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm font-semibold text-destructive hover:text-destructive/80 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              <Trash2 className="w-4 h-4 mr-1" />
               {isDeletingVehicle ? t('deleting') : t('deleteLink')}
             </button>
           </div>

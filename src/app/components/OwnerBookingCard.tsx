@@ -16,10 +16,45 @@ import {
   MessageSquare, 
   ClipboardCheck,
   AlertTriangle,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-react'; // ✅ AlertCircle supprimé (inutilisé), Lock ajouté
 import { useChat } from '@/context/ChatContext';
 import { useTranslations, useLocale } from 'next-intl';
+import { Button } from '@/app/components/ui';
+import { cn } from '@/lib/cn';
+
+type StatusTone = 'warning' | 'success' | 'destructive' | 'primary' | 'info' | 'neutral';
+
+// Palette partagée par les 3 affichages de statut de cette carte (pastille sur
+// l'image, bandeau "action requise", bandeau "statut"). Avant : 6 teintes
+// choisies indépendamment, dont la moitié sans variante dark: sur l'icône.
+const TONE_CLASSES: Record<StatusTone, { panel: string; icon: string }> = {
+  warning: {
+    panel: 'text-amber-700 bg-amber-100 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800/50 dark:text-amber-300',
+    icon: 'text-amber-600 dark:text-amber-400',
+  },
+  success: {
+    panel: 'text-green-700 bg-green-100 border-green-200 dark:bg-green-900/30 dark:border-green-800/50 dark:text-green-300',
+    icon: 'text-green-600 dark:text-green-400',
+  },
+  destructive: {
+    panel: 'text-red-700 bg-red-100 border-red-200 dark:bg-red-900/30 dark:border-red-800/50 dark:text-red-300',
+    icon: 'text-red-600 dark:text-red-400',
+  },
+  primary: {
+    panel: 'text-primary bg-primary/10 border-primary/20',
+    icon: 'text-primary',
+  },
+  info: {
+    panel: 'text-blue-700 bg-blue-100 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800/50 dark:text-blue-300',
+    icon: 'text-blue-600 dark:text-blue-400',
+  },
+  neutral: {
+    panel: 'text-muted-foreground bg-muted border-border',
+    icon: 'text-muted-foreground',
+  },
+};
 
 interface OwnerBookingCardProps {
   booking: Booking;
@@ -59,58 +94,23 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
       // ✅ PENDING_CONFIRMATION = le locataire a déjà payé (en externe) et attend une vraie
       // décision du propriétaire — c'est le seul cas qui nécessite une action de sa part.
       case 'PENDING_CONFIRMATION':
-        return {
-          icon: <Clock className="w-5 h-5 text-orange-500" />,
-          text: t('status.pendingConfirmationText'),
-          description: t('status.pendingConfirmationDescription'),
-          color: "text-orange-600 bg-orange-100 border-orange-200 dark:bg-orange-950 dark:border-orange-700 dark:text-orange-300"
-        };
+        return { Icon: Clock, tone: 'warning' as StatusTone, text: t('status.pendingConfirmationText'), description: t('status.pendingConfirmationDescription') };
       // ✅ PENDING = rien n'a encore été payé ; le propriétaire ne devrait normalement jamais
       // voir ce statut (filtré côté backend), mais on garde un affichage neutre et sans
       // bouton d'action au cas où, plutôt que de l'inviter à "confirmer" quelque chose
       // qui n'a jamais été payé.
       case 'PENDING':
-        return {
-          icon: <Clock className="w-5 h-5 text-muted-foreground" />,
-          text: t('status.pendingText'),
-          description: t('status.pendingDescription'),
-          color: "text-muted-foreground bg-muted border-border"
-        };
+        return { Icon: Clock, tone: 'neutral' as StatusTone, text: t('status.pendingText'), description: t('status.pendingDescription') };
       case 'CONFIRMED':
-        return {
-          icon: <CheckCircle className="w-5 h-5 text-green-500" />,
-          text: t('status.confirmedText'),
-          description: t('status.confirmedDescription'),
-          color: "text-green-600 bg-green-100 border-green-200 dark:bg-green-950 dark:border-green-700 dark:text-green-300"
-        };
+        return { Icon: CheckCircle, tone: 'success' as StatusTone, text: t('status.confirmedText'), description: t('status.confirmedDescription') };
       case 'CANCELLED':
-        return {
-          icon: <X className="w-5 h-5 text-red-500" />,
-          text: t('status.cancelledText'),
-          description: t('status.cancelledDescription'),
-          color: "text-red-600 bg-red-100 border-red-200 dark:bg-red-950 dark:border-red-700 dark:text-red-300"
-        };
+        return { Icon: X, tone: 'destructive' as StatusTone, text: t('status.cancelledText'), description: t('status.cancelledDescription') };
       case 'IN_PROGRESS':
-        return {
-          icon: <Car className="w-5 h-5 text-purple-500" />,
-          text: t('status.inProgressText'),
-          description: t('status.inProgressDescription'),
-          color: "text-purple-600 bg-purple-100 border-purple-200 dark:bg-purple-950 dark:border-purple-700 dark:text-purple-300"
-        };
+        return { Icon: Car, tone: 'primary' as StatusTone, text: t('status.inProgressText'), description: t('status.inProgressDescription') };
       case 'COMPLETED':
-        return {
-          icon: <CheckCircle className="w-5 h-5 text-blue-500" />,
-          text: t('status.completedText'),
-          description: t('status.completedDescription'),
-          color: "text-blue-600 bg-blue-100 border-blue-200 dark:bg-blue-950 dark:border-blue-700 dark:text-blue-300"
-        };
+        return { Icon: CheckCircle, tone: 'info' as StatusTone, text: t('status.completedText'), description: t('status.completedDescription') };
       default:
-        return {
-          icon: <Clock className="w-5 h-5 text-muted-foreground" />,
-          text: status,
-          description: "",
-          color: "text-muted-foreground bg-muted border-border"
-        };
+        return { Icon: Clock, tone: 'neutral' as StatusTone, text: status, description: '' };
     }
   };
 
@@ -125,7 +125,8 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
   const canViewIncidents = ['CONFIRMED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'].includes(booking.status);
 
   const statusInfo = getStatusInfo(booking.status);
-  
+  const statusTone = TONE_CLASSES[statusInfo.tone];
+
   const getPrimaryImageUrl = () => {
     if (booking.vehicle?.images && booking.vehicle.images.length > 0) {
       return booking.vehicle.images[0].url;
@@ -154,11 +155,9 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
               }}
             />
             {/* Badge de statut */}
-            <div className={`absolute top-4 right-4 px-3 py-1 rounded-full border ${statusInfo.color} text-sm font-medium`}>
-              <div className="flex items-center">
-                {statusInfo.icon}
-                <span className="ml-2">{statusInfo.text}</span>
-              </div>
+            <div className={cn('absolute top-4 right-4 flex items-center rounded-full border px-3 py-1 text-small font-medium', statusTone.panel)}>
+              <statusInfo.Icon className={cn('w-4 h-4 mr-2', statusTone.icon)} />
+              {statusInfo.text}
             </div>
           </div>
         </div>
@@ -220,9 +219,9 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
             <div>
               {needsAction && (
                 <div>
-                  <div className={`p-3 rounded-lg border ${statusInfo.color} mb-4`}>
+                  <div className={cn('p-3 rounded-lg border mb-4', statusTone.panel)}>
                     <div className="flex items-start">
-                      {statusInfo.icon}
+                      <statusInfo.Icon className={cn('w-5 h-5 shrink-0', statusTone.icon)} />
                       <div className="ml-2">
                         <p className="font-medium">{statusInfo.text}</p>
                         <p className="text-sm opacity-80">{statusInfo.description}</p>
@@ -233,48 +232,32 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                   <p className="text-sm text-muted-foreground mb-4">
                     {t('actionRequiredText', { amount: ownerShare.toLocaleString() })}
                   </p>
-                  
+
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <button 
-                      onClick={() => handleStatusUpdate('CONFIRMED')}
-                      disabled={isLoading}
-                      className="flex-1 bg-green-500 text-white py-3 px-4 rounded-lg hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed flex items-center justify-center font-medium transition-colors"
-                    >
-                      {isLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      ) : (
-                        <Check size={16} className="mr-2"/>
-                      )}
+                    <Button onClick={() => handleStatusUpdate('CONFIRMED')} disabled={isLoading} className="flex-1">
+                      {isLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Check size={16} className="mr-2" />}
                       {t('confirmAvailability')}
-                    </button>
-                    
-                    <button
-                      onClick={() => handleStatusUpdate('CANCELLED')}
-                      disabled={isLoading}
-                      className="flex-1 bg-red-500 text-white py-3 px-4 rounded-lg hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed flex items-center justify-center font-medium transition-colors"
-                    >
-                      {isLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      ) : (
-                        <X size={16} className="mr-2"/>
-                      )}
+                    </Button>
+
+                    <Button variant="destructive" onClick={() => handleStatusUpdate('CANCELLED')} disabled={isLoading} className="flex-1">
+                      {isLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <X size={16} className="mr-2" />}
                       {t('vehicleNotAvailable')}
-                    </button>
+                    </Button>
                   </div>
-                  
+
                   {error && (
                     <div className="mt-3 p-3 bg-card border border-border rounded-lg">
-                      <p className="text-red-600 text-sm">{error}</p>
+                      <p className="text-destructive text-sm">{error}</p>
                     </div>
                   )}
                 </div>
               )}
-              
+
               {!needsAction && (
                 <>
-                  <div className={`p-4 rounded-lg border ${statusInfo.color} mb-4`}>
+                  <div className={cn('p-4 rounded-lg border mb-4', statusTone.panel)}>
                     <div className="flex items-center">
-                      {statusInfo.icon}
+                      <statusInfo.Icon className={cn('w-5 h-5 shrink-0', statusTone.icon)} />
                       <div className="ml-3">
                         <h4 className="font-semibold">{statusInfo.text}</h4>
                         <p className="text-sm opacity-80">{statusInfo.description}</p>
@@ -303,45 +286,33 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
               {/* Section Actions - Chat, Inspection et Incidents */}
               <div className="mt-4 space-y-3">
                 {/* Bouton Chat - visible pour toutes les réservations */}
-                <button
-                  onClick={handleOpenChat}
-                  className="w-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-sm"
-                >
+                <Button variant="outline" onClick={handleOpenChat} className="w-full">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   {t('chatWithRenter')}
-                </button>
+                </Button>
 
                 {/* Bouton/Lien Inspection - conditionnel selon le statut */}
                 {canInspect && (
-                  <Link
-                    href={`/bookings/${booking.id}/inspection`}
-                    className="w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-md hover:shadow-lg"
-                  >
+                  <Button href={`/bookings/${booking.id}/inspection`} className="w-full">
                     <ClipboardCheck className="w-4 h-4 mr-2" />
                     {booking.status === 'CONFIRMED' ? t('checkIn') : t('checkOut')}
-                  </Link>
+                  </Button>
                 )}
 
                 {/* Lien pour voir l'inspection si terminée */}
                 {isCompleted && (
-                  <Link
-                    href={`/bookings/${booking.id}/inspection`}
-                    className="w-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg flex items-center justify-center text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  >
+                  <Button variant="outline" href={`/bookings/${booking.id}/inspection`} className="w-full">
                     <ClipboardCheck className="w-4 h-4 mr-2" />
                     {t('viewInspection')}
-                  </Link>
+                  </Button>
                 )}
 
                 {/* Bouton Signaler Incident */}
                 {canReportIncident && (
-                  <Link
-                    href={`/bookings/${booking.id}/incident/report`}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center justify-center text-sm font-medium shadow-md hover:shadow-lg"
-                  >
+                  <Button variant="destructive" href={`/bookings/${booking.id}/incident/report`} className="w-full">
                     <AlertTriangle className="w-4 h-4 mr-2" />
                     {t('reportIncident')}
-                  </Link>
+                  </Button>
                 )}
 
                 {/* Lien Voir Rapports d'Incidents */}

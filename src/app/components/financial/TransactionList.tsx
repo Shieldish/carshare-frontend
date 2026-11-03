@@ -8,6 +8,7 @@ import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle, RefreshCcw, C
 import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import { useLocale, useTranslations } from 'next-intl';
+import { Button } from '@/app/components/ui';
 
 interface Props {
   startDate?: Date;
@@ -75,7 +76,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
       case 'PROCESSING': return { icon: <Clock className="w-4 h-4 text-primary" />, text: t('statusProcessing') };
       case 'FAILED': return { icon: <XCircle className="w-4 h-4 text-red-500" />, text: t('statusFailed') };
       case 'REFUNDED': return { icon: <RefreshCcw className="w-4 h-4 text-primary" />, text: t('statusRefunded') };
-      default: return { icon: <Clock className="w-4 h-4 text-gray-500" />, text: status };
+      default: return { icon: <Clock className="w-4 h-4 text-muted-foreground" />, text: status };
     }
   };
 
@@ -123,7 +124,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
 
   if (error) {
     return (
-      <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-start" role="alert">
+      <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-3 text-destructive flex items-start" role="alert">
         <AlertCircle className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" />
         <span>{t('transactionsError')}: {error}</span>
       </div>
@@ -198,14 +199,15 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 0 || isLoading}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
+            <ChevronLeft className="w-4 h-4" />
             {t('pagePrevious')}
-          </button>
+          </Button>
 
           <div className="flex items-center space-x-2">
             <span className="text-sm text-muted-foreground">
@@ -213,14 +215,15 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
             </span>
           </div>
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage >= totalPages - 1 || isLoading}
-            className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {t('pageNext')}
-            <ChevronRight className="w-4 h-4 ml-1" />
-          </button>
+            <ChevronRight className="w-4 h-4" />
+          </Button>
         </div>
       )}
     </div>

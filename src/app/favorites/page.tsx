@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { Heart, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import VehicleCard, { VehicleCardSkeleton } from '../components/VehicleCard';
 import type { Vehicle } from '@/types/vehicle';
+import { Button } from '@/app/components/ui';
 
 export default function FavoritesPage() {
   const t = useTranslations('favorites');
@@ -93,7 +93,7 @@ export default function FavoritesPage() {
         </div>
       ) : loadError ? (
         <div className="text-center py-16 bg-card rounded-xl shadow-sm border border-border">
-          <p className="text-red-500 font-medium">{t('loadError')}</p>
+          <p className="text-destructive font-medium">{t('loadError')}</p>
         </div>
       ) : vehicles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -116,13 +116,10 @@ export default function FavoritesPage() {
             <p className="text-muted-foreground mb-6">
               {t('emptyDescription')}
             </p>
-            <Link
-              href="/search"
-              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg transition-colors shadow-sm hover:shadow-md font-medium"
-            >
+            <Button href="/search">
               <Search className="w-4 h-4" />
               {t('browseCta')}
-            </Link>
+            </Button>
           </div>
         </div>
       )}

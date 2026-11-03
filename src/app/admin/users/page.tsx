@@ -26,6 +26,25 @@ import {
   FileX
 } from 'lucide-react';
 import type { UpdateVerificationStatusDto } from '@/types/admin';
+import {
+  Badge,
+  Button,
+  Input,
+  StatCard,
+  Dialog,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  ConfirmDialog,
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+  type BadgeVariant,
+} from '@/app/components/ui';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -120,19 +139,15 @@ const SecureLightbox = ({ userId, docType, title, onClose }: { userId: number, d
   );
 };
 
-const RoleBadge: React.FC<{ role: string }> = ({ role }) => {
-  const colors = {
-    ADMIN: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-    OWNER: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    USER: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
-  };
-
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${colors[role as keyof typeof colors] || colors.USER}`}>
-      {role}
-    </span>
-  );
+const ROLE_BADGE: Record<string, BadgeVariant> = {
+  ADMIN: 'purple',
+  OWNER: 'info',
+  USER: 'neutral',
 };
+
+const RoleBadge: React.FC<{ role: string }> = ({ role }) => (
+  <Badge variant={ROLE_BADGE[role] ?? 'neutral'}>{role}</Badge>
+);
 
 const VerificationStatus: React.FC<{
   userId: number;
@@ -147,42 +162,31 @@ const VerificationStatus: React.FC<{
 
   if (isVerified) {
     return (
-      <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-        <CheckCircle2 className="w-4 h-4 text-green-600 dark:text-green-400" />
-        <span className="text-sm font-medium text-green-700 dark:text-green-300">{t('verification.verified')}</span>
-      </div>
+      <Badge variant="success" className="px-3 py-2">
+        <CheckCircle2 className="w-4 h-4" />
+        {t('verification.verified')}
+      </Badge>
     );
   }
 
   if (documentUrl) {
     return (
       <div className="flex flex-col gap-2">
-        <button
-          onClick={onView}
-          className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-primary/10 text-primary hover:bg-primary/20 dark:bg-primary/20 border border-primary/20 dark:border-primary/30 transition-colors"
-        >
+        <Button variant="outline" size="sm" onClick={onView} className="!text-primary !border-primary/20 hover:!bg-primary/10">
           <ExternalLink className="w-3 h-3" /> {t('verification.view')}
-        </button>
-        <button
-          onClick={onVerify}
-          disabled={isUpdating}
-          className="inline-flex items-center justify-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-orange-500 text-white hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isUpdating ? (
-            <Loader2 className="w-3 h-3 animate-spin" />
-          ) : (
-            <CheckCircle2 className="w-3 h-3" />
-          )}
+        </Button>
+        <Button size="sm" onClick={onVerify} disabled={isUpdating} className="!bg-amber-500 hover:!bg-amber-600 dark:!bg-amber-600 dark:hover:!bg-amber-500">
+          {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
           {t('verification.approve')}
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-500 bg-gray-100 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+    <Badge variant="neutral">
       <XCircle className="w-3 h-3" /> {t('verification.pending')}
-    </span>
+    </Badge>
   );
 };
 
@@ -280,8 +284,8 @@ const UserRow: React.FC<{
     >
       <td className="px-6 py-4">
         <div className="flex items-start gap-3">
-          <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isSuspended ? 'bg-red-100' : 'bg-primary/10'}`}>
-            <span className={`text-sm font-semibold ${isSuspended ? 'text-red-600' : 'text-primary'}`}>
+          <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isSuspended ? 'bg-red-100 dark:bg-red-900/30' : 'bg-primary/10'}`}>
+            <span className={`text-sm font-semibold ${isSuspended ? 'text-red-600 dark:text-red-400' : 'text-primary'}`}>
               {user.firstName?.[0]}{user.lastName?.[0]}
             </span>
           </div>
@@ -289,19 +293,19 @@ const UserRow: React.FC<{
             <div className="text-sm font-semibold text-foreground flex items-center gap-2">
               {user.firstName} {user.lastName}
               {user.isPremium && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-[10px] font-bold uppercase tracking-wider">
+                <Badge variant="warning" className="text-[10px]">
                   <Crown className="w-3 h-3" /> {t('premiumBadge')}
-                </span>
+                </Badge>
               )}
             </div>
             <div className="text-xs text-muted-foreground">{user.email || user.sub}</div>
             {isSuspended && (
-              <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-sm bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-[10px] font-bold uppercase tracking-wider">
+              <Badge variant="destructive" className="mt-1 text-[10px]">
                 <Ban className="w-3 h-3" /> {t('suspendedBadge')}
-              </span>
+              </Badge>
             )}
             {user.isPremium && premiumEndFormatted && (
-              <div className="text-[10px] text-yellow-600 dark:text-yellow-400 mt-0.5">
+              <div className="text-[10px] text-amber-600 dark:text-amber-400 mt-0.5">
                 {t('expiresOn', { date: premiumEndFormatted })}
               </div>
             )}
@@ -354,110 +358,83 @@ const UserRow: React.FC<{
         {user.phoneNumber || <span className="text-muted-foreground/50">{t('notProvided')}</span>}
 
         {/* MODALE DE VÉRIFICATION DOCUMENT */}
-        {docToVerify && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl max-w-sm w-full border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('confirmDocModal.title')}</h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">{t('confirmDocModal.message')}</p>
-              <div className="flex justify-end gap-3">
-                <button onClick={() => setDocToVerify(null)} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">{t('confirmDocModal.cancel')}</button>
-                <button onClick={() => executeVerify(docToVerify)} className="px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> {t('confirmDocModal.approve')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmDialog
+          open={!!docToVerify}
+          onClose={() => setDocToVerify(null)}
+          onConfirm={() => docToVerify && executeVerify(docToVerify)}
+          title={t('confirmDocModal.title')}
+          message={t('confirmDocModal.message')}
+          confirmLabel={t('confirmDocModal.approve')}
+          cancelLabel={t('confirmDocModal.cancel')}
+          tone="primary"
+        />
 
         {/* MODALE POUR SUSPENDRE / RÉACTIVER */}
-        {actionToConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl max-w-md w-full border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${actionToConfirm === 'suspend' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
-                  {actionToConfirm === 'suspend' ? <ShieldAlert className="w-6 h-6" /> : <PlayCircle className="w-6 h-6" />}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {actionToConfirm === 'suspend' ? t('toggleStatusModal.suspendTitle') : t('toggleStatusModal.activateTitle')}
-                </h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-                {actionToConfirm === 'suspend'
-                  ? t('toggleStatusModal.suspendMessage')
-                  : t('toggleStatusModal.activateMessage')}
-              </p>
-              <div className="flex justify-end gap-3">
-                <button onClick={() => setActionToConfirm(null)} disabled={isToggling} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">{t('toggleStatusModal.cancel')}</button>
-                <button onClick={executeToggleStatus} disabled={isToggling} className={`px-4 py-2 text-sm font-medium text-white rounded-lg flex items-center gap-2 ${actionToConfirm === 'suspend' ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'}`}>
-                  {isToggling ? <Loader2 className="w-4 h-4 animate-spin" /> : (actionToConfirm === 'suspend' ? <Ban className="w-4 h-4" /> : <PlayCircle className="w-4 h-4" />)}
-                  {actionToConfirm === 'suspend' ? t('toggleStatusModal.confirmSuspend') : t('toggleStatusModal.confirmActivate')}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmDialog
+          open={!!actionToConfirm}
+          onClose={() => setActionToConfirm(null)}
+          onConfirm={executeToggleStatus}
+          title={actionToConfirm === 'suspend' ? t('toggleStatusModal.suspendTitle') : t('toggleStatusModal.activateTitle')}
+          message={actionToConfirm === 'suspend' ? t('toggleStatusModal.suspendMessage') : t('toggleStatusModal.activateMessage')}
+          confirmLabel={actionToConfirm === 'suspend' ? t('toggleStatusModal.confirmSuspend') : t('toggleStatusModal.confirmActivate')}
+          cancelLabel={t('toggleStatusModal.cancel')}
+          tone={actionToConfirm === 'suspend' ? 'destructive' : 'success'}
+          loading={isToggling}
+        />
 
         {/* MODALE PREMIUM */}
-        {showPremiumModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-2xl max-w-md w-full border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                  <Crown className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">{t('premiumModal.title')}</h3>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                {t('premiumModal.introPrefix')} <strong>{t('premiumModal.introHighlight')}</strong> {t('premiumModal.introSuffix')}
+        <Dialog open={showPremiumModal} onClose={() => { setShowPremiumModal(false); setPremiumSuccess(null); }} size="sm">
+          <DialogHeader onClose={() => { setShowPremiumModal(false); setPremiumSuccess(null); }}>
+            <DialogTitle className="flex items-center gap-3">
+              <Crown className="text-amber-500" /> {t('premiumModal.title')}
+            </DialogTitle>
+          </DialogHeader>
+          <DialogBody className="pt-4">
+            <p className="text-muted-foreground text-sm mb-2">
+              {t('premiumModal.introPrefix')} <strong>{t('premiumModal.introHighlight')}</strong> {t('premiumModal.introSuffix')}
+            </p>
+            <p className="text-sm font-semibold text-foreground mb-2">
+              {user.firstName} {user.lastName}
+            </p>
+            {user.isPremium && premiumEndFormatted && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mb-4">
+                {t('premiumModal.activeUntilPrefix')} {premiumEndFormatted}{t('premiumModal.activeUntilSuffix')}
               </p>
-              <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">
-                {user.firstName} {user.lastName}
+            )}
+            {!user.isPremium && (
+              <p className="text-xs text-muted-foreground mb-4">
+                {t('premiumModal.noActiveSubscription')}
               </p>
-              {user.isPremium && premiumEndFormatted && (
-                <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-4">
-                  {t('premiumModal.activeUntilPrefix')} {premiumEndFormatted}{t('premiumModal.activeUntilSuffix')}
-                </p>
-              )}
-              {!user.isPremium && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                  {t('premiumModal.noActiveSubscription')}
-                </p>
-              )}
-              {premiumSuccess && (
-                <div className="mb-4 flex items-center gap-2 text-sm text-green-700 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800">
-                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> {premiumSuccess}
-                </div>
-              )}
-              {error && (
-                <div className="mb-4 flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
-                </div>
-              )}
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => { setShowPremiumModal(false); setPremiumSuccess(null); }}
-                  disabled={isExtendingPremium}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50"
-                >
-                  {t('premiumModal.cancel')}
-                </button>
-                <button
-                  onClick={executeExtendPremium}
-                  disabled={isExtendingPremium || !!premiumSuccess}
-                  className="px-4 py-2 text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isExtendingPremium ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
-                  {isExtendingPremium ? t('premiumModal.confirming') : t('premiumModal.confirm')}
-                </button>
+            )}
+            {premiumSuccess && (
+              <div className="mb-4 flex items-center gap-2 text-sm rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> {premiumSuccess}
               </div>
-            </div>
-          </div>
-        )}
+            )}
+            {error && (
+              <div className="mb-4 flex items-center gap-2 text-sm rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-destructive">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
+              </div>
+            )}
+          </DialogBody>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => { setShowPremiumModal(false); setPremiumSuccess(null); }}
+              disabled={isExtendingPremium}
+            >
+              {t('premiumModal.cancel')}
+            </Button>
+            <Button
+              onClick={executeExtendPremium}
+              disabled={isExtendingPremium || !!premiumSuccess}
+              className="!bg-amber-500 hover:!bg-amber-600 dark:!bg-amber-600 dark:hover:!bg-amber-500"
+            >
+              {isExtendingPremium ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crown className="w-4 h-4" />}
+              {isExtendingPremium ? t('premiumModal.confirming') : t('premiumModal.confirm')}
+            </Button>
+          </DialogFooter>
+        </Dialog>
       </td>
 
       <td className="px-6 py-4 text-sm text-muted-foreground whitespace-nowrap">
@@ -722,47 +699,30 @@ function AdminUsersContent() {
                 <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
               </div>
             </div>
-            <button onClick={() => router.back()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors border border-border rounded-lg hover:border-primary group">
-              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" /> {t('back')}
-            </button>
+            <Button variant="outline" onClick={() => router.back()} className="group">
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> {t('back')}
+            </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200">
-              <div className="text-sm text-blue-600 font-medium">{t('stats.total')}</div>
-              <div className="text-2xl font-bold text-blue-900 mt-1">{stats.total}</div>
-            </div>
-            <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200">
-              <div className="text-sm text-green-600 font-medium">{t('stats.fullyVerified')}</div>
-              <div className="text-2xl font-bold text-green-900 mt-1">{stats.fullyVerified}</div>
-            </div>
-            <div className="bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg border border-orange-200">
-              <div className="text-sm text-orange-600 font-medium">{t('stats.unverified')}</div>
-              <div className="text-2xl font-bold text-orange-900 mt-1">{stats.unverified}</div>
-            </div>
-            <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200">
-              <div className="text-sm text-red-600 font-medium">{t('stats.suspended')}</div>
-              <div className="text-2xl font-bold text-red-900 mt-1">{stats.suspended}</div>
-            </div>
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg border border-yellow-200">
-              <div className="text-sm text-yellow-600 font-medium flex items-center gap-1">
-                <Crown className="w-3.5 h-3.5" /> {t('stats.premium')}
-              </div>
-              <div className="text-2xl font-bold text-yellow-900 mt-1">{stats.premium}</div>
-            </div>
+            <StatCard icon={UserCog} label={t('stats.total')} value={stats.total} tone="info" />
+            <StatCard icon={CheckCircle2} label={t('stats.fullyVerified')} value={stats.fullyVerified} tone="success" />
+            <StatCard icon={XCircle} label={t('stats.unverified')} value={stats.unverified} tone="warning" />
+            <StatCard icon={Ban} label={t('stats.suspended')} value={stats.suspended} tone="destructive" />
+            <StatCard icon={Crown} label={t('stats.premium')} value={stats.premium} tone="accent" />
           </div>
         </div>
       </div>
 
       <div className="container mx-auto max-w-7xl p-4 sm:p-6 md:p-8">
         {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="mb-6 rounded-r-lg border-l-4 border-destructive bg-destructive/10 p-4 shadow-sm flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">{t('errorTitle')}</h3>
-              <p className="text-sm text-red-700 dark:text-red-400 mt-1">{error}</p>
+              <h3 className="text-sm font-medium text-destructive">{t('errorTitle')}</h3>
+              <p className="text-sm text-destructive/90 mt-1">{error}</p>
             </div>
-            <button onClick={() => setError(null)} className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors">
+            <button onClick={() => setError(null)} className="text-destructive hover:text-destructive/80 transition-colors">
               <XCircle className="w-5 h-5" />
             </button>
           </div>
@@ -771,8 +731,8 @@ function AdminUsersContent() {
         <div className="bg-card rounded-lg shadow-sm border border-border p-4 mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input type="text" placeholder={t('searchPlaceholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-border rounded-lg bg-background text-foreground focus:ring-2 focus:ring-primary" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+              <Input type="text" placeholder={t('searchPlaceholder')} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
             </div>
             <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground">
               <option value="ALL">{t('roleFilter.all')}</option>
@@ -794,46 +754,42 @@ function AdminUsersContent() {
           </div>
         </div>
 
-        <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.user')}</th>
-                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">{t('columns.role')}</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.identity')}</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.license')}</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.selfie')}</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.phone')}</th>
-                  <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-foreground uppercase">{t('columns.lastLogin')}</th>
-                  <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-foreground uppercase">{t('columns.actions')}</th>
-                </tr>
-              </thead>
-              <tbody className="bg-card">
-                {filteredUsers.length > 0 ? (
-                  paginatedUsers.map(user => (
-                    <UserRow
-                      key={user.id}
-                      user={user}
-                      onStatusChange={handleVerificationChange}
-                      onToggleStatus={handleToggleStatus}
-                      onExtendPremium={handleExtendPremium}
-                      onViewDocument={(userId, docType, title) => setViewingDoc({ userId, type: docType, title })} // On passe l'ordre d'ouvrir la Lightbox
-                      isHighlighted={highlightedUserId === user.id.toString()}
-                    />
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={7} className="text-center py-12">
-                      <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground">{t('noUsersFound')}</p>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              <TableHead>{t('columns.user')}</TableHead>
+              <TableHead className="text-center">{t('columns.role')}</TableHead>
+              <TableHead>{t('columns.identity')}</TableHead>
+              <TableHead>{t('columns.license')}</TableHead>
+              <TableHead>{t('columns.selfie')}</TableHead>
+              <TableHead>{t('columns.phone')}</TableHead>
+              <TableHead>{t('columns.lastLogin')}</TableHead>
+              <TableHead className="text-center">{t('columns.actions')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredUsers.length > 0 ? (
+              paginatedUsers.map(user => (
+                <UserRow
+                  key={user.id}
+                  user={user}
+                  onStatusChange={handleVerificationChange}
+                  onToggleStatus={handleToggleStatus}
+                  onExtendPremium={handleExtendPremium}
+                  onViewDocument={(userId, docType, title) => setViewingDoc({ userId, type: docType, title })} // On passe l'ordre d'ouvrir la Lightbox
+                  isHighlighted={highlightedUserId === user.id.toString()}
+                />
+              ))
+            ) : (
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={8} className="text-center py-12">
+                  <Filter className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-muted-foreground">{t('noUsersFound')}</p>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
         <AdminPagination
           currentPage={currentPage}

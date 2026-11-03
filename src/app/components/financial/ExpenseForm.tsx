@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/apiClient';
 import type { CreateExpenseData, UpdateExpenseData, Expense, ExpenseCategory } from '@/types/financial';
 import { DollarSign, Calendar, Tag, FileText, Paperclip, Loader2, Send, X, Car, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Button, Input, Label } from '@/app/components/ui';
 
 interface Vehicle {
   id: number;
@@ -138,7 +139,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 rounded-md text-sm flex items-start" role="alert">
+        <div className="rounded-md border border-destructive/20 bg-destructive/10 px-4 py-2 text-small text-destructive flex items-start" role="alert">
           <AlertCircle className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -146,10 +147,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-foreground mb-1">
+          <Label htmlFor="amount">
             <DollarSign size={14} className="inline mr-1" /> {tForm('amountLabel')}
-          </label>
-          <input
+          </Label>
+          <Input
             id="amount"
             name="amount"
             type="number"
@@ -158,15 +159,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
             required
             value={formData.amount || ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
         <div>
-          <label htmlFor="expenseDate" className="block text-sm font-medium text-foreground mb-1">
+          <Label htmlFor="expenseDate">
             <Calendar size={14} className="inline mr-1" /> {tForm('dateLabel')}
-          </label>
-          <input
+          </Label>
+          <Input
             id="expenseDate"
             name="expenseDate"
             type="date"
@@ -174,16 +174,15 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
             value={formatDateForInput(formData.expenseDate)}
             max={new Date().toISOString().split('T')[0]}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-foreground mb-1">
+          <Label htmlFor="category">
             <Tag size={14} className="inline mr-1" /> {tForm('categoryLabel')}
-          </label>
+          </Label>
           <select
             id="category"
             name="category"
@@ -200,9 +199,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
         </div>
 
         <div>
-          <label htmlFor="vehicleId" className="block text-sm font-medium text-foreground mb-1">
+          <Label htmlFor="vehicleId">
             <Car size={14} className="inline mr-1" /> {tForm('vehicleOptionalLabel')}
-          </label>
+          </Label>
           <select
             id="vehicleId"
             name="vehicleId"
@@ -220,9 +219,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       </div>
 
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-foreground mb-1">
+        <Label htmlFor="description">
           <FileText size={14} className="inline mr-1" /> {tForm('descriptionLabel')}
-        </label>
+        </Label>
         <textarea
           id="description"
           name="description"
@@ -235,9 +234,9 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
       </div>
 
       <div>
-        <label htmlFor="receipt" className="block text-sm font-medium text-foreground mb-1">
+        <Label htmlFor="receipt">
           <Paperclip size={14} className="inline mr-1" /> {tForm('receiptLabel')}
-        </label>
+        </Label>
         <input
           id="receipt"
           type="file"
@@ -253,23 +252,14 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
 
       <div className={`flex gap-4 pt-4 ${isEditMode ? 'justify-between' : 'justify-end'}`}>
         {isEditMode && (
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isLoading || isUploadingReceipt}
-            className="px-4 py-2 border border-border text-foreground rounded-md hover:bg-muted disabled:opacity-50"
-          >
+          <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading || isUploadingReceipt}>
             {tForm('cancel')}
-          </button>
+          </Button>
         )}
-        <button
-          type="submit"
-          disabled={isLoading || isUploadingReceipt}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 flex items-center"
-        >
-          {isLoading || isUploadingReceipt ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+        <Button type="submit" disabled={isLoading || isUploadingReceipt}>
+          {isLoading || isUploadingReceipt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           {isEditMode ? tForm('update') : tForm('add')}
-        </button>
+        </Button>
       </div>
     </form>
   );

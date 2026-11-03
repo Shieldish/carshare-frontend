@@ -7,6 +7,8 @@ import { Vehicle } from '@/types/vehicle';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
+import { Calendar, CheckCircle2, Loader2 } from 'lucide-react';
+import { Button, Input, Label } from '@/app/components/ui';
 
 interface BookingFormWithPaymentProps {
   vehicle: Vehicle;
@@ -200,26 +202,22 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
             currentStep === 'dates' ? 'bg-primary text-primary-foreground' : 'bg-green-600 text-white'
           }`}>
-            {currentStep === 'success' ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            ) : '1'}
+            {currentStep === 'success' ? <CheckCircle2 className="w-4 h-4" /> : '1'}
           </div>
-          <span className={`ml-2 text-sm font-medium ${currentStep === 'dates' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+          <span className={`ml-2 text-sm font-medium ${currentStep === 'dates' ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('stepBooking')}
           </span>
         </div>
-        
-        <div className={`w-16 h-0.5 transition-colors ${currentStep === 'success' ? 'bg-green-600' : 'bg-gray-300 dark:bg-gray-600'}`}></div>
-        
+
+        <div className={`w-16 h-0.5 transition-colors ${currentStep === 'success' ? 'bg-green-600' : 'bg-muted'}`}></div>
+
         <div className="flex items-center">
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-            currentStep === 'success' ? 'bg-green-600 text-white' : 'bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-300'
+            currentStep === 'success' ? 'bg-green-600 text-white' : 'bg-muted text-muted-foreground'
           }`}>
-            {currentStep === 'success' ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            ) : '2'}
+            {currentStep === 'success' ? <CheckCircle2 className="w-4 h-4" /> : '2'}
           </div>
-          <span className={`ml-2 text-sm font-medium ${currentStep === 'success' ? 'text-gray-900 dark:text-gray-100' : 'text-gray-500 dark:text-gray-400'}`}>
+          <span className={`ml-2 text-sm font-medium ${currentStep === 'success' ? 'text-foreground' : 'text-muted-foreground'}`}>
             {t('stepConfirmed')}
           </span>
         </div>
@@ -228,13 +226,11 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
   );
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden relative">
+    <div className="bg-card rounded-2xl shadow-xl overflow-hidden relative">
       <div className="bg-gradient-to-r from-primary to-primary/90 px-4 sm:px-6 md:px-8 py-4 sm:py-6">
         <div className="flex items-center">
           <div className="bg-white/20 rounded-full p-3 mr-4">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+            <Calendar className="w-6 h-6 text-white" />
           </div>
           <div>
             <h3 className="text-2xl font-bold text-primary-foreground">
@@ -257,30 +253,24 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
           <form onSubmit={handleBookingSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('startDateLabel')}
-                </label>
-                <input
+                <Label>{t('startDateLabel')}</Label>
+                <Input
                   type="datetime-local"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   min={getMinDateTime()}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('endDateLabel')}
-                </label>
-                <input
+                <Label>{t('endDateLabel')}</Label>
+                <Input
                   type="datetime-local"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate || getMinDateTime()}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -295,52 +285,37 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
             )}
 
             {bookingError && (
-              <div className="p-4 bg-red-100 text-red-700 rounded-lg text-sm">{bookingError}</div>
+              <div className="p-4 rounded-lg border border-destructive/20 bg-destructive/10 text-destructive text-sm">{bookingError}</div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmittingBooking || !startDate || !endDate}
-              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary disabled:from-gray-400 disabled:cursor-not-allowed transition-all font-bold text-lg shadow-lg hover:shadow-xl flex items-center justify-center"
-            >
-              {isSubmittingBooking ? (
-                <><div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>{t('creating')}</>
-              ) : (
-                t('reserveAndPay')
-              )}
-            </button>
+            <Button type="submit" disabled={isSubmittingBooking || !startDate || !endDate} size="lg" className="w-full">
+              {isSubmittingBooking ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
+              {isSubmittingBooking ? t('creating') : t('reserveAndPay')}
+            </Button>
           </form>
         )}
 
         {/* Étape 2: Succès */}
         {currentStep === 'success' && createdBooking && (
-          <div className="text-center space-y-6 animate-in fade-in zoom-in duration-300">
+          <div className="text-center space-y-6 animate-dialog-in">
             <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
             </div>
-            
+
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('successTitle')}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
+              <h3 className="text-2xl font-bold text-foreground mb-2">{t('successTitle')}</h3>
+              <p className="text-muted-foreground mb-6">
                 {t('successSubtitle')}
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                onClick={() => router.push('/bookings/my-bookings')}
-                className="flex-1 bg-primary text-primary-foreground py-3 px-6 rounded-xl font-semibold shadow-lg hover:bg-primary/90"
-              >
+              <Button onClick={() => router.push('/bookings/my-bookings')} size="lg" className="flex-1">
                 {t('viewMyBookings')}
-              </button>
-              <button
-                onClick={() => router.push('/')}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-xl font-semibold hover:bg-gray-300"
-              >
+              </Button>
+              <Button variant="outline" onClick={() => router.push('/')} size="lg" className="flex-1">
                 {t('backToHome')}
-              </button>
+              </Button>
             </div>
           </div>
         )}

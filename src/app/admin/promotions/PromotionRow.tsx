@@ -4,6 +4,13 @@ import { useTranslations } from 'next-intl';
 import { Image as ImageIcon, XCircle, CheckCircle, Loader2, Trash2, ImagePlus, Pencil } from 'lucide-react';
 import type { BoostAdminData } from './page';
 import { apiClient } from '@/lib/apiClient';
+import { Badge, TableRow, TableCell, type BadgeVariant } from '@/app/components/ui';
+
+const BOOST_BADGE: Record<string, BadgeVariant> = {
+  STANDARD: 'info',
+  PREMIUM: 'purple',
+  ULTRA: 'warning',
+};
 
 interface PromotionRowProps {
   boost: BoostAdminData;
@@ -81,22 +88,13 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
     if(fileInputRef.current) fileInputRef.current.value = "";
   };
   
-  const BoostPill = ({type}: {type: string}) => {
-    const styles: Record<string, string> = {
-      STANDARD: 'bg-blue-100 text-blue-800',
-      PREMIUM: 'bg-purple-100 text-purple-800',
-      ULTRA: 'bg-yellow-100 text-yellow-800',
-    };
-    return <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${styles[type]}`}>{type}</span>;
-  };
-
   return (
-    <tr className="hover:bg-muted/50 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
+    <TableRow>
+      <TableCell className="whitespace-nowrap">
         <div className="flex items-center space-x-3">
           {/* ✅ Miniature de la voiture (Cliquable avec Zoom Hover) */}
-          <div 
-            className={`relative flex-shrink-0 w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700 flex items-center justify-center group ${boost.vehicleImageUrl ? 'cursor-pointer' : ''}`}
+          <div
+            className={`relative flex-shrink-0 w-12 h-12 bg-muted rounded-md overflow-hidden border border-border flex items-center justify-center group ${boost.vehicleImageUrl ? 'cursor-pointer' : ''}`}
             onClick={() => boost.vehicleImageUrl && setZoomedImage(boost.vehicleImageUrl)}
           >
             {boost.vehicleImageUrl ? (
@@ -104,29 +102,29 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
                 src={boost.vehicleImageUrl}
                 alt={t('vehicleAlt')}
                 fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300" 
-                unoptimized 
+                className="object-cover group-hover:scale-110 transition-transform duration-300"
+                unoptimized
               />
             ) : (
-              <ImageIcon className="text-gray-400 w-6 h-6" />
+              <ImageIcon className="text-muted-foreground w-6 h-6" />
             )}
           </div>
           <div>
-            <div className="font-bold text-gray-900 dark:text-white">
+            <div className="font-bold text-foreground">
               {boost.vehicleMake} {boost.vehicleModel}
             </div>
             <div className="text-xs text-muted-foreground">ID: {boost.vehicleId}</div>
           </div>
         </div>
-      </td>
-      
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{boost.ownerEmail}</td>
-      <td className="px-6 py-4 whitespace-nowrap"><BoostPill type={boost.boostType} /></td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+      </TableCell>
+
+      <TableCell className="whitespace-nowrap">{boost.ownerEmail}</TableCell>
+      <TableCell className="whitespace-nowrap"><Badge variant={BOOST_BADGE[boost.boostType] ?? 'neutral'}>{boost.boostType}</Badge></TableCell>
+      <TableCell className="whitespace-nowrap">
         {new Date(boost.expiresAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
-      </td>
-      
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
+      </TableCell>
+
+      <TableCell className="whitespace-nowrap">
         <div className="flex items-center space-x-4">
           {/* ✅ Image Héros/Promo (Cliquable avec Zoom Hover) */}
           <div 
@@ -150,10 +148,10 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
             <div className="flex items-center space-x-2">
               {imageFile && (
                 <>
-                  <button onClick={handleUpload} disabled={isUploading || isDeleting} className="p-2 text-green-600 hover:bg-green-100 rounded-full disabled:opacity-50 transition-colors">
+                  <button onClick={handleUpload} disabled={isUploading || isDeleting} className="p-2 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/30 rounded-full disabled:opacity-50 transition-colors">
                     {isUploading ? <Loader2 className="animate-spin" /> : <CheckCircle />}
                   </button>
-                  <button onClick={clearSelection} disabled={isUploading || isDeleting} className="p-2 text-red-600 hover:bg-red-100 rounded-full disabled:opacity-50 transition-colors">
+                  <button onClick={clearSelection} disabled={isUploading || isDeleting} className="p-2 text-destructive hover:bg-destructive/10 rounded-full disabled:opacity-50 transition-colors">
                     <XCircle />
                   </button>
                 </>
@@ -172,7 +170,7 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
                   </button>
 
                   {boost.heroImageUrl && (
-                    <button onClick={handleDelete} disabled={isDeleting} className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full disabled:opacity-50 transition-colors" title={t('deleteImageTitle')}>
+                    <button onClick={handleDelete} disabled={isDeleting} className="p-2.5 text-destructive hover:bg-destructive/10 rounded-full disabled:opacity-50 transition-colors" title={t('deleteImageTitle')}>
                       {isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 size={18} />}
                     </button>
                   )}
@@ -180,24 +178,24 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
               )}
             </div>
 
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleFileChange} 
-              accept="image/png, image/jpeg, image/jpg, image/webp" 
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/png, image/jpeg, image/jpg, image/webp"
               className="hidden"
             />
-            {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
           </div>
 
           {/* ✅ LA MODALE LIGHTBOX (Affiche l'image en plein écran) */}
           {zoomedImage && (
-            <div 
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 p-4"
+            <div
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-overlay-in p-4"
               onClick={() => setZoomedImage(null)}
             >
-              <div 
-                className="relative w-full max-w-5xl h-[85vh] animate-in zoom-in-95 duration-300"
+              <div
+                className="relative w-full max-w-5xl h-[85vh] animate-dialog-in"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Positionné à l'intérieur de la boîte (pas au-dessus) pour ne jamais être coupé
@@ -222,7 +220,7 @@ export default function PromotionRow({ boost, onUploadSuccess, onDeleteSuccess }
           )}
 
         </div>
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

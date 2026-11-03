@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
+import { Input } from '@/app/components/ui';
 
 interface FAQItem {
   id: number;
@@ -55,12 +56,12 @@ const FAQPage = () => {
           {/* Search Bar */}
           <div className="mb-12">
             <div className="relative">
-              <input
+              <Input
                 type="text"
                 placeholder={t('searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-6 py-4 text-lg border border-border rounded-2xl focus:ring-2 focus:ring-primary focus:border-transparent bg-card text-foreground shadow-lg placeholder:text-muted-foreground"
+                className="px-6 py-4 text-lg rounded-2xl bg-card shadow-lg"
               />
               <Search className="absolute right-4 top-4 h-6 w-6 text-muted-foreground" />
             </div>

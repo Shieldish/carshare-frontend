@@ -9,6 +9,7 @@ import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
 import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { Calendar, ArrowLeft, XCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Button, Input, Label } from '@/app/components/ui';
 
 // ============================================================================
 // TYPES
@@ -323,15 +324,12 @@ function BookingCreateContent() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="text-center bg-card border border-border rounded-lg p-6 max-w-md">
-          <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <XCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
           <h3 className="text-lg font-medium text-foreground mb-2">{t('vehicleNotFoundTitle')}</h3>
           <p className="text-muted-foreground mb-4">{t('vehicleNotFoundDesc')}</p>
-          <button
-            onClick={() => router.back()}
-            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
+          <Button onClick={() => router.back()} className="mt-4">
             {t('back')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -348,13 +346,10 @@ function BookingCreateContent() {
     <div className="min-h-screen bg-background pb-12">
       <div className="bg-card border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <button
-            onClick={() => router.back()}
-            className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+          <Button variant="ghost" onClick={() => router.back()} className="group px-0 hover:bg-transparent hover:text-primary">
+            <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
             {t('back')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -368,7 +363,7 @@ function BookingCreateContent() {
           
           {/* COLONNE GAUCHE : Détails du véhicule */}
           <div className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border">
-            <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-800">
+            <div className="relative w-full h-64 bg-muted">
               <Image 
                 src={displayImageSrc} 
                 alt={`${vehicle.make} ${vehicle.model}`} 
@@ -455,24 +450,22 @@ function BookingCreateContent() {
 
             <div className="space-y-6 mb-8">
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">{t('startDateLabel')}</label>
-                <input
+                <Label>{t('startDateLabel')}</Label>
+                <Input
                   type="datetime-local"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   min={getMinDateTime()}
-                  className="w-full px-4 py-3 border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">{t('endDateLabel')}</label>
-                <input
+                <Label>{t('endDateLabel')}</Label>
+                <Input
                   type="datetime-local"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
                   min={startDate || getMinDateTime()}
-                  className="w-full px-4 py-3 border border-border bg-background text-foreground rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
             </div>
@@ -486,20 +479,15 @@ function BookingCreateContent() {
               )}
             </div>
 
-            <button
+            <Button
               onClick={handleSubmitBooking}
               disabled={isSubmitting || availabilityStatus !== 'available' || !startDate || !endDate}
-              className="w-full bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-4 px-6 rounded-xl hover:from-primary/90 hover:to-primary transition-all font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+              size="lg"
+              className="w-full"
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-3 animate-spin" />
-                  {t('submitting')}
-                </>
-              ) : (
-                t('submitButton')
-              )}
-            </button>
+              {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+              {isSubmitting ? t('submitting') : t('submitButton')}
+            </Button>
 
             <p className="text-center text-xs text-muted-foreground mt-4">
               {t('paymentNote')}

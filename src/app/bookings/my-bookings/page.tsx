@@ -11,9 +11,11 @@ import ConfirmDeleteModal from '@/app/bookings/my-bookings/ConfirmDeleteModal';
 import LeaveReviewModal from '@/app/bookings/my-bookings/LeaveReviewModal';
 import { StarRating } from '@/app/components/reviews/VehicleReviews';
 import type { Review } from '@/types/review';
-import { MessageSquare, ClipboardCheck, AlertTriangle, Star, Pencil, Trash2 } from 'lucide-react';
+import { MessageSquare, ClipboardCheck, AlertTriangle, Star, Pencil, Trash2, CreditCard, CheckCircle, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { Badge, Button } from '@/app/components/ui';
+import type { BadgeVariant } from '@/app/components/ui';
 
 // Types mis à jour pour correspondre à la nouvelle structure
 type PaymentInfo = {
@@ -126,12 +128,12 @@ function BookingCard({
     }
   };
 
-  const statusStyles = {
-    PENDING: 'bg-orange-100 text-orange-800 border-orange-200',
-    CONFIRMED: 'bg-blue-100 text-blue-800 border-blue-200',
-    IN_PROGRESS: 'bg-green-100 text-green-800 border-green-200',
-    COMPLETED: 'bg-muted text-muted-foreground border-border',
-    CANCELLED: 'bg-red-100 text-red-800 border-red-200',
+  const statusBadgeVariant: Record<Booking['status'], BadgeVariant> = {
+    PENDING: 'warning',
+    CONFIRMED: 'info',
+    IN_PROGRESS: 'primary',
+    COMPLETED: 'neutral',
+    CANCELLED: 'destructive',
   };
 
   const handleOpenChat = () => {
@@ -308,13 +310,7 @@ function BookingCard({
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-foreground">{totalPrice.toLocaleString()} FBu</div>
-                    <span
-                      className={`inline-flex px-2 py-1 rounded-full text-xs font-medium border ${
-                        statusStyles[status as keyof typeof statusStyles]
-                      }`}
-                    >
-                      {tStatus(status)}
-                    </span>
+                    <Badge variant={statusBadgeVariant[status]}>{tStatus(status)}</Badge>
                   </div>
                 </div>
               </div>
@@ -322,30 +318,17 @@ function BookingCard({
               <div className="mt-auto pt-4 border-t border-border">
                 {status === 'PENDING' && payment?.status === 'PENDING' && (
                   <div className="flex gap-3 mb-3">
-                    <button
-                      onClick={handleOnlinePayment}
-                      disabled={isLoading}
-                      className="flex-1 bg-primary hover:bg-primary/90 disabled:bg-primary/40 text-primary-foreground py-3 px-4 rounded-lg transition-all duration-200 font-medium flex items-center justify-center shadow-md hover:shadow-lg"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v2a2 2 0 002 2z"
-                        />
-                      </svg>
+                    <Button onClick={handleOnlinePayment} disabled={isLoading} className="flex-1">
+                      <CreditCard className="w-4 h-4" />
                       {isLoading ? t('initializing') : t('payNow')}
-                    </button>
+                    </Button>
                   </div>
                 )}
 
                 {payment?.status === 'CAPTURED' && status === 'CONFIRMED' && (
-                  <div className="bg-green-100 border-2 border-green-500 text-green-800 px-4 py-3 rounded-lg text-center mb-3">
+                  <div className="bg-green-100 dark:bg-green-900/30 border-2 border-green-500 dark:border-green-700 text-green-800 dark:text-green-300 px-4 py-3 rounded-lg text-center mb-3">
                     <div className="flex items-center justify-center text-sm font-semibold">
-                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
+                      <CheckCircle className="w-5 h-5 mr-2" />
                       {t('paymentConfirmed')}
                     </div>
                   </div>
@@ -377,50 +360,30 @@ function BookingCard({
                 )}
 
                 <div className="flex flex-wrap justify-end gap-3">
-                  <button
-                    onClick={handleOpenChat}
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
+                  <Button variant="outline" onClick={handleOpenChat}>
+                    <MessageSquare className="w-4 h-4" />
                     {t('chat')}
-                  </button>
+                  </Button>
 
                   {status === 'PENDING' && (
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      disabled={isDeleting}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:bg-red-300 transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
+                    <Button variant="destructive" onClick={() => setShowDeleteModal(true)} disabled={isDeleting}>
+                      <Trash2 className="w-4 h-4" />
                       {isDeleting ? t('deleting') : t('delete')}
-                    </button>
+                    </Button>
                   )}
 
                   {canInspect && (
-                    <Link
-                      href={`/bookings/${booking.id}/inspection`}
-                      className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg w-full justify-center sm:w-auto"
-                    >
-                      <ClipboardCheck className="w-4 h-4 mr-2" />
+                    <Button href={`/bookings/${booking.id}/inspection`} className="w-full sm:w-auto">
+                      <ClipboardCheck className="w-4 h-4" />
                       {status === 'CONFIRMED' ? t('checkIn') : t('checkOut')}
-                    </Link>
+                    </Button>
                   )}
 
                   {status === 'COMPLETED' && (
-                    <Link
-                      href={`/bookings/${booking.id}/inspection`}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg flex items-center text-sm font-medium w-full justify-center sm:w-auto"
-                    >
-                      <ClipboardCheck className="w-4 h-4 mr-2" />
+                    <Button href={`/bookings/${booking.id}/inspection`} className="w-full sm:w-auto">
+                      <ClipboardCheck className="w-4 h-4" />
                       {t('viewInspection')}
-                    </Link>
+                    </Button>
                   )}
 
                   {status === 'COMPLETED' && (
@@ -439,7 +402,7 @@ function BookingCard({
                           onClick={handleDeleteReview}
                           disabled={isDeletingReview}
                           title={t('deleteReview')}
-                          className="p-2.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 rounded-lg disabled:opacity-50 transition-colors"
+                          className="p-2.5 text-destructive hover:bg-destructive/10 rounded-lg disabled:opacity-50 transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -447,7 +410,7 @@ function BookingCard({
                     ) : (
                       <button
                         onClick={() => setShowReviewModal(true)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
+                        className="bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
                       >
                         <Star className="w-4 h-4 mr-2" />
                         {t('leaveReview')}
@@ -456,13 +419,10 @@ function BookingCard({
                   )}
 
                   {canReportIncident && (
-                    <Link
-                      href={`/bookings/${booking.id}/incident/report`}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
-                    >
-                      <AlertTriangle className="w-4 h-4 mr-2" />
+                    <Button variant="destructive" href={`/bookings/${booking.id}/incident/report`}>
+                      <AlertTriangle className="w-4 h-4" />
                       {t('reportIncident')}
-                    </Link>
+                    </Button>
                   )}
 
                   {canViewIncidents && (
@@ -474,24 +434,14 @@ function BookingCard({
                     </Link>
                   )}
 
-                  <button
-                    onClick={() => router.push(`/bookings/${booking.id}/contact`)}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-colors flex items-center text-sm font-medium shadow-md hover:shadow-lg"
-                  >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
+                  <Button onClick={() => router.push(`/bookings/${booking.id}/contact`)}>
+                    <Mail className="w-4 h-4" />
                     {t('support')}
-                  </button>
+                  </Button>
                 </div>
 
                 {error && (
-                  <p className="text-red-500 text-sm mt-2 text-right">{error}</p>
+                  <p className="text-destructive text-sm mt-2 text-right">{error}</p>
                 )}
               </div>
             </div>
@@ -762,12 +712,9 @@ function MyBookingsContent() {
             </div>
             <h3 className="text-lg font-medium text-foreground mb-2">{t('errorTitle')}</h3>
             <p className="text-muted-foreground">{error}</p>
-            <button
-              onClick={fetchBookings}
-              className="mt-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
-            >
+            <Button variant="destructive" onClick={fetchBookings} className="mt-4">
               {t('retry')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -788,20 +735,10 @@ function MyBookingsContent() {
                 {activeFilter !== 'all' && t('totalCount', { count: statusCounts.all })}
               </p>
             </div>
-            <button
-              onClick={() => router.push('/')}
-              className="inline-flex items-center text-primary hover:text-primary/80 font-medium transition-colors group"
-            >
-              <svg
-                className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+            <Button variant="ghost" onClick={() => router.push('/')} className="group px-0 text-primary hover:bg-transparent hover:text-primary/80">
+              <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
               {t('backHome')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -844,12 +781,9 @@ function MyBookingsContent() {
                   ? t('emptyState.allDesc')
                   : `${t('emptyState.filteredDescPrefix')} "${t(`emptyState.filterLabelsCapitalized.${activeFilter}`)}"`}
               </p>
-              <button
-                onClick={() => router.push('/')}
-                className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground py-3 px-6 rounded-lg hover:from-primary/90 hover:to-primary transition-all duration-200 font-medium shadow-md hover:shadow-lg"
-              >
+              <Button onClick={() => router.push('/')} size="lg">
                 {t('exploreVehicles')}
-              </button>
+              </Button>
             </div>
           </div>
         )}

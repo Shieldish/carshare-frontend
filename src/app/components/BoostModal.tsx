@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useTranslations } from 'next-intl';
 import { ApiError } from '@/lib/apiClient';
 import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
+import { Dialog, DialogHeader, DialogTitle, DialogBody, Button } from '@/app/components/ui';
 
 interface BoostModalProps {
   vehicle: Vehicle;
@@ -186,139 +187,129 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
 
   return (
     <>
-      {step === 'SELECT_BOOST' && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-          onClick={(e) => e.target === e.currentTarget && onClose()}
-        >
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-                <TrendingUp className="mr-2 text-primary" /> {t('title')}
-              </h2>
-              <button onClick={onClose} aria-label="Close" className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors text-2xl font-bold leading-none">
-                ×
-              </button>
+      <Dialog open={step === 'SELECT_BOOST'} onClose={onClose} size="md">
+        <DialogHeader onClose={onClose}>
+          <DialogTitle className="flex items-center gap-2">
+            <TrendingUp className="text-primary" /> {t('title')}
+          </DialogTitle>
+        </DialogHeader>
+        <DialogBody className="pt-6">
+          {error && (
+            <div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-small text-destructive">
+              {error}
             </div>
+          )}
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-400 rounded-lg text-sm">
-                {error}
+          {/* Sélecteur de Durée */}
+          <div className="mb-6 flex rounded-xl bg-muted p-1">
+            <button
+              onClick={() => setDuration(1)}
+              className={`flex-1 rounded-lg py-2 text-small font-bold transition-all ${
+                duration === 1 ? 'bg-card text-primary shadow' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t('durationMonth')}
+            </button>
+            <button
+              onClick={() => setDuration(12)}
+              className={`flex flex-1 items-center justify-center gap-1 rounded-lg py-2 text-small font-bold transition-all ${
+                duration === 12 ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Calendar size={16} /> {t('durationYear')}{' '}
+              <span className="ml-1 rounded-full bg-accent px-1.5 py-0.5 text-micro text-accent-foreground">{t('yearDiscountBadge')}</span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Bannière de réduction pour les membres Premium */}
+            {isPremiumUser && (
+              <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-small text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
+                <Sparkles className="h-4 w-4 flex-shrink-0" />
+                {t('premiumBanner')}
               </div>
             )}
 
-            {/* Sélecteur de Durée */}
-            <div className="bg-gray-100 dark:bg-gray-700 p-1 rounded-xl flex mb-6">
-              <button
-                onClick={() => setDuration(1)}
-                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${
-                  duration === 1 ? 'bg-white dark:bg-gray-800 shadow text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
-                }`}
-              >
-                {t('durationMonth')}
-              </button>
-              <button
-                onClick={() => setDuration(12)}
-                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-1 ${
-                  duration === 12 ? 'bg-primary shadow text-primary-foreground' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
-                }`}
-              >
-                <Calendar size={16} /> {t('durationYear')} <span className="text-[10px] ml-1 bg-yellow-400 text-black px-1.5 py-0.5 rounded-full">{t('yearDiscountBadge')}</span>
-              </button>
-            </div>
+            {/* STANDARD */}
+            <button
+              onClick={() => handleInitiateBoost('STANDARD')}
+              disabled={isLoading}
+              className="group flex w-full items-center justify-between rounded-xl border border-border p-4 text-left transition-all hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+            >
+              <div className="flex items-center">
+                <div className="mr-3 rounded-lg bg-muted p-2 transition-colors group-hover:bg-primary/20">
+                  <Zap size={20} className="text-muted-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground group-hover:text-primary">{t('standardTitle')}</h3>
+                  <p className="text-small text-muted-foreground">{t('standardDesc')}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-foreground">{getPrice(5000).toLocaleString()} FBu</span>
+                {isPremiumUser && (
+                  <p className="text-small text-muted-foreground line-through">{getOriginalPrice(5000).toLocaleString()} FBu</p>
+                )}
+              </div>
+            </button>
 
-            <div className="space-y-4">
+            {/* PREMIUM */}
+            <button
+              onClick={() => handleInitiateBoost('PREMIUM')}
+              disabled={isLoading}
+              className="group relative flex w-full items-center justify-between overflow-hidden rounded-xl border-2 border-primary bg-primary/5 p-4 text-left transition-all hover:bg-primary/10 disabled:opacity-50 dark:bg-primary/10 dark:hover:bg-primary/20"
+            >
+              <div className="absolute right-0 top-0 rounded-bl-lg bg-primary px-2 py-1 text-micro font-bold text-primary-foreground">
+                {t('popularBadge')}
+              </div>
+              <div className="flex items-center">
+                <div className="mr-3 rounded-lg bg-primary p-2">
+                  <Crown size={20} className="text-primary-foreground" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-foreground group-hover:text-primary/80">{t('premiumTitle')}</h3>
+                  <p className="text-small text-muted-foreground">{t('premiumDesc')}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-primary">{getPrice(15000).toLocaleString()} FBu</span>
+                {isPremiumUser && (
+                  <p className="text-small text-primary/60 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
+                )}
+              </div>
+            </button>
 
-              {/* Bannière de réduction pour les membres Premium */}
-              {isPremiumUser && (
-                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 text-yellow-800 dark:text-yellow-300 p-3 rounded-lg text-sm flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 flex-shrink-0" />
-                  {t('premiumBanner')}
+            {/* ULTRA */}
+            <button
+              onClick={() => handleInitiateBoost('ULTRA')}
+              disabled={isLoading}
+              className="group flex w-full items-center justify-between rounded-xl border border-border p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 disabled:opacity-50 dark:hover:bg-purple-900/20"
+            >
+              <div className="flex items-center">
+                <div className="mr-3 rounded-lg bg-purple-100 p-2 transition-colors group-hover:bg-purple-200 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
+                  <Zap size={20} className="text-purple-600 dark:text-purple-400" />
                 </div>
-              )}
+                <div>
+                  <h3 className="font-bold text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('ultraTitle')}</h3>
+                  <p className="text-small text-muted-foreground">{t('ultraDesc')}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{getPrice(30000).toLocaleString()} FBu</span>
+                {isPremiumUser && (
+                  <p className="text-small text-muted-foreground line-through">{getOriginalPrice(30000).toLocaleString()} FBu</p>
+                )}
+              </div>
+            </button>
 
-              {/* STANDARD */}
-              <button
-                onClick={() => handleInitiateBoost('STANDARD')}
-                disabled={isLoading}
-                className="w-full group p-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:border-primary hover:bg-primary/5 transition-all text-left flex justify-between items-center disabled:opacity-50"
-              >
-                <div className="flex items-center">
-                  <div className="bg-gray-200 dark:bg-gray-700 p-2 rounded-lg mr-3 group-hover:bg-primary/20 transition-colors">
-                    <Zap size={20} className="text-gray-600 dark:text-gray-300" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary">{t('standardTitle')}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('standardDesc')}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-lg text-gray-700 dark:text-gray-300">{getPrice(5000).toLocaleString()} FBu</span>
-                  {isPremiumUser && (
-                    <p className="text-xs text-gray-400 line-through">{getOriginalPrice(5000).toLocaleString()} FBu</p>
-                  )}
-                </div>
-              </button>
-
-              {/* PREMIUM */}
-              <button
-                onClick={() => handleInitiateBoost('PREMIUM')}
-                disabled={isLoading}
-                className="w-full group p-4 border-2 border-primary bg-primary/5 dark:bg-primary/10 rounded-xl hover:bg-primary/10 dark:hover:bg-primary/20 transition-all text-left flex justify-between items-center relative overflow-hidden disabled:opacity-50"
-              >
-                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-1 rounded-bl-lg">
-                  {t('popularBadge')}
-                </div>
-                <div className="flex items-center">
-                  <div className="bg-primary p-2 rounded-lg mr-3">
-                    <Crown size={20} className="text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary/80">{t('premiumTitle')}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('premiumDesc')}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-lg text-primary">{getPrice(15000).toLocaleString()} FBu</span>
-                  {isPremiumUser && (
-                    <p className="text-xs text-primary/60 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
-                  )}
-                </div>
-              </button>
-
-              {/* ULTRA */}
-              <button
-                onClick={() => handleInitiateBoost('ULTRA')}
-                disabled={isLoading}
-                className="w-full group p-4 border border-gray-300 dark:border-gray-600 rounded-xl hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all text-left flex justify-between items-center disabled:opacity-50"
-              >
-                <div className="flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-lg mr-3 group-hover:bg-purple-200 transition-colors">
-                    <Zap size={20} className="text-purple-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-800 dark:text-gray-100 group-hover:text-purple-600">{t('ultraTitle')}</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{t('ultraDesc')}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="font-bold text-lg text-purple-600">{getPrice(30000).toLocaleString()} FBu</span>
-                  {isPremiumUser && (
-                    <p className="text-xs text-gray-400 line-through">{getOriginalPrice(30000).toLocaleString()} FBu</p>
-                  )}
-                </div>
-              </button>
-
-              {isLoading && (
-                <div className="flex justify-center mt-4">
-                  <Loader2 className="animate-spin text-primary" size={28} />
-                </div>
-              )}
-            </div>
+            {isLoading && (
+              <div className="mt-4 flex justify-center">
+                <Loader2 className="animate-spin text-primary" size={28} />
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        </DialogBody>
+      </Dialog>
 
       {step === 'SELECT_PAYMENT' && paymentData && (
         <UnifiedPaymentModal
@@ -333,25 +324,18 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
         />
       )}
 
-      {step === 'SUCCESS' && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full text-center animate-in fade-in zoom-in duration-300">
-            <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle className="w-8 h-8 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t('successTitle')}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-8">
-              {t('successMessage', { months: duration })}
-            </p>
-            <button
-              onClick={onClose}
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-6 rounded-xl font-bold transition-colors shadow-lg"
-            >
-              {t('backToDashboard')}
-            </button>
+      <Dialog open={step === 'SUCCESS'} onClose={onClose} size="md">
+        <DialogBody className="pt-8 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
-        </div>
-      )}
+          <h2 className="mb-2 text-h2 text-foreground">{t('successTitle')}</h2>
+          <p className="mb-8 text-muted-foreground">{t('successMessage', { months: duration })}</p>
+          <Button onClick={onClose} className="w-full" size="lg">
+            {t('backToDashboard')}
+          </Button>
+        </DialogBody>
+      </Dialog>
     </>
   );
 }

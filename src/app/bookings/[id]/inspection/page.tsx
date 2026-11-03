@@ -11,6 +11,7 @@ import InspectionDetailsDisplay from '@/app/components/inspection/InspectionDeta
 import { InspectionDetails } from '@/types/inspection';
 import { Loader2, AlertCircle, ArrowLeft, Lock, CheckCircle, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { Button } from '@/app/components/ui';
 
 function InspectionPageContent() {
     const t = useTranslations('inspection.page');
@@ -203,8 +204,8 @@ function InspectionPageContent() {
                         </div>
                     ) : (
                         // Ni propriétaire ni locataire
-                        <div className="text-center py-10 bg-muted rounded-lg border border-red-200">
-                            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+                        <div className="text-center py-10 bg-muted rounded-lg border border-destructive/20">
+                            <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-3" />
                             <h3 className="text-lg font-semibold text-foreground mb-2">{t('unauthorizedTitle')}</h3>
                             <p className="text-muted-foreground">{t('unauthorizedDesc')}</p>
                         </div>
@@ -242,13 +243,10 @@ function InspectionPageContent() {
         <div className="min-h-screen bg-background">
             <div className="bg-card border-b border-border">
                 <div className="container mx-auto max-w-4xl px-4 py-4">
-                    <button
-                        onClick={() => router.back()}
-                        className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
-                    >
-                        <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                    <Button variant="ghost" onClick={() => router.back()} className="group px-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                         {t('back')}
-                    </button>
+                    </Button>
                 </div>
             </div>
             <div className="container mx-auto max-w-2xl py-8 px-4">
@@ -260,7 +258,7 @@ function InspectionPageContent() {
 
             {/* ✅ TOAST DE SUCCÈS DANS LE PARENT — survit au démontage du formulaire */}
             {showSuccessToast && (
-                <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300 max-w-sm">
+                <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-toast-in max-w-sm">
                     <CheckCircle className="w-5 h-5 flex-shrink-0" />
                     <div>
                         <p className="font-semibold text-sm">{t('checkInSuccessTitle')}</p>

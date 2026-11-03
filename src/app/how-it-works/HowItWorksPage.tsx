@@ -27,7 +27,15 @@ import { useAuth } from '@/context/AuthContext';
 const STEP_ICONS = [Car, Calendar, CheckCircle];
 const OWNER_STEP_ICONS = [Camera, MessageSquare, TrendingUp];
 const BENEFIT_ICONS = [Users, DollarSign];
-const BENEFIT_COLORS = ['blue', 'green'];
+// ✅ Classes Tailwind écrites en toutes lettres (pas de `bg-${color}-100` dynamique) :
+// le scanner JIT de Tailwind ne voit que des chaînes littérales complètes dans le
+// code source, donc un nom de classe reconstruit au runtime à partir d'une variable
+// n'est jamais généré — bug confirmé ici en dark mode (dark:bg-blue-900 n'existait
+// nulle part ailleurs littéralement, donc jamais généré par le build).
+const BENEFIT_COLOR_CLASSES = [
+  { bg: 'bg-blue-100 dark:bg-blue-900', text: 'text-blue-600 dark:text-blue-400' },
+  { bg: 'bg-green-100 dark:bg-green-900', text: 'text-green-600 dark:text-green-400' },
+];
 const SAFETY_ICONS = [UserCheck, Shield, CreditCard, Clock];
 
 const HowItWorksPage = () => {
@@ -46,7 +54,7 @@ const HowItWorksPage = () => {
 
   const benefits = useMemo(() => {
     const raw = t.raw('benefits') as { title: string; subtitle: string; points: string[] }[];
-    return raw.map((b, i) => ({ ...b, icon: BENEFIT_ICONS[i], color: BENEFIT_COLORS[i] }));
+    return raw.map((b, i) => ({ ...b, icon: BENEFIT_ICONS[i], colorClasses: BENEFIT_COLOR_CLASSES[i] }));
   }, [t]);
 
   const safetyFeatures = useMemo(() => {
@@ -131,8 +139,8 @@ const HowItWorksPage = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {benefits.map((benefit, index) => (
               <div key={index} className="text-center lg:text-left">
-                <div className={`inline-flex items-center justify-center w-16 h-16 bg-${benefit.color}-100 dark:bg-${benefit.color}-900 rounded-full mb-6`}>
-                  <benefit.icon className={`h-8 w-8 text-${benefit.color}-600 dark:text-${benefit.color}-400`} />
+                <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-6 ${benefit.colorClasses.bg}`}>
+                  <benefit.icon className={`h-8 w-8 ${benefit.colorClasses.text}`} />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-2">
                   {benefit.title}

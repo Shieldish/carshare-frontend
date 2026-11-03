@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, FileText, Car, ShieldAlert, ExternalLink, Loader2
 import type { VehicleImage } from '@/types/vehicle';
 import AdminPagination from '../components/AdminPagination';
 import { openProtectedVehicleDocument } from '@/app/components/ProtectedImage';
+import { Badge, Button, ConfirmDialog, Dialog, DialogBody } from '@/app/components/ui';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -69,16 +70,16 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
   const formatExpiry = (dateStr?: string) => {
     const { state, date } = getExpiryStatus(dateStr);
     if (state === 'none' || !date) {
-      return <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{t('documents.noExpiryDate')}</p>;
+      return <p className="text-xs text-muted-foreground mt-1">{t('documents.noExpiryDate')}</p>;
     }
     const formatted = date.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' });
     const badge = state === 'expired'
-      ? <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 dark:bg-red-900/30 dark:text-red-400">{t('documents.expired')}</span>
+      ? <Badge variant="destructive" className="ml-2">{t('documents.expired')}</Badge>
       : state === 'expiringSoon'
-      ? <span className="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-400">{t('documents.expiringSoon')}</span>
+      ? <Badge variant="warning" className="ml-2">{t('documents.expiringSoon')}</Badge>
       : null;
     return (
-      <p className={`text-xs mt-1 flex items-center ${state === 'expired' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'}`}>
+      <p className={`text-xs mt-1 flex items-center ${state === 'expired' ? 'text-destructive' : 'text-muted-foreground'}`}>
         {t('documents.expiryLabel', { date: formatted })}{badge}
       </p>
     );
@@ -89,14 +90,14 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
       {/* Photos du véhicule — pas de fallback Unsplash ici : substituer une fausse photo
           tromperait l'admin qui doit juger le véhicule réel. */}
       <div>
-        <p className="text-sm font-semibold mb-2">{t('photosSection.title')}</p>
+        <p className="text-sm font-semibold mb-2 text-foreground">{t('photosSection.title')}</p>
         {images.length > 0 ? (
           <a
             href={images[0].url}
             target="_blank"
             rel="noopener noreferrer"
             title={t('photosSection.viewFullSize')}
-            className="relative block w-full h-32 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group"
+            className="relative block w-full h-32 rounded-lg overflow-hidden border border-border group"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={images[0].url} alt={`${vehicle.make} ${vehicle.model}`} className="w-full h-full object-cover group-hover:opacity-90 transition-opacity" />
@@ -107,7 +108,7 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
             )}
           </a>
         ) : (
-          <div className="w-full h-24 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center text-gray-400 dark:text-gray-500">
+          <div className="w-full h-24 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center text-muted-foreground">
             <ImageOff className="w-6 h-6 mb-1" />
             <p className="text-xs">{t('photosSection.noPhotos')}</p>
           </div>
@@ -116,19 +117,19 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
 
       {/* Documents légaux */}
       <div className="space-y-3">
-        <p className="text-sm font-semibold">{t('documentsToVerify')}</p>
+        <p className="text-sm font-semibold text-foreground">{t('documentsToVerify')}</p>
         {vehicle.registrationDocumentUrl ? (
           <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'registration')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
             <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.registration')}</span><ExternalLink className="w-4 h-4" />
           </button>
-        ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.registrationMissing')}</p>}
+        ) : <p className="text-sm text-destructive flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.registrationMissing')}</p>}
 
         <div>
           {vehicle.insuranceDocumentUrl ? (
             <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'insurance')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.insurance')}</span><ExternalLink className="w-4 h-4" />
             </button>
-          ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.insuranceMissing')}</p>}
+          ) : <p className="text-sm text-destructive flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.insuranceMissing')}</p>}
           {formatExpiry(vehicle.insuranceExpiryDate)}
         </div>
 
@@ -137,7 +138,7 @@ function VehicleComplianceSection({ vehicle }: { vehicle: AdminVehicle }) {
             <button type="button" onClick={() => openProtectedVehicleDocument(vehicle.id, 'technicalControl')} className="w-full flex items-center justify-between p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors border border-primary/20">
               <span className="flex items-center gap-2"><FileText className="w-5 h-5" /> {t('documents.technicalControl')}</span><ExternalLink className="w-4 h-4" />
             </button>
-          ) : <p className="text-sm text-red-500 flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.technicalControlMissing')}</p>}
+          ) : <p className="text-sm text-destructive flex items-center gap-2"><XCircle className="w-4 h-4" /> {t('documents.technicalControlMissing')}</p>}
           {formatExpiry(vehicle.technicalControlExpiryDate)}
         </div>
       </div>
@@ -284,7 +285,7 @@ export default function AdminVehiclesPage() {
     return (
       <div className="flex h-full items-center justify-center p-8">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-3 text-lg text-gray-600 dark:text-gray-300">{t('loading')}</span>
+        <span className="ml-3 text-lg text-muted-foreground">{t('loading')}</span>
       </div>
     );
   }
@@ -293,7 +294,7 @@ export default function AdminVehiclesPage() {
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto relative">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3">
             <Car className="w-8 h-8 text-primary" />
             {t('pageTitle')}
           </h1>
@@ -304,20 +305,20 @@ export default function AdminVehiclesPage() {
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border border-red-200 flex items-center gap-2">
+        <div className="bg-destructive/10 text-destructive p-4 rounded-lg mb-6 border border-destructive/20 flex items-center gap-2">
           <XCircle className="w-5 h-5" /> {error}
         </div>
       )}
 
       {/* SYSTÈME D'ONGLETS */}
-      <div className="flex space-x-2 mb-8 border-b border-gray-200 dark:border-gray-700 pb-px overflow-x-auto">
-        <button onClick={() => setActiveTab('pending')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'pending' ? 'bg-white dark:bg-gray-800 text-primary border-t border-l border-r border-gray-200 dark:border-gray-700 mb-[-1px]' : 'text-gray-500 hover:text-gray-700 bg-gray-50 dark:bg-gray-900/50'}`}>
+      <div className="flex space-x-2 mb-8 border-b border-border pb-px overflow-x-auto">
+        <button onClick={() => setActiveTab('pending')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'pending' ? 'bg-card text-primary border-t border-l border-r border-border mb-[-1px]' : 'text-muted-foreground hover:text-foreground bg-muted/50'}`}>
           <ShieldAlert className="w-4 h-4" /> {t('tabs.pending')} ({pendingVehicles.length})
         </button>
-        <button onClick={() => setActiveTab('active')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'active' ? 'bg-white dark:bg-gray-800 text-primary border-t border-l border-r border-gray-200 dark:border-gray-700 mb-[-1px]' : 'text-gray-500 hover:text-gray-700 bg-gray-50 dark:bg-gray-900/50'}`}>
+        <button onClick={() => setActiveTab('active')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'active' ? 'bg-card text-primary border-t border-l border-r border-border mb-[-1px]' : 'text-muted-foreground hover:text-foreground bg-muted/50'}`}>
           <CheckCircle className="w-4 h-4" /> {t('tabs.active')} ({activeVehicles.length})
         </button>
-        <button onClick={() => setActiveTab('suspended')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'suspended' ? 'bg-white dark:bg-gray-800 text-primary border-t border-l border-r border-gray-200 dark:border-gray-700 mb-[-1px]' : 'text-gray-500 hover:text-gray-700 bg-gray-50 dark:bg-gray-900/50'}`}>
+        <button onClick={() => setActiveTab('suspended')} className={`flex items-center gap-2 px-6 py-3 font-medium text-sm rounded-t-lg transition-colors ${activeTab === 'suspended' ? 'bg-card text-primary border-t border-l border-r border-border mb-[-1px]' : 'text-muted-foreground hover:text-foreground bg-muted/50'}`}>
           <Ban className="w-4 h-4" /> {t('tabs.suspended')} ({suspendedVehicles.length})
         </button>
       </div>
@@ -326,33 +327,37 @@ export default function AdminVehiclesPage() {
       {activeTab === 'pending' && (
         <div className="animate-in fade-in duration-300">
           {pendingVehicles.length === 0 ? (
-            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
+            <div className="bg-muted p-8 rounded-xl border border-border text-center text-muted-foreground">
               <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-50" />
               <p>{t('noPendingVehicles')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedPendingVehicles.map(vehicle => (
-                <div key={vehicle.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-5 flex flex-col">
+                <div key={vehicle.id} className="bg-card rounded-xl shadow-sm border border-amber-200 dark:border-amber-800/50 p-5 flex flex-col">
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">{vehicle.make} {vehicle.model}</h3>
-                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mt-1">
+                    <h3 className="text-lg font-bold text-foreground">{vehicle.make} {vehicle.model}</h3>
+                    <p className="text-sm font-semibold text-foreground/90 mt-1">
                       {cityPrefix(vehicle)}{vehicle.owner.firstName} {vehicle.owner.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">{vehicle.owner.email} | {vehicle.owner.phoneNumber || t('noOwnerPhone')}</p>
+                    <p className="text-xs text-muted-foreground">{vehicle.owner.email} | {vehicle.owner.phoneNumber || t('noOwnerPhone')}</p>
                   </div>
 
                   <div className="flex-grow mb-6">
                     <VehicleComplianceSection vehicle={vehicle} />
                   </div>
 
-                  <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
-                    <button onClick={() => handleUpdateStatusClick(vehicle.id, 'APPROVED')} disabled={actionLoading === vehicle.id || !vehicle.registrationDocumentUrl || !vehicle.insuranceDocumentUrl || !vehicle.technicalControlDocumentUrl} className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 disabled:opacity-50">
+                  <div className="flex gap-3 pt-4 border-t border-border">
+                    <Button
+                      onClick={() => handleUpdateStatusClick(vehicle.id, 'APPROVED')}
+                      disabled={actionLoading === vehicle.id || !vehicle.registrationDocumentUrl || !vehicle.insuranceDocumentUrl || !vehicle.technicalControlDocumentUrl}
+                      className="flex-1 !bg-green-600 hover:!bg-green-700"
+                    >
                       {actionLoading === vehicle.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle className="w-5 h-5" />} {t('approve')}
-                    </button>
-                    <button onClick={() => handleUpdateStatusClick(vehicle.id, 'REJECTED')} disabled={actionLoading === vehicle.id} className="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2">
+                    </Button>
+                    <Button variant="outline" onClick={() => handleUpdateStatusClick(vehicle.id, 'REJECTED')} disabled={actionLoading === vehicle.id} className="flex-1">
                       <XCircle className="w-5 h-5" /> {t('reject')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -373,45 +378,45 @@ export default function AdminVehiclesPage() {
       {activeTab === 'active' && (
         <div className="animate-in fade-in duration-300">
           {activeVehicles.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-400 italic">{t('noActiveVehicles')}</p>
+            <p className="text-muted-foreground italic">{t('noActiveVehicles')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedActiveVehicles.map(vehicle => (
-                <div key={vehicle.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col">
+                <div key={vehicle.id} className="bg-card rounded-xl shadow-sm border border-border p-5 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-bold">{vehicle.make} {vehicle.model}</h3>
+                    <h3 className="text-lg font-bold text-foreground">{vehicle.make} {vehicle.model}</h3>
                     <div className="flex items-center gap-2">
                       {vehicle.isBoosted && (
-                        <span className="text-xs bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400 px-2 py-1 rounded-full font-bold flex items-center gap-1">
+                        <Badge variant="boost">
                           <Flame className="w-3 h-3" /> {t('boostedBadge')}
-                        </span>
+                        </Badge>
                       )}
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-bold">{vehicle.status}</span>
+                      <Badge variant="success">{vehicle.status}</Badge>
                     </div>
                   </div>
-                  <div className="text-xs text-gray-500 mb-4">
+                  <div className="text-xs text-muted-foreground mb-4">
                     {(vehicle.commune?.name || vehicle.province?.name) && (
-                      <span className="block text-gray-400 dark:text-gray-500">{vehicle.commune?.name || vehicle.province?.name}</span>
+                      <span className="block text-muted-foreground/70">{vehicle.commune?.name || vehicle.province?.name}</span>
                     )}
                     {t('ownerLabel', { name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}` })}
                   </div>
                   <div className="mb-4">
                     <VehicleComplianceSection vehicle={vehicle} />
                   </div>
-                  <div className="mt-auto pt-4 border-t border-gray-100 flex flex-col gap-2">
+                  <div className="mt-auto pt-4 border-t border-border flex flex-col gap-2">
                     {/* ✅ NOUVEAU : Bouton Boost */}
                     <button
                       onClick={() => handleBoostClick(vehicle)}
                       disabled={actionLoading === vehicle.id || vehicle.isBoosted}
-                      className="w-full bg-orange-50 text-orange-600 hover:bg-orange-500 hover:text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-orange-200 hover:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full bg-accent/10 text-accent hover:bg-accent hover:text-accent-foreground py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-accent/20 hover:border-accent disabled:opacity-50 disabled:cursor-not-allowed"
                       title={vehicle.isBoosted ? t('boostButton.titleAlreadyBoosted') : t('boostButton.titleBoost')}
                     >
                       {actionLoading === vehicle.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Flame className="w-4 h-4" />}
                       {vehicle.isBoosted ? t('boostButton.alreadyBoosted') : t('boostButton.boost')}
                     </button>
-                    <button onClick={() => handleUpdateStatusClick(vehicle.id, 'SUSPENDED_BY_ADMIN')} disabled={actionLoading === vehicle.id} className="w-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-red-200 hover:border-red-600">
+                    <Button variant="outline" onClick={() => handleUpdateStatusClick(vehicle.id, 'SUSPENDED_BY_ADMIN')} disabled={actionLoading === vehicle.id} className="w-full !text-destructive !border-destructive/30 hover:!bg-destructive/10">
                       {actionLoading === vehicle.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />} {t('suspendVehicle')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -432,31 +437,31 @@ export default function AdminVehiclesPage() {
       {activeTab === 'suspended' && (
         <div className="animate-in fade-in duration-300">
           {suspendedVehicles.length === 0 ? (
-            <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl border border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
+            <div className="bg-muted p-8 rounded-xl border border-border text-center text-muted-foreground">
               <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-50" />
               <p>{t('noSuspendedVehicles')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedSuspendedVehicles.map(vehicle => (
-                <div key={vehicle.id} className="bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-200 p-5 flex flex-col">
+                <div key={vehicle.id} className="bg-red-50 dark:bg-red-900/10 rounded-xl shadow-sm border border-red-200 dark:border-red-900/50 p-5 flex flex-col">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-lg font-bold text-red-900 dark:text-red-400">{vehicle.make} {vehicle.model}</h3>
-                    <Ban className="w-5 h-5 text-red-500" />
+                    <Ban className="w-5 h-5 text-red-500 dark:text-red-400" />
                   </div>
-                  <div className="text-xs text-red-700/70 mb-4">
+                  <div className="text-xs text-red-700/70 dark:text-red-400/70 mb-4">
                     {(vehicle.commune?.name || vehicle.province?.name) && (
-                      <span className="block text-red-700/50">{vehicle.commune?.name || vehicle.province?.name}</span>
+                      <span className="block text-red-700/50 dark:text-red-400/50">{vehicle.commune?.name || vehicle.province?.name}</span>
                     )}
                     {t('ownerLabel', { name: `${vehicle.owner.firstName} ${vehicle.owner.lastName}` })}
                   </div>
                   <div className="mb-4">
                     <VehicleComplianceSection vehicle={vehicle} />
                   </div>
-                  <div className="mt-auto pt-4 border-t border-red-200/50">
-                    <button onClick={() => handleUpdateStatusClick(vehicle.id, 'APPROVED_FROM_SUSPENDED')} disabled={actionLoading === vehicle.id} className="w-full bg-white dark:bg-gray-800 text-green-600 hover:bg-green-600 hover:text-white py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 border border-green-200 hover:border-green-600 shadow-sm">
+                  <div className="mt-auto pt-4 border-t border-red-200/50 dark:border-red-900/30">
+                    <Button onClick={() => handleUpdateStatusClick(vehicle.id, 'APPROVED_FROM_SUSPENDED')} disabled={actionLoading === vehicle.id} className="w-full !bg-green-600 hover:!bg-green-700">
                       {actionLoading === vehicle.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlayCircle className="w-4 h-4" />} {t('reactivateVehicle')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -474,44 +479,33 @@ export default function AdminVehiclesPage() {
       )}
 
       {/* MODALES */}
-      {confirmDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
-                <ShieldAlert className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">{confirmDialog.title}</h3>
-            </div>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6 leading-relaxed">
-              {confirmDialog.message}
-            </p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                {t('confirmDialog.cancel')}
-              </button>
-              <button onClick={() => confirmDialog.onConfirm()} className="px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors shadow-sm">
-                {t('confirmDialog.confirmAction')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={confirmDialog.isOpen}
+        onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+        onConfirm={() => confirmDialog.onConfirm()}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmLabel={t('confirmDialog.confirmAction')}
+        cancelLabel={t('confirmDialog.cancel')}
+        tone="primary"
+      />
 
-      {alertDialog.isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl max-w-sm w-full border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in duration-200 text-center">
-            <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 ${alertDialog.type === 'success' ? 'bg-green-100' : 'bg-red-100'}`}>
-              {alertDialog.type === 'error' ? <XCircle className="w-8 h-8 text-red-600" /> : <CheckCircle2 className="w-8 h-8 text-green-600" />}
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{alertDialog.title}</h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">{alertDialog.message}</p>
-            <button onClick={() => setAlertDialog({ ...alertDialog, isOpen: false })} className={`w-full px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors shadow-sm ${alertDialog.type === 'success' ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-800 hover:bg-gray-900'}`}>
-              {t('alertDialog.close')}
-            </button>
+      <Dialog open={alertDialog.isOpen} onClose={() => setAlertDialog({ ...alertDialog, isOpen: false })} size="sm">
+        <DialogBody className="pt-6 text-center">
+          <div className={`mx-auto w-14 h-14 rounded-full flex items-center justify-center mb-4 ${alertDialog.type === 'success' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-destructive/10'}`}>
+            {alertDialog.type === 'error' ? <XCircle className="w-8 h-8 text-destructive" /> : <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />}
           </div>
-        </div>
-      )}
+          <h3 className="text-h3 text-foreground mb-2">{alertDialog.title}</h3>
+          <p className="text-muted-foreground text-sm mb-6">{alertDialog.message}</p>
+          <Button
+            onClick={() => setAlertDialog({ ...alertDialog, isOpen: false })}
+            variant={alertDialog.type === 'error' ? 'destructive' : 'primary'}
+            className="w-full"
+          >
+            {t('alertDialog.close')}
+          </Button>
+        </DialogBody>
+      </Dialog>
 
     </div>
   );

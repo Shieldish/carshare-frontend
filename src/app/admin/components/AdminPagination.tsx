@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/app/components/ui';
 
 interface AdminPaginationProps {
   currentPage: number;
@@ -25,23 +26,15 @@ export default function AdminPagination({
 
   return (
     <div className="flex items-center justify-between mt-6">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="flex items-center px-4 py-2 text-sm font-medium border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
-        <ChevronLeft className="w-4 h-4 mr-1" />
+      <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>
+        <ChevronLeft className="w-4 h-4" />
         {previousLabel}
-      </button>
+      </Button>
       <span className="text-sm text-muted-foreground">{pageLabel}</span>
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="flex items-center px-4 py-2 text-sm font-medium border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-      >
+      <Button variant="outline" size="sm" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>
         {nextLabel}
-        <ChevronRight className="w-4 h-4 ml-1" />
-      </button>
+        <ChevronRight className="w-4 h-4" />
+      </Button>
     </div>
   );
 }

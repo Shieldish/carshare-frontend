@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Shield, Users, Car, CreditCard, AlertTriangle, FileText, Phone, Mail, Globe } from 'lucide-react';
+import { LegalSection, LegalSectionPlain, LegalList } from '@/app/components/legal/LegalSection';
 
 type DocLang = 'fr' | 'en';
 
@@ -201,13 +202,13 @@ const TermsPage = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => setDocLang('fr')}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'fr' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'fr' ? 'bg-amber-600 text-white' : 'bg-card text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
                     >
                       {tLegal('viewInFrench')}
                     </button>
                     <button
                       onClick={() => setDocLang('en')}
-                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'en' ? 'bg-amber-600 text-white' : 'bg-white dark:bg-gray-800 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
+                      className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${docLang === 'en' ? 'bg-amber-600 text-white' : 'bg-card text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700'}`}
                     >
                       {tLegal('viewInEnglish')}
                     </button>
@@ -225,135 +226,63 @@ const TermsPage = () => {
           </div>
 
           {/* Introduction */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <FileText className="w-8 h-8 mr-3 text-blue-600" />
-              {c.intro.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p1}</p>
-              <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p2}</p>
-              <p className="text-muted-foreground leading-relaxed">{c.intro.p3}</p>
-            </div>
-          </section>
+          <LegalSection icon={FileText} iconClassName="text-blue-600 dark:text-blue-400" title={c.intro.title}>
+            <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p1}</p>
+            <p className="text-muted-foreground leading-relaxed mb-4">{c.intro.p2}</p>
+            <p className="text-muted-foreground leading-relaxed">{c.intro.p3}</p>
+          </LegalSection>
 
           {/* Definitions */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Users className="w-8 h-8 mr-3 text-green-600" />
-              {c.definitions.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.owner}</h3>
-                  <p className="text-muted-foreground text-sm">{c.definitions.ownerDesc}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.renter}</h3>
-                  <p className="text-muted-foreground text-sm">{c.definitions.renterDesc}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.vehicle}</h3>
-                  <p className="text-muted-foreground text-sm">{c.definitions.vehicleDesc}</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.booking}</h3>
-                  <p className="text-muted-foreground text-sm">{c.definitions.bookingDesc}</p>
-                </div>
+          <LegalSection icon={Users} iconClassName="text-green-600 dark:text-green-400" title={c.definitions.title}>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.owner}</h3>
+                <p className="text-muted-foreground text-sm">{c.definitions.ownerDesc}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.renter}</h3>
+                <p className="text-muted-foreground text-sm">{c.definitions.renterDesc}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.vehicle}</h3>
+                <p className="text-muted-foreground text-sm">{c.definitions.vehicleDesc}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg mb-2 text-foreground">{c.definitions.booking}</h3>
+                <p className="text-muted-foreground text-sm">{c.definitions.bookingDesc}</p>
               </div>
             </div>
-          </section>
+          </LegalSection>
 
           {/* User Accounts */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Shield className="w-8 h-8 mr-3 text-purple-600" />
-              {c.accounts.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.accounts.sub1Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.accounts.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.accounts.sub2Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {c.accounts.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </section>
+          <LegalSection icon={Shield} iconClassName="text-purple-600 dark:text-purple-400" title={c.accounts.title}>
+            <LegalList title={c.accounts.sub1Title} items={c.accounts.sub1Items} />
+            <LegalList title={c.accounts.sub2Title} items={c.accounts.sub2Items} last />
+          </LegalSection>
 
           {/* Vehicle Rentals */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <Car className="w-8 h-8 mr-3 text-blue-600" />
-              {c.rentals.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.rentals.sub1Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.rentals.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.rentals.sub2Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.rentals.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.rentals.sub3Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {c.rentals.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </section>
+          <LegalSection icon={Car} iconClassName="text-blue-600 dark:text-blue-400" title={c.rentals.title}>
+            <LegalList title={c.rentals.sub1Title} items={c.rentals.sub1Items} />
+            <LegalList title={c.rentals.sub2Title} items={c.rentals.sub2Items} />
+            <LegalList title={c.rentals.sub3Title} items={c.rentals.sub3Items} last />
+          </LegalSection>
 
           {/* Payments */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <CreditCard className="w-8 h-8 mr-3 text-green-600" />
-              {c.payments.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.payments.sub1Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.payments.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.payments.sub2Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.payments.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.payments.sub3Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {c.payments.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </section>
+          <LegalSection icon={CreditCard} iconClassName="text-green-600 dark:text-green-400" title={c.payments.title}>
+            <LegalList title={c.payments.sub1Title} items={c.payments.sub1Items} />
+            <LegalList title={c.payments.sub2Title} items={c.payments.sub2Items} />
+            <LegalList title={c.payments.sub3Title} items={c.payments.sub3Items} last />
+          </LegalSection>
 
           {/* Responsibilities */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-              <AlertTriangle className="w-8 h-8 mr-3 text-red-600" />
-              {c.responsibilities.title}
-            </h2>
-            <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.responsibilities.sub1Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.responsibilities.sub1Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.responsibilities.sub2Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-6">
-                {c.responsibilities.sub2Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-              <h3 className="font-semibold text-xl mb-4 text-foreground">{c.responsibilities.sub3Title}</h3>
-              <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                {c.responsibilities.sub3Items.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </section>
+          <LegalSection icon={AlertTriangle} iconClassName="text-red-600 dark:text-red-400" title={c.responsibilities.title}>
+            <LegalList title={c.responsibilities.sub1Title} items={c.responsibilities.sub1Items} />
+            <LegalList title={c.responsibilities.sub2Title} items={c.responsibilities.sub2Items} />
+            <LegalList title={c.responsibilities.sub3Title} items={c.responsibilities.sub3Items} last />
+          </LegalSection>
 
           {/* Cancellation */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground">
-              {c.cancellation.title}
-            </h2>
+          <LegalSectionPlain title={c.cancellation.title}>
             <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -374,13 +303,10 @@ const TermsPage = () => {
                 </table>
               </div>
             </div>
-          </section>
+          </LegalSectionPlain>
 
           {/* Prohibited Uses */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground">
-              {c.prohibited.title}
-            </h2>
+          <LegalSectionPlain title={c.prohibited.title}>
             <div className="bg-red-50 dark:bg-red-900/20 rounded-2xl p-8 shadow-lg border border-red-200 dark:border-red-800">
               <div className="grid md:grid-cols-2 gap-4 text-slate-700 dark:text-slate-300">
                 <div>
@@ -397,13 +323,10 @@ const TermsPage = () => {
                 </div>
               </div>
             </div>
-          </section>
+          </LegalSectionPlain>
 
           {/* Contact */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold mb-6 text-foreground">
-              {c.contact.title}
-            </h2>
+          <LegalSectionPlain title={c.contact.title}>
             <div className="bg-primary rounded-2xl p-8 text-white shadow-lg">
               <div className="grid md:grid-cols-2 gap-8">
                 <div>
@@ -424,10 +347,10 @@ const TermsPage = () => {
                 </div>
               </div>
             </div>
-          </section>
+          </LegalSectionPlain>
 
           {/* Final Terms */}
-          <section className="mb-12">
+          <LegalSectionPlain>
             <div className="bg-muted rounded-2xl p-8 shadow-lg border border-border">
               <h3 className="text-xl font-bold mb-4 text-foreground">
                 {c.final.title}
@@ -435,7 +358,7 @@ const TermsPage = () => {
               <p className="text-muted-foreground leading-relaxed mb-4">{c.final.p1}</p>
               <p className="text-muted-foreground leading-relaxed">{c.final.p2}</p>
             </div>
-          </section>
+          </LegalSectionPlain>
         </div>
       </div>
     </div>

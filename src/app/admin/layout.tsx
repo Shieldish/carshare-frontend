@@ -85,11 +85,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   if (!user || user.role !== 'ADMIN') {
-    return null; 
+    return null;
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="flex h-screen bg-background">
       {isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -100,33 +100,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside
         className={`
           fixed lg:sticky top-0 left-0 z-50 h-screen
-          bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700
+          bg-card border-r border-border
           transition-all duration-300 ease-in-out
           ${isSidebarOpen ? 'w-64' : 'w-20'}
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className={`flex items-center space-x-3 ${!isSidebarOpen && 'lg:justify-center'}`}>
             <Shield className="h-8 w-8 text-primary flex-shrink-0" />
             {isSidebarOpen && (
               <div>
-                <h2 className="font-bold text-lg text-gray-900 dark:text-white">{t('panelTitle')}</h2>
+                <h2 className="font-bold text-lg text-foreground">{t('panelTitle')}</h2>
                 <p className="text-xs text-muted-foreground">{t('brand')}</p>
               </div>
             )}
           </div>
-          
+
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden lg:block p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="hidden lg:block p-2 rounded hover:bg-muted"
           >
             <ChevronRight className={`h-5 w-5 transition-transform ${!isSidebarOpen && 'rotate-180'}`} />
           </button>
 
           <button
             onClick={() => setIsMobileMenuOpen(false)}
-            className="lg:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="lg:hidden p-2 rounded hover:bg-muted"
           >
             <X className="h-5 w-5" />
           </button>
@@ -144,9 +144,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`
                   flex items-center space-x-3 px-4 py-3 rounded-lg transition-all
-                  ${isActive 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ${isActive
+                    ? 'bg-primary text-primary-foreground shadow-sm'
+                    : 'text-foreground hover:bg-muted'
                   }
                   ${!isSidebarOpen && 'lg:justify-center'}
                 `}
@@ -157,7 +157,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <>
                     <span className="flex-1 font-medium">{item.label}</span>
                     {item.badge && (
-                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-0.5 rounded-full">
                         {item.badge}
                       </span>
                     )}
@@ -169,13 +169,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {isSidebarOpen && (
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
             <div className="flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold flex-shrink-0">
                 {user.sub.split('@')[0].charAt(0).toUpperCase()}
               </div>
               <div className="overflow-hidden">
-                <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                <p className="font-medium text-sm text-foreground truncate">
                   {user.firstName || user.sub.split('@')[0]}
                 </p>
                 <p className="text-xs text-muted-foreground truncate">{t('administrator')}</p>
@@ -186,22 +186,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="lg:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+        <header className="lg:hidden bg-card border-b border-border p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <Shield className="h-6 w-6 text-primary" />
-              <h1 className="font-bold text-lg">{t('panelTitle')}</h1>
+              <h1 className="font-bold text-lg text-foreground">{t('panelTitle')}</h1>
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-2 rounded hover:bg-muted"
             >
               <Menu className="h-6 w-6" />
             </button>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900">
+        <main className="flex-1 overflow-y-auto bg-background">
           <div className="h-full">
             {children}
           </div>

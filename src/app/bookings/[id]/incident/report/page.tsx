@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import IncidentReportForm from '@/app/components/incident/IncidentReportForm';
 import { Loader2, ArrowLeft, AlertTriangle, CheckCircle, X } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/app/components/ui';
 
 function IncidentReportPageContent() {
     const t = useTranslations('incident.report');
@@ -75,36 +75,33 @@ function IncidentReportPageContent() {
         <div className="min-h-screen bg-background">
              <div className="bg-card border-b border-border">
                 <div className="container mx-auto max-w-4xl px-4 py-4">
-                     <button
-                        onClick={() => router.push(isOwner ? '/dashboard/owner' : '/bookings/my-bookings')}
-                        className="inline-flex items-center text-foreground hover:text-primary transition-colors group"
-                     >
-                        <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                     <Button variant="ghost" onClick={() => router.push(isOwner ? '/dashboard/owner' : '/bookings/my-bookings')} className="group px-0 hover:bg-transparent hover:text-primary">
+                        <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                         {isOwner ? t('backToDashboard') : t('backToBookings')}
-                     </button>
+                     </Button>
                 </div>
             </div>
             <div className="container mx-auto max-w-2xl py-8 px-4">
                 <div className="text-center mb-8">
-                     <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-3"/>
+                     <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-3"/>
                      <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t('pageTitle')}</h1>
                      <p className="text-muted-foreground">{t('forBooking', { id: bookingId })}</p>
                 </div>
 
                 {isReportSubmitted ? (
-                    <div className="bg-white dark:bg-gray-800 border-2 border-green-600 dark:border-green-500 rounded-lg p-8 text-center shadow-lg">
+                    <div className="bg-card border-2 border-green-600 dark:border-green-500 rounded-lg p-8 text-center shadow-lg">
                         {/* Icône de succès */}
                         <div className="bg-green-100 dark:bg-green-900 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
                             <CheckCircle className="w-12 h-12 text-green-600 dark:text-green-400" />
                         </div>
-                        
+
                         {/* Titre */}
-                        <h2 className="font-bold text-2xl mb-3 text-gray-900 dark:text-gray-100">
+                        <h2 className="font-bold text-2xl mb-3 text-foreground">
                             {t('successTitle')}
                         </h2>
 
                         {/* Message */}
-                        <p className="text-gray-700 dark:text-gray-300 mb-6 text-base">
+                        <p className="text-muted-foreground mb-6 text-base">
                             {t('successMessage', { id: submittedReportId ?? '' })}
                             <br />
                             {t('successMessageLine2')}
@@ -112,18 +109,12 @@ function IncidentReportPageContent() {
 
                         {/* Boutons d'action */}
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                            <Link
-                                href={`/bookings/${bookingId}/incident/view`}
-                                className="inline-flex items-center justify-center bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors shadow-sm"
-                            >
+                            <Button href={`/bookings/${bookingId}/incident/view`}>
                                 {t('viewReport')}
-                            </Link>
-                            <Link
-                                href={isOwner ? '/dashboard/owner' : '/bookings/my-bookings'}
-                                className="inline-flex items-center justify-center bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-600 font-medium px-6 py-3 rounded-lg transition-colors"
-                            >
+                            </Button>
+                            <Button variant="outline" href={isOwner ? '/dashboard/owner' : '/bookings/my-bookings'}>
                                 {isOwner ? t('backToDashboard') : t('backToBookings')}
-                            </Link>
+                            </Button>
                         </div>
                     </div>
                 ) : (
@@ -137,7 +128,7 @@ function IncidentReportPageContent() {
 
                 {/* Pop-up de succès flottant - s'affiche après l'envoi réussi */}
                 {showSuccessToast && (
-                    <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-in slide-in-from-bottom-4 duration-300 max-w-sm">
+                    <div className="fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 flex items-center gap-3 bg-green-600 text-white px-5 py-4 rounded-xl shadow-2xl animate-toast-in max-w-sm">
                         <CheckCircle className="w-5 h-5 flex-shrink-0" />
                         <div>
                             <p className="font-semibold text-sm">{t('toastTitle')}</p>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import ExpenseList from '@/app/components/financial/ExpenseList';
 import { Info, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/app/components/ui';
 
 export default function ExpensesPage() {
   const t = useTranslations('dashboardFinancial');
@@ -25,19 +26,16 @@ export default function ExpensesPage() {
 
   if (!isOwner) {
     return (
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 px-4 py-6 rounded-md flex items-start">
+      <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-6 text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300 flex items-start">
         <AlertTriangle className="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" />
         <div>
           <p className="font-medium mb-2">{t('expensesRestrictedTitle')}</p>
           <p className="text-sm">
             {t('expensesRestrictedDescription')}
           </p>
-          <button
-            onClick={() => router.push('/dashboard/vehicles/add')}
-            className="mt-3 px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90"
-          >
+          <Button size="sm" onClick={() => router.push('/dashboard/vehicles/add')} className="mt-3">
             {t('addVehicleButton')}
-          </button>
+          </Button>
         </div>
       </div>
     );

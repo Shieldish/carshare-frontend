@@ -8,6 +8,7 @@ import { VehicleCardSkeleton } from '../components/VehicleCard';
 import BoostModal from '../components/BoostModal';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
+import { Button } from '@/app/components/ui';
 
 function MyVehiclesContent() {
   const t = useTranslations('vehicles.myVehicles');
@@ -217,7 +218,7 @@ function MyVehiclesContent() {
       </div>
     );
   }
-  if (error) return <p className="text-center py-12 text-red-500">{error}</p>;
+  if (error) return <p className="text-center py-12 text-destructive">{error}</p>;
 
   return (
     <div className="container mx-auto p-4 sm:p-6 md:p-8 bg-background min-h-screen">
@@ -230,12 +231,9 @@ function MyVehiclesContent() {
             </p>
           )}
         </div>
-        <button
-          onClick={() => router.push('/vehicles/add')}
-          className="bg-primary text-primary-foreground px-5 py-2 rounded-lg font-semibold hover:bg-primary/90 transition-colors self-start sm:self-auto"
-        >
+        <Button onClick={() => router.push('/vehicles/add')} className="self-start sm:self-auto">
           {t('addButton')}
-        </button>
+        </Button>
       </div>
 
       {currentVehicles.length > 0 ? (

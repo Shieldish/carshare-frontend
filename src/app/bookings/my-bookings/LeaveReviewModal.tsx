@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Star } from 'lucide-react';
+import { Star, Loader2 } from 'lucide-react';
+import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from '@/app/components/ui';
 
 interface LeaveReviewModalProps {
   isOpen: boolean;
@@ -38,38 +39,18 @@ const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialRating, initialComment]);
 
-  React.useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isLoading) onClose();
-    };
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, isLoading, onClose]);
-
-  if (!isOpen) return null;
-
   const handleSubmit = async () => {
     if (rating === 0) return;
     await onSubmit(rating, comment.trim());
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/60"
-        onClick={!isLoading ? onClose : undefined}
-      />
-
-      <div className="relative bg-card text-foreground rounded-xl p-6 w-full max-w-md shadow-2xl border border-border">
-        <h2 className="text-xl font-bold mb-1">{isEditMode ? t('editTitle') : t('title')}</h2>
-        <p className="text-muted-foreground text-sm mb-5">{vehicleName}</p>
-
+    <Dialog open={isOpen} onClose={onClose} size="sm" dismissible={!isLoading}>
+      <DialogHeader onClose={!isLoading ? onClose : undefined}>
+        <DialogTitle>{isEditMode ? t('editTitle') : t('title')}</DialogTitle>
+        <p className="text-muted-foreground text-sm">{vehicleName}</p>
+      </DialogHeader>
+      <DialogBody>
         <div className="flex justify-center gap-2 mb-5">
           {[1, 2, 3, 4, 5].map((star) => (
             <button
@@ -101,32 +82,18 @@ const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
           disabled={isLoading}
           rows={4}
           maxLength={1000}
-          className="w-full px-3 py-2 border border-border bg-background rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none mb-5"
+          className="w-full px-3 py-2 border border-border bg-background rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary resize-none"
         />
-
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1 px-4 py-3 border border-border rounded-lg hover:bg-muted disabled:opacity-50 transition-colors font-medium"
-          >
-            {t('cancel')}
-          </button>
-          <button
-            onClick={handleSubmit}
-            disabled={isLoading || rating === 0}
-            className="flex-1 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center transition-colors font-medium"
-          >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-            ) : (
-              t(isEditMode ? 'saveChanges' : 'submit')
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
+      </DialogBody>
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="flex-1">
+          {t('cancel')}
+        </Button>
+        <Button onClick={handleSubmit} disabled={isLoading || rating === 0} className="flex-1">
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : t(isEditMode ? 'saveChanges' : 'submit')}
+        </Button>
+      </DialogFooter>
+    </Dialog>
   );
 };
 

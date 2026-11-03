@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Loader2, Trash2, Edit2, ChevronLeft, ChevronRight, Filter, Paperclip, CalendarPlus } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import ExpenseForm from './ExpenseForm';
+import { Button, Input } from '@/app/components/ui';
 
 interface Vehicle {
   id: number;
@@ -100,13 +101,10 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
     <div className="bg-card p-6 rounded-lg shadow border border-border">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
         <h2 className="text-xl font-semibold text-foreground">{t('expensesManagementTitle')}</h2>
-        <button
-          onClick={() => { setExpenseToEdit(null); setShowForm(true); }}
-          className="flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 text-sm font-medium"
-        >
-          <CalendarPlus size={16} className="mr-2" />
+        <Button size="sm" onClick={() => { setExpenseToEdit(null); setShowForm(true); }}>
+          <CalendarPlus size={16} />
           {t('addExpenseButton')}
-        </button>
+        </Button>
       </div>
 
       {/* Section Filtres */}
@@ -131,25 +129,25 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
           </div>
           <div>
             <label htmlFor="filterStart" className="text-xs text-muted-foreground">{t('filterStartDateLabel')}</label>
-            <input
+            <Input
               id="filterStart"
               type="date"
               value={formatDateForInput(filterStartDate)}
               onChange={(e) => setFilterStartDate(e.target.value ? new Date(e.target.value) : null)}
               max={formatDateForInput(filterEndDate || new Date())}
-              className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary mt-1"
+              className="mt-1 text-sm"
             />
           </div>
           <div>
             <label htmlFor="filterEnd" className="text-xs text-muted-foreground">{t('filterEndDateLabel')}</label>
-            <input
+            <Input
               id="filterEnd"
               type="date"
               value={formatDateForInput(filterEndDate)}
               onChange={(e) => setFilterEndDate(e.target.value ? new Date(e.target.value) : null)}
               min={formatDateForInput(filterStartDate)}
               max={formatDateForInput(new Date())}
-              className="w-full px-3 py-2 border border-border bg-background rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary mt-1"
+              className="mt-1 text-sm"
             />
           </div>
         </div>
@@ -185,7 +183,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
       )}
       
       {error && (
-        <div className="text-center py-6 text-red-600">{error}</div>
+        <div className="text-center py-6 text-destructive">{error}</div>
       )}
 
       {!isLoading && expensesPage && expensesPage.empty && (
@@ -222,7 +220,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                       href={expense.receiptUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-2 text-blue-500 hover:text-blue-700"
+                      className="p-2 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       title={t('viewReceiptTitle')}
                     >
                       <Paperclip size={16}/>
@@ -230,14 +228,14 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                   )}
                   <button
                     onClick={() => { setExpenseToEdit(expense); setShowForm(true); }}
-                    className="p-2 text-yellow-600 hover:text-yellow-800"
+                    className="p-2 text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300"
                     title={t('editTitle')}
                   >
                     <Edit2 size={16}/>
                   </button>
                   <button
                     onClick={() => handleDeleteExpense(expense.id)}
-                    className="p-2 text-red-600 hover:text-red-800"
+                    className="p-2 text-destructive hover:text-destructive/80"
                     title={t('deleteTitle')}
                   >
                     <Trash2 size={16}/>
@@ -250,23 +248,25 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
           {/* Pagination */}
           {expensesPage.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => loadExpenses(expensesPage.number - 1)}
                 disabled={expensesPage.first || isLoading}
-                className="flex items-center px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" /> {t('prevShort')}
-              </button>
+                <ChevronLeft className="w-4 h-4" /> {t('prevShort')}
+              </Button>
               <span className="text-xs text-muted-foreground">
                 {t('pageOfShort', { current: expensesPage.number + 1, total: expensesPage.totalPages })}
               </span>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => loadExpenses(expensesPage.number + 1)}
                 disabled={expensesPage.last || isLoading}
-                className="flex items-center px-3 py-1.5 text-xs font-medium text-foreground bg-card border border-border rounded-md hover:bg-muted disabled:opacity-50"
               >
-                {t('nextShort')} <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
+                {t('nextShort')} <ChevronRight className="w-4 h-4" />
+              </Button>
             </div>
           )}
         </>
