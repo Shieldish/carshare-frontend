@@ -65,7 +65,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
   const BUDAXDRIVE_CONTACT = {
     phone: '+257 79 123 456',
     whatsapp: '+25779123456',
-    email: 'contact@budaxdrive.bi',
+    email: 'budaxdrive@gmail.com',
     hours: t('hoursValue')
   };
 

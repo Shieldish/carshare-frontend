@@ -404,7 +404,7 @@ const PrivacyPage = () => {
                   <div className="space-y-3">
                     <div className="bg-muted p-3 rounded-lg">
                       <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.byEmailTitle}</h4>
-                      <p className="text-xs text-muted-foreground">contact@budaxdrive.bi</p>
+                      <p className="text-xs text-muted-foreground">budaxdrive@gmail.com</p>
                     </div>
                     <div className="bg-muted p-3 rounded-lg">
                       <h4 className="font-medium text-sm mb-1 text-foreground">{c.rights.fromAccountTitle}</h4>
@@ -464,7 +464,7 @@ const PrivacyPage = () => {
                     <Mail className="w-5 h-5 mr-2" />
                     {c.contact.questionsTitle}
                   </h3>
-                  <p className="mb-2">contact@budaxdrive.bi</p>
+                  <p className="mb-2">budaxdrive@gmail.com</p>
                   <p className="text-green-100 text-sm">{c.contact.responseGuarantee}</p>
                 </div>
                 <div>
