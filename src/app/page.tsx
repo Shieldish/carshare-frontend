@@ -3,6 +3,11 @@ import { serverApiClient } from '@/lib/apiClient'; // ✅ Import du serverApiCli
 import { Vehicle } from '@/types/vehicle';
 import HomeClient from './components/HomeClient';
 
+// La liste des véhicules doit être lue à chaque requête : sinon un échec d'appel au
+// moment du build figerait une page d'accueil vide (« Aucun véhicule disponible »)
+// jusqu'au prochain déploiement.
+export const dynamic = 'force-dynamic';
+
 // ✅ Type pour les données du slider
 export interface HeroSliderData {
   vehicleId: number;
