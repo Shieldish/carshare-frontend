@@ -239,34 +239,41 @@ const HeroSlide: React.FC<{
         sizes="100vw"
         quality={90}
       />
-      
-      {/* ✅ MODIFICATION UNIQUEMENT ICI : TEXTE EN HAUT À DROITE, PETIT MAIS VISIBLE */}
+
       {isDefault && (
-        <div className="absolute inset-0 bg-gradient-to-bl from-black/80 via-black/30 to-transparent flex flex-col justify-start items-end p-8 md:p-16 pt-24 md:pt-32">
-          {/* pt-24 md:pt-32 assure que le texte n'est pas caché sous la TopAppBar */}
-          <div className="max-w-xl text-right">
-            {/* Séquence d'entrée orchestrée (badge → titre → description), un seul
-                endroit dans toute l'app où cette animation "hero" est utilisée. */}
-            <span
-              className="opacity-0 animate-hero-in inline-block px-3 py-1 bg-primary text-primary-foreground text-small font-semibold rounded-full mb-3 shadow-lg"
-              style={{ animationDelay: '75ms' }}
-            >
-              {t('brandBadge')}
-            </span>
-            <h1
-              className="opacity-0 animate-hero-in font-display text-display text-white mb-3 drop-shadow-lg"
-              style={{ animationDelay: '150ms' }}
-            >
-              {slide.title}
-            </h1>
-            <p
-              className="opacity-0 animate-hero-in text-body text-gray-200 drop-shadow-md font-medium max-w-md ml-auto"
-              style={{ animationDelay: '225ms' }}
-            >
-              {t('defaultDescription')}
-            </p>
+        <>
+          {/* Voile uniforme : les visuels "par défaut" contiennent déjà du texte
+              promotionnel incrusté dans l'image, dimensionné pour un cadrage très
+              large. Un dégradé directionnel laisse des coins non assombris où ce
+              texte redevient lisible et entre en collision avec le titre HTML
+              ci-dessous — on applique donc un voile plein, uniforme à tout cadrage. */}
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 flex flex-col justify-start items-end p-8 md:p-16 pt-24 md:pt-32">
+            {/* pt-24 md:pt-32 assure que le texte n'est pas caché sous la TopAppBar */}
+            <div className="max-w-xl text-right">
+              {/* Séquence d'entrée orchestrée (badge → titre → description), un seul
+                  endroit dans toute l'app où cette animation "hero" est utilisée. */}
+              <span
+                className="opacity-0 animate-hero-in inline-block px-3 py-1 bg-primary text-primary-foreground text-small font-semibold rounded-full mb-3 shadow-lg"
+                style={{ animationDelay: '75ms' }}
+              >
+                {t('brandBadge')}
+              </span>
+              <h1
+                className="opacity-0 animate-hero-in font-display text-display text-white mb-3 drop-shadow-lg"
+                style={{ animationDelay: '150ms' }}
+              >
+                {slide.title}
+              </h1>
+              <p
+                className="hidden sm:block opacity-0 animate-hero-in text-body text-gray-200 drop-shadow-md font-medium max-w-md ml-auto"
+                style={{ animationDelay: '225ms' }}
+              >
+                {t('defaultDescription')}
+              </p>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
