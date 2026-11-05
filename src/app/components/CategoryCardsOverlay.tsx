@@ -26,7 +26,7 @@ const CategoryCardsOverlay: React.FC = () => {
   ];
 
   return (
-    <section className="relative z-10 -mt-20 md:-mt-60 lg:-mt-72 px-4 md:px-8 pb-12">
+    <section className="relative z-10 mt-6 md:-mt-60 lg:-mt-72 px-4 md:px-8 pb-12">
       {/* Ajustement de la largeur maximale pour 2 cartes */}
       <div className="max-w-5xl mx-auto">
         {/* Changement de la grille pour afficher 2 colonnes au lieu de 3 */}
