@@ -246,8 +246,11 @@ const HeroSlide: React.FC<{
               promotionnel incrusté dans l'image, dimensionné pour un cadrage très
               large. Un dégradé directionnel laisse des coins non assombris où ce
               texte redevient lisible et entre en collision avec le titre HTML
-              ci-dessous — on applique donc un voile plein, uniforme à tout cadrage. */}
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-[2px]" />
+              ci-dessous — on applique donc un voile plein, uniforme à tout cadrage.
+              Pas de backdrop-blur ici : combiné à la transformation CSS du
+              carrousel (translateX animé), un flou plein cadre provoquait un
+              artefact de compositing au redimensionnement en direct. */}
+          <div className="absolute inset-0 bg-black/85" />
           <div className="absolute inset-0 flex flex-col justify-start items-end p-8 md:p-16 pt-24 md:pt-32">
             {/* pt-24 md:pt-32 assure que le texte n'est pas caché sous la TopAppBar */}
             <div className="max-w-xl text-right">
