@@ -703,6 +703,7 @@
         "invalidImageFormat": "Format not accepted.",
         "imageTooLarge": "Too large (max 5MB).",
         "invalidFile": "Invalid file.",
+        "invalidDocType": "\"{name}\" is not an image. Please send a photo of the document (JPG or PNG): PDF files are not accepted.",
         "unacceptedFormat": "The file \"{name}\" is not an accepted image format.",
         "fileTooLarge": "The file \"{name}\" is too large (max 5MB).",
         "provincesLoadError": "Error loading provinces",

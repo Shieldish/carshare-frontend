@@ -48,7 +48,8 @@ interface ExistingImage { id: number; url: string; }
 
 const MAX_IMAGES = 6;
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+// Pas de PDF : le backend n'accepte que des images pour les documents (voir VehicleController).
+const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_EQUIPMENT_LENGTH = 255;
 const MAX_DESCRIPTION_LENGTH = 2000;
@@ -77,6 +78,9 @@ export default function VehicleEditPage() {
   const [equipmentText, setEquipmentText] = useState('');
   const [descriptionText, setDescriptionText] = useState('');
   const mapRef = useRef<HTMLDivElement>(null);
+  // Si l'envoi des documents échoue après celui des photos, un nouvel essai ne doit pas les
+  // renvoyer : sans ça, chaque essai ajoutait les mêmes photos en double à l'annonce.
+  const uploadedImagesRef = useRef(new Set<File>());
   const [mapCenter, setMapCenter] = useState<[number, number]>([-3.3822, 29.3644]);
   const [addressText, setAddressText] = useState('');
   const [isSearchingMap, setIsSearchingMap] = useState(false);
@@ -193,6 +197,22 @@ export default function VehicleEditPage() {
     e.target.value = ''; setError(null);
   }, [existingImages, imageFiles, validateImageFile, t]);
 
+  // Le type est vérifié dès la sélection : l'attribut `accept` n'est qu'une indication, que
+  // certains téléphones ne respectent pas.
+  const handleDocChange = (setFile: (file: File | null) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !ACCEPTED_DOC_TYPES.includes(file.type)) {
+      const message = t('errors.invalidDocType', { name: file.name });
+      toast.error(message);
+      setError(message);
+      e.target.value = '';
+      setFile(null);
+      return;
+    }
+    setError(null);
+    setFile(file);
+  };
+
   const removeExistingImage = async (imageId: number) => {
     try {
       await apiClient.delete(`/api/vehicles/images/${imageId}`);
@@ -301,10 +321,12 @@ export default function VehicleEditPage() {
     try {
       await apiClient.put(`/api/vehicles/${vehicle.id}`, vehicleData);
 
-      if (imageFiles.length > 0) {
+      const pendingImages = imageFiles.filter(file => !uploadedImagesRef.current.has(file));
+      if (pendingImages.length > 0) {
         const imageFormData = new FormData();
-        imageFiles.forEach(file => imageFormData.append('images', file));
+        pendingImages.forEach(file => imageFormData.append('images', file));
         await apiClient.upload(`/api/vehicles/${vehicle.id}/images`, imageFormData);
+        pendingImages.forEach(file => uploadedImagesRef.current.add(file));
       }
 
       // L'envoi par lot est conservé et fonctionne parfaitement avec les changements Null-Safe du Backend
@@ -567,7 +589,7 @@ export default function VehicleEditPage() {
                         </div>
                       )}
 
-                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setRegistrationFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400" />
+                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={handleDocChange(setRegistrationFile)} className="w-full text-xs text-gray-600 dark:text-gray-400" />
                       {registrationFile && <p className="text-xs text-green-600 dark:text-green-400 mt-2">✓ {tEdit('replacementLabel', { name: registrationFile.name })}</p>}
                     </div>
                   </div>
@@ -586,7 +608,7 @@ export default function VehicleEditPage() {
                         </div>
                       )}
 
-                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setInsuranceFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
+                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={handleDocChange(setInsuranceFile)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
                       {insuranceFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: insuranceFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">
@@ -610,7 +632,7 @@ export default function VehicleEditPage() {
                         </div>
                       )}
 
-                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={(e) => setTechnicalControlFile(e.target.files?.[0] || null)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
+                      <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} onChange={handleDocChange(setTechnicalControlFile)} className="w-full text-xs text-gray-600 dark:text-gray-400 mb-3" />
                       {technicalControlFile && <p className="text-xs text-green-600 dark:text-green-400 mb-2">✓ {tEdit('replacementLabel', { name: technicalControlFile.name })}</p>}
                     </div>
                     <div className="border-t dark:border-gray-700 pt-3 mt-auto">

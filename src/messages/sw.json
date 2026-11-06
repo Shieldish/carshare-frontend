@@ -705,6 +705,7 @@
         "invalidImageFormat": "Muundo haukubaliki.",
         "imageTooLarge": "Kubwa mno (upeo 5MB).",
         "invalidFile": "Faili batili.",
+        "invalidDocType": "\"{name}\" si picha. Tafadhali tuma picha ya waraka (JPG au PNG): faili za PDF hazikubaliwi.",
         "unacceptedFormat": "Faili \"{name}\" si muundo wa picha unaokubalika.",
         "fileTooLarge": "Faili \"{name}\" ni kubwa mno (upeo 5MB).",
         "provincesLoadError": "Hitilafu wakati wa kupakia mikoa",

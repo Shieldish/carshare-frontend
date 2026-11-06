@@ -34,7 +34,8 @@ interface VehicleData {
 
 const MAX_IMAGES = 6;
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+// Pas de PDF : le backend n'accepte que des images pour les documents (voir VehicleController).
+const ACCEPTED_DOC_TYPES = ['image/png', 'image/jpeg', 'image/jpg'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_EQUIPMENT_LENGTH = 150;
 const MAX_DESCRIPTION_LENGTH = 1000;
@@ -69,6 +70,11 @@ export default function AddVehicleForm() {
   const [technicalControlFile, setTechnicalControlFile] = useState<File | null>(null);
 
   const [insuranceConfirmed, setInsuranceConfirmed] = useState(false);
+
+  // Le véhicule est créé avant l'envoi de ses photos et documents. Si l'une de ces étapes échoue,
+  // un nouvel essai doit reprendre là où on en était : sans ça, chaque essai créait un doublon.
+  const createdVehicleIdRef = useRef<number | null>(null);
+  const uploadedImagesRef = useRef(new Set<File>());
 
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [communes, setCommunes] = useState<Commune[]>([]);
@@ -162,6 +168,22 @@ export default function AddVehicleForm() {
     }
   }, [imageFiles.length, validateImageFile, t]);
 
+  // Le type est vérifié dès la sélection : l'attribut `accept` n'est qu'une indication, que
+  // certains téléphones ne respectent pas.
+  const handleDocChange = (setFile: (file: File | null) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    if (file && !ACCEPTED_DOC_TYPES.includes(file.type)) {
+      const message = t('errors.invalidDocType', { name: file.name });
+      toast.error(message);
+      setError(message);
+      e.target.value = '';
+      setFile(null);
+      return;
+    }
+    setError(null);
+    setFile(file);
+  };
+
   const removeImage = useCallback((index: number) => {
     URL.revokeObjectURL(imagePreviews[index]);
     setImageFiles(prev => prev.filter((_, i) => i !== index));
@@ -224,13 +246,21 @@ export default function AddVehicleForm() {
     };
 
     try {
-      const newVehicle = await apiClient.post('/api/vehicles', vehicleData);
-      const vehicleId = newVehicle?.id || newVehicle?.data?.id || newVehicle?.vehicleId;
+      let vehicleId = createdVehicleIdRef.current;
+      if (vehicleId) {
+        await apiClient.put(`/api/vehicles/${vehicleId}`, vehicleData);
+      } else {
+        const newVehicle = await apiClient.post('/api/vehicles', vehicleData);
+        vehicleId = newVehicle?.id || newVehicle?.data?.id || newVehicle?.vehicleId;
+        createdVehicleIdRef.current = vehicleId;
+      }
 
-      if (imageFiles.length > 0) {
+      const pendingImages = imageFiles.filter(file => !uploadedImagesRef.current.has(file));
+      if (pendingImages.length > 0) {
         const imageFormData = new FormData();
-        imageFiles.forEach(file => imageFormData.append('images', file));
+        pendingImages.forEach(file => imageFormData.append('images', file));
         await apiClient.upload(`/api/vehicles/${vehicleId}/images`, imageFormData);
+        pendingImages.forEach(file => uploadedImagesRef.current.add(file));
       }
 
       const docsFormData = new FormData();
@@ -323,14 +353,14 @@ export default function AddVehicleForm() {
 
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
               <label className="block text-sm font-medium mb-2">{t('registrationLabel')}</label>
-              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={(e) => setRegistrationFile(e.target.files?.[0] || null)} className="w-full text-xs" />
+              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={handleDocChange(setRegistrationFile)} className="w-full text-xs" />
               {registrationFile && <p className="text-xs text-green-600 mt-2">✓ {registrationFile.name}</p>}
             </div>
 
             {/* ✅ NOUVEAU : Champ Date Assurance */}
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
               <label className="block text-sm font-medium mb-2">{t('insuranceLabel')}</label>
-              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={(e) => setInsuranceFile(e.target.files?.[0] || null)} className="w-full text-xs mb-3" />
+              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={handleDocChange(setInsuranceFile)} className="w-full text-xs mb-3" />
               {insuranceFile && <p className="text-xs text-green-600 mb-2">✓ {insuranceFile.name}</p>}
               <div className="border-t dark:border-gray-700 pt-2 mt-2">
                 <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabel')}</label>
@@ -341,7 +371,7 @@ export default function AddVehicleForm() {
             {/* ✅ NOUVEAU : Champ Date Contrôle Technique */}
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
               <label className="block text-sm font-medium mb-2">{t('technicalControlLabel')}</label>
-              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={(e) => setTechnicalControlFile(e.target.files?.[0] || null)} className="w-full text-xs mb-3" />
+              <input type="file" accept={ACCEPTED_DOC_TYPES.join(',')} required onChange={handleDocChange(setTechnicalControlFile)} className="w-full text-xs mb-3" />
               {technicalControlFile && <p className="text-xs text-green-600 mb-2">✓ {technicalControlFile.name}</p>}
               <div className="border-t dark:border-gray-700 pt-2 mt-2">
                 <label className="block text-xs font-semibold text-primary mb-1">{t('expiryDateLabel')}</label>

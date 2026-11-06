@@ -705,6 +705,7 @@
         "invalidImageFormat": "Ubwoko ntibwemewe.",
         "imageTooLarge": "Birenze urugero (ntarengwa 5MB).",
         "invalidFile": "Idosiye ntimeze.",
+        "invalidDocType": "\"{name}\" si ifoto. Rungika ifoto y'urupapuro (JPG canke PNG): amadosiye ya PDF ntiyemerwa.",
         "unacceptedFormat": "Idosiye \"{name}\" si ubwoko bw'ifoto bwemewe.",
         "fileTooLarge": "Idosiye \"{name}\" irarenze urugero (ntarengwa 5MB).",
         "provincesLoadError": "Ikosa mu gupakira intara",
