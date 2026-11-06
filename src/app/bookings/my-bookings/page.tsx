@@ -16,6 +16,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Badge, Button } from '@/app/components/ui';
 import type { BadgeVariant } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 // Types mis à jour pour correspondre à la nouvelle structure
 type PaymentInfo = {
@@ -312,7 +313,7 @@ function BookingCard({
                     )}
                   </div>
                   <div className="sm:shrink-0 sm:text-right">
-                    <div className="text-2xl font-bold text-foreground">{totalPrice.toLocaleString()} FBu</div>
+                    <div className="text-2xl font-bold text-foreground">{formatNumber(totalPrice)} FBu</div>
                     <Badge variant={statusBadgeVariant[status]}>{tStatus(status)}</Badge>
                   </div>
                 </div>

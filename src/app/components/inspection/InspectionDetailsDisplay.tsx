@@ -3,6 +3,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { InspectionDetails } from '@/types/inspection';
 import { Calendar, Gauge, Fuel, Image as ImageIcon, FileText, CheckCircle, Clock, MapPin, ExternalLink } from 'lucide-react';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface Props {
   details: InspectionDetails | null;
@@ -37,7 +38,7 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
             <div className="flex items-center text-sm">
               <Gauge className="w-4 h-4 mr-2 text-muted-foreground" />
               <span className="text-muted-foreground">{t('mileageStartLabel')}</span>
-              <span className="ml-2 font-medium text-foreground">{details.mileageStart?.toLocaleString() ?? t('notAvailable')} km</span>
+              <span className="ml-2 font-medium text-foreground">{details.mileageStart != null ? formatNumber(details.mileageStart) : t('notAvailable')} km</span>
             </div>
             <div className="flex items-center text-sm">
               <Fuel className="w-4 h-4 mr-2 text-muted-foreground" />
@@ -131,13 +132,13 @@ const InspectionDetailsDisplay: React.FC<Props> = ({ details }) => {
             <div className="flex items-center text-sm">
               <Gauge className="w-4 h-4 mr-2 text-muted-foreground" />
               <span className="text-muted-foreground">{t('mileageEndLabel')}</span>
-              <span className="ml-2 font-medium text-foreground">{details.mileageEnd?.toLocaleString() ?? t('notAvailable')} km</span>
+              <span className="ml-2 font-medium text-foreground">{details.mileageEnd != null ? formatNumber(details.mileageEnd) : t('notAvailable')} km</span>
             </div>
              {details.mileageStart !== undefined && details.mileageEnd !== undefined && (
                  <div className="flex items-center text-sm font-semibold text-primary">
                       <Gauge className="w-4 h-4 mr-2" />
                       <span>{t('distanceLabel')}</span>
-                       <span className="ml-2">{(details.mileageEnd - details.mileageStart).toLocaleString()} km</span>
+                       <span className="ml-2">{formatNumber(details.mileageEnd - details.mileageStart)} km</span>
                  </div>
              )}
             <div className="flex items-center text-sm">

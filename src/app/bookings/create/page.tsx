@@ -10,6 +10,7 @@ import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { Calendar, ArrowLeft, XCircle, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, Input, Label } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 // ============================================================================
 // TYPES
@@ -373,7 +374,7 @@ function BookingCreateContent() {
                 onError={() => setUseFallbackImage(true)}
               />
               <div className="absolute top-4 right-4 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-4 py-2 rounded-lg shadow-lg z-10">
-                <p className="text-lg font-bold">{vehicle.ratePerDay?.toLocaleString('fr-FR')} FBu</p>
+                <p className="text-lg font-bold">{formatNumber(vehicle.ratePerDay)} FBu</p>
                 <p className="text-xs opacity-90">{t('perDay')}</p>
               </div>
             </div>
@@ -404,7 +405,7 @@ function BookingCreateContent() {
                 )}
                 {vehicle.mileage && (
                   <div className="bg-muted rounded-lg p-3 text-center">
-                    <div className="text-sm font-bold text-foreground">{vehicle.mileage?.toLocaleString('fr-FR')}</div>
+                    <div className="text-sm font-bold text-foreground">{formatNumber(vehicle.mileage)}</div>
                     <div className="text-xs text-muted-foreground">{t('mileage')}</div>
                   </div>
                 )}
@@ -435,7 +436,7 @@ function BookingCreateContent() {
                     <hr className="my-2 border-border" />
                     <div className="flex justify-between text-xl font-bold text-primary">
                       <span>{t('total')}</span>
-                      <span>{totalPrice.toLocaleString('fr-FR')} FBu</span>
+                      <span>{formatNumber(totalPrice)} FBu</span>
                     </div>
                   </>
                 ) : (

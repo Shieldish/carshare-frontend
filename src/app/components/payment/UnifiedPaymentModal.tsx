@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Loader2, Smartphone, CreditCard, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/formatNumber';
 
 export type PaymentProvider = 'LUMICASH' | 'IHELA' | 'ENOTI' | 'STRIPE_VISA' | 'STRIPE_MASTERCARD' | null;
 
@@ -72,7 +73,7 @@ export default function UnifiedPaymentModal({
             <p className="text-sm text-gray-500 dark:text-gray-300">
               {t('amountLabel')}{' '}
               <span className="font-bold text-primary">
-                {amount.toLocaleString()} {currency}
+                {formatNumber(amount)} {currency}
               </span>
             </p>
           </div>

@@ -8,6 +8,7 @@ import { Users, Megaphone, TrendingUp, DollarSign, Car, Calendar, CreditCard } f
 import Link from 'next/link';
 import AdminPaymentTable from './AdminPaymentTable';
 import { StatCard, Card, Badge, type StatCardTone } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface DashboardStats {
   totalUsers: number;
@@ -68,7 +69,7 @@ export default function AdminDashboardPage() {
       <div className="p-4 sm:p-6 md:p-8">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="h-32 bg-muted rounded-lg"></div>
             ))}
@@ -89,7 +90,7 @@ export default function AdminDashboardPage() {
   }> = [
     {
       title: t('statCards.totalUsers'),
-      value: stats?.totalUsers || 0,
+      value: formatNumber(stats?.totalUsers || 0),
       icon: Users,
       tone: 'info',
       link: '/admin/users',
@@ -97,7 +98,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: t('statCards.totalVehicles'),
-      value: stats?.totalVehicles || 0,
+      value: formatNumber(stats?.totalVehicles || 0),
       icon: Car,
       tone: 'success',
       link: '/vehicles',
@@ -105,7 +106,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: t('statCards.totalBookings'),
-      value: stats?.totalBookings || 0,
+      value: formatNumber(stats?.totalBookings || 0),
       icon: Calendar,
       tone: 'purple',
       link: '/bookings',
@@ -113,7 +114,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: t('statCards.activePromotions'),
-      value: stats?.activePromotions || 0,
+      value: formatNumber(stats?.activePromotions || 0),
       icon: Megaphone,
       tone: 'warning',
       link: '/admin/promotions',
@@ -121,7 +122,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: t('statCards.monthlyRevenue'),
-      value: `${(stats?.monthlyRevenue || 0).toLocaleString('fr-FR')} FBu`,
+      value: `${formatNumber(stats?.monthlyRevenue || 0)} FBu`,
       icon: DollarSign,
       tone: 'primary',
       link: '/dashboard/financial',
@@ -129,7 +130,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: t('statCards.pendingVerifications'),
-      value: stats?.pendingVerifications || 0,
+      value: formatNumber(stats?.pendingVerifications || 0),
       icon: TrendingUp,
       tone: 'destructive',
       link: '/admin/users',
@@ -150,8 +151,8 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      {/* Stats Grid : 3 colonnes seulement en xl, car la barre latérale occupe déjà 16rem à partir de lg */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
         {statCards.map((card, index) => (
           <Link key={index} href={card.link} className="block relative transition-transform duration-200 hover:scale-[1.02]">
             {card.isNew && (

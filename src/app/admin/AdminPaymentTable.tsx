@@ -6,6 +6,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Loader2, CheckCircle, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, type BadgeVariant } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface CompletedPayment {
   id: string;
@@ -111,7 +112,7 @@ export default function AdminPaymentTable() {
                   <Badge variant={PURPOSE_BADGE[payment.purpose] ?? 'neutral'}>{payment.purpose}</Badge>
                 </TableCell>
                 <TableCell className="font-bold">
-                  {payment.amountTotal.toLocaleString()} {payment.currency}
+                  {formatNumber(payment.amountTotal)} {payment.currency}
                 </TableCell>
                 <TableCell className="font-medium">
                   {extractPhone(payment.gatewayTransactionId)}

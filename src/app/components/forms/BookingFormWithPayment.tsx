@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 import { Calendar, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button, Input, Label } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface BookingFormWithPaymentProps {
   vehicle: Vehicle;
@@ -279,7 +280,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
               <div className="bg-primary/5 dark:bg-primary/30 rounded-lg p-6 border border-primary/10 dark:border-primary/30">
                 <div className="flex justify-between items-center text-lg font-bold text-primary">
                   <span>{t('totalForDays', { days: numberOfDays, dayWord: numberOfDays > 1 ? t('dayPlural') : t('daySingular') })}</span>
-                  <span>{totalPrice.toLocaleString()} FBu</span>
+                  <span>{formatNumber(totalPrice)} FBu</span>
                 </div>
               </div>
             )}

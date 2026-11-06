@@ -5,11 +5,12 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MapPin, Image as ImageIcon, Building2, User, Flame, Heart } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
 import type { Vehicle } from '@/types/vehicle';
 import { Badge } from './ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -24,7 +25,6 @@ interface VehicleCardProps {
 
 export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }: VehicleCardProps) {
   const t = useTranslations('vehicleCard');
-  const locale = useLocale();
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -103,11 +103,6 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
 
   const displayLocation = getLocationDisplay(vehicle);
 
-  // Formatage du prix avec séparateurs
-  const formatPrice = (price: number): string => {
-    return price.toLocaleString(locale);
-  };
-
   return (
     <Link href={`/vehicles/${vehicle.id}`} className="block h-full group">
       {/* h-full + flex-col : toutes les cartes d'une même rangée ont la même hauteur, même si
@@ -171,7 +166,7 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
               </button>
 
               <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm">
-                <div className="text-sm font-bold whitespace-nowrap">{formatPrice(vehicle.ratePerDay)} FBu</div>
+                <div className="text-sm font-bold whitespace-nowrap">{formatNumber(vehicle.ratePerDay)} FBu</div>
                 <div className="text-xs opacity-90">{t('perDay')}</div>
               </div>
             </div>
@@ -215,7 +210,7 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
           {/* Prix */}
           <div className="mb-3">
             <p className="font-semibold text-primary text-lg">
-              {formatPrice(vehicle.ratePerDay)} FBu{t('perDay')}
+              {formatNumber(vehicle.ratePerDay)} FBu{t('perDay')}
             </p>
           </div>
           

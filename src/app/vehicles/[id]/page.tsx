@@ -1,10 +1,11 @@
 import React from 'react';
 import { cache } from 'react';
 import { Metadata } from 'next';
-import { getLocale, getTranslations } from 'next-intl/server';
+import { getTranslations } from 'next-intl/server';
 import { serverApiClient } from '@/lib/apiClient';
 import type { Vehicle } from '@/types/vehicle';
 import VehicleDetailPage from './VehicleDetailPage';
+import { formatNumber } from '@/lib/formatNumber';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -23,7 +24,6 @@ const getVehicle = cache(async (id: string): Promise<Vehicle | null> => {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const t = await getTranslations('vehicles.metadata');
-  const locale = await getLocale();
 
   try {
     const vehicle = await getVehicle(id);
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = t('title', {
       make: vehicle.make,
       model: vehicle.model,
-      price: vehicle.ratePerDay?.toLocaleString(locale) ?? '',
+      price: formatNumber(vehicle.ratePerDay),
     });
 
     const locationLabel = vehicle.commune?.name || vehicle.province?.name || '';

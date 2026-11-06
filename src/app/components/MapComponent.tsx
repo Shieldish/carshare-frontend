@@ -6,6 +6,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 're
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import type { Vehicle } from '@/types/vehicle';
+import { formatNumber } from '@/lib/formatNumber';
 
 export interface MapBounds {
   north: number;
@@ -162,7 +163,7 @@ export default function MapComponent({ vehicles = [], onBoundsChange, selectedVe
   const centerPosition: [number, number] = [-3.3822, 29.3644];
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('fr-BI').format(price);
+    return formatNumber(price);
   };
 
   const createPriceMarker = (price: number, isSelected: boolean) => {

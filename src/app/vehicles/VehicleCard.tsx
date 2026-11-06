@@ -9,6 +9,7 @@ import VehicleStatusToggle from './VehicleStatusToggle';
 import { useTranslations } from 'next-intl';
 import { AlertCircle, CheckCircle2, X, Images, MapPin, Calendar, Zap, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface VehicleCardProps {
   vehicle: Vehicle;
@@ -55,6 +56,7 @@ const Toast = ({
 
 export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveChange }: VehicleCardProps) {
   const t = useTranslations('vehicles.myVehicles');
+  const tCard = useTranslations('vehicleCard');
   const router = useRouter();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingVehicle, setIsDeletingVehicle] = useState(false);
@@ -205,7 +207,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
           <div className="mt-3 flex justify-between items-center">
             <div>
               <p className="font-semibold text-primary text-lg">
-                {vehicle.ratePerDay} FBu/jour
+                {formatNumber(vehicle.ratePerDay)} FBu{tCard('perDay')}
               </p>
             </div>
           </div>

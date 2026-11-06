@@ -9,6 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { apiClient, ApiError } from '@/lib/apiClient';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface Props {
   startDate?: Date;
@@ -84,7 +85,7 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     if (user && tx.ownerId === user.id && tx.amountOwner !== undefined && tx.amountOwner !== null) {
       return (
         <span className="text-green-600 font-semibold flex items-center">
-          <ArrowUpRight size={16} className="mr-1" /> +{tx.amountOwner.toLocaleString(locale)} FBu
+          <ArrowUpRight size={16} className="mr-1" /> +{formatNumber(tx.amountOwner)} FBu
           <span className="text-xs text-muted-foreground ml-1">{t('yourShareLabel')}</span>
         </span>
       );
@@ -92,13 +93,13 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
     if (user && tx.renterId === user.id) {
       return (
         <span className="text-red-600 font-semibold flex items-center">
-          <ArrowDownLeft size={16} className="mr-1" /> -{tx.amountTotal.toLocaleString(locale)} FBu
+          <ArrowDownLeft size={16} className="mr-1" /> -{formatNumber(tx.amountTotal)} FBu
         </span>
       );
     }
     return (
       <span className="text-foreground font-semibold">
-        {tx.amountTotal.toLocaleString(locale)} FBu
+        {formatNumber(tx.amountTotal)} FBu
       </span>
     );
   };

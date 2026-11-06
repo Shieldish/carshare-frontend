@@ -9,6 +9,7 @@ import OwnerBookingCard from '@/app/components/OwnerBookingCard';
 import { ArrowLeft, Car, Calendar, DollarSign, Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, StatCard } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 function OwnerDashboardContent() {
   const t = useTranslations('dashboardOwner');
@@ -150,7 +151,7 @@ function OwnerDashboardContent() {
           <StatCard icon={Calendar} label={t('statTotal')} value={stats.total} tone="primary" />
           <StatCard icon={Car} label={t('statPending')} value={stats.pending} tone="warning" />
           <StatCard icon={Car} label={t('statConfirmed')} value={stats.confirmed} tone="success" />
-          <StatCard icon={DollarSign} label={t('statRevenue')} value={`${stats.totalRevenue.toLocaleString()} FBu`} tone="accent" />
+          <StatCard icon={DollarSign} label={t('statRevenue')} value={`${formatNumber(stats.totalRevenue)} FBu`} tone="accent" />
         </div>
 
         {/* Message d'erreur */}

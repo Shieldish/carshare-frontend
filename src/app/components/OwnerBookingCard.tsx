@@ -23,6 +23,7 @@ import { useChat } from '@/context/ChatContext';
 import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/app/components/ui';
 import { cn } from '@/lib/cn';
+import { formatNumber } from '@/lib/formatNumber';
 
 type StatusTone = 'warning' | 'success' | 'destructive' | 'primary' | 'info' | 'neutral';
 
@@ -212,7 +213,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                 <div className="flex items-center">
                   <DollarSign className="w-4 h-4 text-green-600 mr-2 shrink-0" />
                   <span className="text-lg font-bold text-green-600">
-                    {t('yourShare', { amount: ownerShare.toLocaleString() })}
+                    {t('yourShare', { amount: formatNumber(ownerShare) })}
                   </span>
                 </div>
               </div>
@@ -233,7 +234,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                   </div>
 
                   <p className="text-sm text-muted-foreground mb-4">
-                    {t('actionRequiredText', { amount: ownerShare.toLocaleString() })}
+                    {t('actionRequiredText', { amount: formatNumber(ownerShare) })}
                   </p>
 
                   {/* flex-wrap plutôt qu'un point de rupture fixe : la colonne fait à peine 300px en

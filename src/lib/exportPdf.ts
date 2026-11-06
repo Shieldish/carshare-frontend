@@ -7,6 +7,7 @@
 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface ProfileExport {
   firstName?: string;
@@ -77,7 +78,7 @@ const formatDate = (value?: string): string => {
 
 const formatPrice = (value?: number): string => {
   if (value === undefined || value === null) return '—';
-  return new Intl.NumberFormat('fr-BI').format(value) + ' FBu';
+  return formatNumber(value) + ' FBu';
 };
 
 const yesNo = (value?: boolean): string => (value ? 'Oui' : 'Non');

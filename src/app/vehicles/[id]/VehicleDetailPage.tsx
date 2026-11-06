@@ -12,6 +12,7 @@ import { apiClient } from '@/lib/apiClient';
 import type { VehicleRatingSummary } from '@/types/review';
 import VehicleReviews, { StarRating } from '@/app/components/reviews/VehicleReviews';
 import { Badge, Button } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 async function getVehicleDetails(id: string): Promise<Vehicle> {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles/${id}`, {
@@ -433,14 +434,14 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                 <div className="flex justify-between items-center py-3 border-b border-border">
                   <span className="text-muted-foreground font-medium">{t('priceDayLabel')}</span>
                   <span className="text-2xl font-bold text-primary">
-                    {vehicle.ratePerDay?.toLocaleString()} FBu
+                    {formatNumber(vehicle.ratePerDay)} FBu
                   </span>
                 </div>
                 {vehicle.ratePerWeek && (
                   <div className="flex justify-between items-center py-3">
                     <span className="text-muted-foreground font-medium">{t('priceWeekLabel')}</span>
                     <span className="text-xl font-semibold text-green-600 dark:text-green-400">
-                      {vehicle.ratePerWeek?.toLocaleString()} FBu
+                      {formatNumber(vehicle.ratePerWeek)} FBu
                     </span>
                   </div>
                 )}
@@ -503,7 +504,7 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                 {
                   icon: <Car className="w-5 h-5" />,
                   label: t('mileageLabel'),
-                  value: vehicle.mileage ? `${vehicle.mileage.toLocaleString()} km` : t('mileageUnspecified'),
+                  value: vehicle.mileage ? `${formatNumber(vehicle.mileage)} km` : t('mileageUnspecified'),
                   condition: true
                 },
                 {

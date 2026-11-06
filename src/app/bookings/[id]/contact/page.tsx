@@ -11,6 +11,7 @@ import PhoneInputModal from '@/app/bookings/my-bookings/PhoneInputModal';
 import { MessageCircle, Phone, ArrowLeft, Clock, CheckCircle, AlertCircle, Building2, Shield, Circle, Info, CreditCard, Smartphone } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 // ✅ TYPE MIS À JOUR : params est une Promise
 type ContactPageProps = {
@@ -166,7 +167,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
       t('whatsappMessage.bookingLabel', { id: booking.id }),
       t('whatsappMessage.vehicleLabel', { vehicle: `${booking.vehicle.make} ${booking.vehicle.model}` }),
       t('whatsappMessage.periodLabel', { start: startDate, end: endDate }),
-      t('whatsappMessage.amountLabel', { amount: booking.totalPrice.toLocaleString() }),
+      t('whatsappMessage.amountLabel', { amount: formatNumber(booking.totalPrice) }),
       '',
       t('whatsappMessage.thanks')
     ];
@@ -413,7 +414,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
                 <hr className="my-4 border-border" />
                 <div className="flex flex-wrap justify-between gap-x-2 text-xl font-bold text-primary">
                   <span>{t('totalToPay')}</span>
-                  <span>{booking.totalPrice.toLocaleString()} FBu</span>
+                  <span>{formatNumber(booking.totalPrice)} FBu</span>
                 </div>
               </div>
             </div>

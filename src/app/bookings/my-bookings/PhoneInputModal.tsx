@@ -3,6 +3,7 @@ import { useTranslations } from 'next-intl';
 import toast from 'react-hot-toast';
 import { Check, Copy, Loader2, AlertCircle } from 'lucide-react';
 import { Dialog, DialogHeader, DialogTitle, DialogBody, Button, Input, Label } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface MobileMoneyModalProps {
   isOpen: boolean;
@@ -105,7 +106,7 @@ const PhoneInputModal: React.FC<MobileMoneyModalProps> = ({
             {/* ✅ AFFICHAGE DU MONTANT */}
             <div className="flex justify-between items-center bg-green-50 dark:bg-green-900/20 rounded p-2 border border-green-200 dark:border-green-800">
               <span className="text-green-800 dark:text-green-300 font-medium">{t('amountLabel')}</span>
-              <span className="font-bold text-lg text-green-700 dark:text-green-400">{amount.toLocaleString()} FBu</span>
+              <span className="font-bold text-lg text-green-700 dark:text-green-400">{formatNumber(amount)} FBu</span>
             </div>
           </div>
 

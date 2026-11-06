@@ -6,6 +6,7 @@ import type { OwnerFinancialSummary } from '@/types/financial';
 import { DollarSign, CheckSquare, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { StatCard } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface Props {
   summary: OwnerFinancialSummary | null;
@@ -51,24 +52,24 @@ const FinancialSummaryCard: React.FC<Props> = ({ summary, isLoading, error }) =>
         {t('summaryTitle')}
       </h2>
 
-      {/* Grille à 3 colonnes pour Revenus, Dépenses, Bénéfice */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      {/* Revenus, Dépenses, Bénéfice : 3 colonnes seulement en lg, plus tôt les montants se coupaient */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard
           icon={DollarSign}
           label={t('totalRevenueLabel')}
-          value={`${summary.totalEarnings?.toLocaleString('fr-FR') ?? 0} FBu`}
+          value={`${formatNumber(summary.totalEarnings ?? 0)} FBu`}
           tone="success"
         />
         <StatCard
           icon={TrendingDown}
           label={t('totalExpensesLabel')}
-          value={`${summary.totalExpenses?.toLocaleString('fr-FR') ?? 0} FBu`}
+          value={`${formatNumber(summary.totalExpenses ?? 0)} FBu`}
           tone="destructive"
         />
         <StatCard
           icon={Wallet}
           label={t('netProfitLabel')}
-          value={`${summary.netEarnings?.toLocaleString('fr-FR') ?? 0} FBu`}
+          value={`${formatNumber(summary.netEarnings ?? 0)} FBu`}
           tone={netIsNegative ? 'destructive' : 'accent'}
         />
       </div>

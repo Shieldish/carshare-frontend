@@ -8,6 +8,7 @@ import UnifiedPaymentModal from '@/app/components/payment/UnifiedPaymentModal';
 import { AlertTriangle, CreditCard, CheckCircle2, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'next-intl';
+import { formatNumber } from '@/lib/formatNumber';
 
 function PaymentPageContent() {
   const t = useTranslations('payment.page');
@@ -152,7 +153,7 @@ function PaymentPageContent() {
           <div className="mt-10 p-4 sm:p-6 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-600">
             <span className="text-sm text-gray-500 uppercase font-bold tracking-widest">{t('amountDue')}</span>
             <div className="text-2xl sm:text-4xl font-black text-primary mt-1">
-              {amount.toLocaleString()} <span className="text-xl">{currency}</span>
+              {formatNumber(amount)} <span className="text-xl">{currency}</span>
             </div>
           </div>
           <button

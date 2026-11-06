@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { ApiError } from '@/lib/apiClient';
 import { getApiErrorMessageKey } from '@/lib/apiErrorMessages';
 import { Dialog, DialogHeader, DialogTitle, DialogBody, Button } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface BoostModalProps {
   vehicle: Vehicle;
@@ -248,9 +249,9 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                 </div>
               </div>
               <div className="whitespace-nowrap text-right sm:shrink-0">
-                <span className="text-lg font-bold text-foreground">{getPrice(5000).toLocaleString()} FBu</span>
+                <span className="text-lg font-bold text-foreground">{formatNumber(getPrice(5000))} FBu</span>
                 {isPremiumUser && (
-                  <p className="text-small text-muted-foreground line-through">{getOriginalPrice(5000).toLocaleString()} FBu</p>
+                  <p className="text-small text-muted-foreground line-through">{formatNumber(getOriginalPrice(5000))} FBu</p>
                 )}
               </div>
             </button>
@@ -274,9 +275,9 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                 </div>
               </div>
               <div className="whitespace-nowrap text-right sm:shrink-0">
-                <span className="text-lg font-bold text-primary">{getPrice(15000).toLocaleString()} FBu</span>
+                <span className="text-lg font-bold text-primary">{formatNumber(getPrice(15000))} FBu</span>
                 {isPremiumUser && (
-                  <p className="text-small text-primary/60 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
+                  <p className="text-small text-primary/60 line-through">{formatNumber(getOriginalPrice(15000))} FBu</p>
                 )}
               </div>
             </button>
@@ -297,9 +298,9 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                 </div>
               </div>
               <div className="whitespace-nowrap text-right sm:shrink-0">
-                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{getPrice(30000).toLocaleString()} FBu</span>
+                <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{formatNumber(getPrice(30000))} FBu</span>
                 {isPremiumUser && (
-                  <p className="text-small text-muted-foreground line-through">{getOriginalPrice(30000).toLocaleString()} FBu</p>
+                  <p className="text-small text-muted-foreground line-through">{formatNumber(getOriginalPrice(30000))} FBu</p>
                 )}
               </div>
             </button>

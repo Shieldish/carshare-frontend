@@ -9,6 +9,7 @@ import { Loader2, Trash2, Edit2, ChevronLeft, ChevronRight, Filter, Paperclip, C
 import { useLocale, useTranslations } from 'next-intl';
 import ExpenseForm from './ExpenseForm';
 import { Button, Input } from '@/app/components/ui';
+import { formatNumber } from '@/lib/formatNumber';
 
 interface Vehicle {
   id: number;
@@ -203,7 +204,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
                       {t(`categories.${expense.category}`)}
                     </span>
                     <span className="text-sm font-semibold text-foreground">
-                      {expense.amount.toLocaleString(locale)} FBu
+                      {formatNumber(expense.amount)} FBu
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">
