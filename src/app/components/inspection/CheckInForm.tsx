@@ -5,6 +5,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useGeolocationSupported } from '@/hooks/useIsClient';
 import { useTranslations } from 'next-intl';
 import { Fuel, Gauge, Image as ImageIcon, FileText, Send, Loader2, AlertCircle, MapPin, Lock } from 'lucide-react';
 import ImageUploader from './ImageUploader';
@@ -28,8 +29,11 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
 
   const [latitudeStart, setLatitudeStart] = useState<number | null>(null);
   const [longitudeStart, setLongitudeStart] = useState<number | null>(null);
-  const [isLocating, setIsLocating] = useState(true);
-  const [locationError, setLocationError] = useState<string | null>(null);
+  const geolocationSupported = useGeolocationSupported();
+  const [isWaitingForGps, setIsLocating] = useState(true);
+  const [gpsError, setLocationError] = useState<string | null>(null);
+  const isLocating = geolocationSupported && isWaitingForGps;
+  const locationError = geolocationSupported ? gpsError : t('gpsUnsupported');
   const [validationCode, setValidationCode] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -60,11 +64,8 @@ const CheckInForm: React.FC<CheckInFormProps> = ({ bookingId, onCheckInSuccess }
         },
         { enableHighAccuracy: true, timeout: 10000 }
       );
-    } else {
-      setLocationError(t('gpsUnsupported'));
-      setIsLocating(false);
     }
-  }, []);
+  }, [t]);
 
   const isFormValid =
     mileageStart !== null && mileageStart >= 0 &&

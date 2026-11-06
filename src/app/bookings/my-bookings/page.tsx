@@ -53,12 +53,10 @@ type Booking = {
 // Composant pour une seule carte de réservation
 function BookingCard({
   booking,
-  onPaymentSuccess,
   onDelete,
   isHighlighted = false,
 }: {
   booking: Booking;
-  onPaymentSuccess: () => void;
   onDelete: (id: number) => void;
   isHighlighted?: boolean;
 }) {
@@ -93,7 +91,6 @@ function BookingCard({
     apiClient.get(`/api/reviews/booking/${booking.id}`)
       .then((data) => setMyReview(data))
       .catch(() => setMyReview(null));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, booking.id]);
 
   const handleSubmitReview = async (rating: number, comment: string) => {
@@ -677,12 +674,6 @@ function MyBookingsContent() {
     }
   }, [user, isAuthLoading, router]);
 
-  useEffect(() => {
-    if (bookings.length > 0) {
-      const counts = calculateStatusCounts(bookings);
-    }
-  }, [bookings]);
-
   if (isAuthLoading || isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -756,7 +747,6 @@ function MyBookingsContent() {
               <BookingCard
                 key={booking.id}
                 booking={booking}
-                onPaymentSuccess={fetchBookings}
                 onDelete={handleDeleteBooking}
                 isHighlighted={booking.id.toString() === highlightId}
               />

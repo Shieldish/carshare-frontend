@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
 import FinancialSummaryCard from '@/app/components/financial/FinancialSummaryCard';
-import type { OwnerFinancialSummary, TransactionDetail } from '@/types/financial';
+import type { OwnerFinancialSummary } from '@/types/financial';
 import { Calendar as CalendarIcon, FilterX, ArrowRight, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Card, Input } from '@/app/components/ui';

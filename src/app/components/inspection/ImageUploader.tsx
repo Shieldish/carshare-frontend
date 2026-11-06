@@ -24,27 +24,17 @@ interface ImagePreview {
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsChange, existingImageUrls = [] }) => {
   const t = useTranslations('inspection.imageUploader');
-  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>(() =>
+    existingImageUrls.map(url => ({
+      id: url, // Use URL as ID for existing ones
+      url: url,
+      status: 'uploaded' as ImageStatus,
+    }))
+  );
   const [isDragging, setIsDragging] = useState(false);
   
-  // ✅ CORRECTION: Utiliser useRef pour éviter les re-renders infinis
-  const isInitialized = useRef(false);
-
   // ✅ NOUVEAU : Référence sécurisée vers l'input (évite les conflits d'ID)
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ✅ CORRECTION: N'initialiser qu'une seule fois au montage
-  useEffect(() => {
-    if (!isInitialized.current && existingImageUrls.length > 0) {
-      const initialPreviews = existingImageUrls.map(url => ({
-        id: url, // Use URL as ID for existing ones
-        url: url,
-        status: 'uploaded' as ImageStatus,
-      }));
-      setImagePreviews(initialPreviews);
-      isInitialized.current = true;
-    }
-  }, []); // ✅ Tableau de dépendances vide = exécuté une seule fois
 
   // Notify parent component when uploaded URLs change
   useEffect(() => {
@@ -101,7 +91,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ maxImages, onImageUrlsCha
     });
 
     setImagePreviews(prev => [...prev, ...newPreviews]);
-  }, [imagePreviews.length, maxImages]);
+  }, [imagePreviews.length, maxImages, t]);
 
   const removeImage = useCallback((idToRemove: string) => {
     setImagePreviews(prev => {

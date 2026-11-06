@@ -18,11 +18,13 @@ export function useFavoriteIds(): Set<number> | undefined {
   const { user } = useAuth();
   const [favoriteIds, setFavoriteIds] = useState<Set<number> | undefined>(undefined);
 
+  // Déconnexion : on oublie les favoris de l'utilisateur précédent.
+  if (!user && favoriteIds !== undefined) {
+    setFavoriteIds(undefined);
+  }
+
   useEffect(() => {
-    if (!user) {
-      setFavoriteIds(undefined);
-      return;
-    }
+    if (!user) return;
 
     let cancelled = false;
 

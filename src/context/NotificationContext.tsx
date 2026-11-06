@@ -47,6 +47,12 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
 
+  // Déconnexion : on oublie les notifications de l'utilisateur précédent.
+  if (!isLoading && !user?.id && (notifications.length > 0 || unreadCount > 0)) {
+    setNotifications([]);
+    setUnreadCount(0);
+  }
+
   const refreshNotifications = useCallback(async () => {
     // 🛑 Ne pas charger les notifications sur la page de paiement
     if (pathname && pathname.startsWith('/payment')) return;
@@ -69,11 +75,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (isLoading) return;
 
-    if (!user || !user.id) {
-      setNotifications([]);
-      setUnreadCount(0);
-      return;
-    }
+    if (!user || !user.id) return;
 
     // 🛑 LE COUPE-CIRCUIT : Ne pas essayer de charger les notifications ou le WebSocket si on est sur la page de paiement
     if (pathname && pathname.startsWith('/payment')) {

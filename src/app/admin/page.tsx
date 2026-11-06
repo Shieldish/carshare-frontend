@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
     };
 
     fetchStats();
-  }, []);
+  }, [t]);
 
   if (isLoading) {
     return (

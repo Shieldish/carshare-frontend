@@ -19,7 +19,6 @@ import {
   ExternalLink,
   Ban,
   PlayCircle,
-  ShieldAlert,
   Crown,
   ShieldCheck,
   X,
@@ -601,7 +600,6 @@ function AdminUsersContent() {
         clearTimeout(removeHighlightTimer);
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [highlightId, filteredUsers]);
 
   const handleVerificationChange = async (userId: number, statusUpdate: UpdateVerificationStatusDto) => {

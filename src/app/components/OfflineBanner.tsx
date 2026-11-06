@@ -1,29 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useTranslations } from 'next-intl';
 import { WifiOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+const subscribeToConnection = (onChange: () => void) => {
+  window.addEventListener('offline', onChange);
+  window.addEventListener('online', onChange);
+  return () => {
+    window.removeEventListener('offline', onChange);
+    window.removeEventListener('online', onChange);
+  };
+};
+
 export default function OfflineBanner() {
   const t = useTranslations('offline');
-  const [isOffline, setIsOffline] = useState(false);
+  const isOffline = useSyncExternalStore(subscribeToConnection, () => !navigator.onLine, () => false);
 
   useEffect(() => {
-    setIsOffline(!navigator.onLine);
-
-    const handleOffline = () => setIsOffline(true);
     const handleOnline = () => {
-      setIsOffline(false);
       toast.success(t('backOnline'));
     };
 
-    window.addEventListener('offline', handleOffline);
     window.addEventListener('online', handleOnline);
-    return () => {
-      window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('online', handleOnline);
-    };
+    return () => window.removeEventListener('online', handleOnline);
   }, [t]);
 
   if (!isOffline) return null;

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useTranslations } from 'next-intl';
 import { Star, Loader2 } from 'lucide-react';
 import { Dialog, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from '@/app/components/ui';
@@ -31,13 +32,12 @@ const LeaveReviewModal: React.FC<LeaveReviewModalProps> = ({
 
   // Réinitialise les valeurs pré-remplies à chaque ouverture (au cas où une autre
   // réservation/avis a été sélectionné entre deux ouvertures de la modale).
-  React.useEffect(() => {
+  useOnChange(`${isOpen}|${initialRating}|${initialComment}`, () => {
     if (isOpen) {
       setRating(initialRating);
       setComment(initialComment);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, initialRating, initialComment]);
+  });
 
   const handleSubmit = async () => {
     if (rating === 0) return;

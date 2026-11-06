@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useOnChange } from '@/hooks/useOnChange';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { HeroSliderData } from '../page';
 
@@ -47,9 +48,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
 
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    setCurrentIndex(hasMultipleSlides ? 1 : 0);
-  }, [hasMultipleSlides]);
+  useOnChange(hasMultipleSlides, (multiple) => setCurrentIndex(multiple ? 1 : 0));
 
   const goToNext = useCallback(() => {
     if (!hasMultipleSlides) return;

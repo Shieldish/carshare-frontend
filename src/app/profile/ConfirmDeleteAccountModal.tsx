@@ -1,5 +1,6 @@
 // ConfirmDeleteAccountModal.tsx
 import React, { useState } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useTranslations } from 'next-intl';
 import { Trash2, Loader2 } from 'lucide-react';
 import { Dialog, DialogBody, DialogFooter, Button, Input } from '@/app/components/ui';
@@ -22,9 +23,9 @@ const ConfirmDeleteAccountModal: React.FC<ConfirmDeleteAccountModalProps> = ({
   const t = useTranslations('profile.deleteAccountModal');
   const [typedEmail, setTypedEmail] = useState('');
 
-  React.useEffect(() => {
-    if (!isOpen) setTypedEmail('');
-  }, [isOpen]);
+  useOnChange(isOpen, (open) => {
+    if (!open) setTypedEmail('');
+  });
 
   const canConfirm = typedEmail.trim().toLowerCase() === userEmail.trim().toLowerCase();
 

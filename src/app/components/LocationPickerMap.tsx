@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -30,19 +31,19 @@ function MapUpdater({ center }: { center: [number, number] }) {
 }
 
 function LocationMarker({ onLocationSelect, initialLocation, forceMarkerPosition }: LocationPickerMapProps) {
-  const [position, setPosition] = useState<[number, number] | null>(initialLocation || null);
+  const [position, setPosition] = useState<[number, number] | null>(forceMarkerPosition || initialLocation || null);
 
   // On extrait les variables pour éviter que React ne boucle sur une nouvelle référence de tableau
   const forceLat = forceMarkerPosition?.[0];
   const forceLng = forceMarkerPosition?.[1];
 
-  useEffect(() => {
+  useOnChange(`${forceLat}|${forceLng}`, () => {
     if (forceLat !== undefined && forceLng !== undefined) {
       // On met à jour le marqueur visuellement !
       setPosition([forceLat, forceLng]);
       // Note: On ne rappelle plus onLocationSelect ici car le parent a déjà l'info
     }
-  }, [forceLat, forceLng]);
+  });
 
   useMapEvents({
     click(e) {

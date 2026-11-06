@@ -99,19 +99,21 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
     router.push(`/bookings/create?vehicleId=${vehicle?.id}`);
   }, [user, router, vehicle?.id]);
 
+  const galleryImages = vehicle?.images;
+
   const goToPreviousImage = useCallback(() => {
-    if (!vehicle?.images || vehicle.images.length <= 1) return;
+    if (!galleryImages || galleryImages.length <= 1) return;
     setCurrentImageIndex((prev) =>
-      prev === 0 ? vehicle.images!.length - 1 : prev - 1
+      prev === 0 ? galleryImages.length - 1 : prev - 1
     );
-  }, [vehicle?.images]);
+  }, [galleryImages]);
 
   const goToNextImage = useCallback(() => {
-    if (!vehicle?.images || vehicle.images.length <= 1) return;
+    if (!galleryImages || galleryImages.length <= 1) return;
     setCurrentImageIndex((prev) =>
-      prev === vehicle.images!.length - 1 ? 0 : prev + 1
+      prev === galleryImages.length - 1 ? 0 : prev + 1
     );
-  }, [vehicle?.images]);
+  }, [galleryImages]);
 
   // Swipe tactile sur la galerie principale (mobile) — même seuil/logique que HeroSection.
   const [touchStart, setTouchStart] = useState(0);

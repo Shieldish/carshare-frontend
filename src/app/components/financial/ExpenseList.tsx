@@ -76,7 +76,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
     loadExpenses(0);
   }, [loadExpenses]);
 
-  const handleFormSuccess = (updatedExpense: Expense) => {
+  const handleFormSuccess = () => {
     setShowForm(false);
     setExpenseToEdit(null);
     loadExpenses(expensesPage?.number ?? 0);

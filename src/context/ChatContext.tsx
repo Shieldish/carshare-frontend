@@ -154,7 +154,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     } catch (activationError) {
         console.error('❌ Failed to activate WebSocket client:', activationError);
         isConnectingRef.current = false;
-        setError(t('errorWebSocketActivation'));
+        // Comme les autres erreurs de connexion, signalée en différé (cette fonction est appelée
+        // depuis un effet, qui ne doit pas modifier l'état de façon synchrone).
+        queueMicrotask(() => setError(t('errorWebSocketActivation')));
     }
 
   }, [user, token, currentBookingId, t]);

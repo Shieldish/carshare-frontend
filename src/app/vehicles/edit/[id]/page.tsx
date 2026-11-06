@@ -94,8 +94,9 @@ export default function VehicleEditPage() {
   const [technicalControlFile, setTechnicalControlFile] = useState<File | null>(null);
 
   const [provinces, setProvinces] = useState<Province[]>([]);
-  const [communes, setCommunes] = useState<Commune[]>([]);
+  const [loadedCommunes, setCommunes] = useState<Commune[]>([]);
   const [selectedProvince, setSelectedProvince] = useState('');
+  const communes = selectedProvince ? loadedCommunes : [];
   const [selectedCommune, setSelectedCommune] = useState('');
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
   const [isLoadingCommunes, setIsLoadingCommunes] = useState(false);
@@ -125,7 +126,7 @@ export default function VehicleEditPage() {
         finally { setIsLoadingCommunes(false); }
       };
       fetchCommunes();
-    } else { setCommunes([]); }
+    }
   }, [selectedProvince]);
 
   useEffect(() => {

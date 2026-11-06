@@ -95,7 +95,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
     };
     
     fetchBookingDetails();
-  }, [bookingId, router]); // ✅ DEPENDANCE MISE À JOUR
+  }, [bookingId, router, t]); // ✅ DEPENDANCE MISE À JOUR
 
   const handleOnlinePayment = async () => {
     if (!booking?.payment || booking.payment.status !== 'PENDING') {

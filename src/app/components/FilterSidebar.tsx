@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useIsClient } from '@/hooks/useIsClient';
 import { useTranslations } from 'next-intl';
 import { Calendar, MapPin, Car, RotateCcw, Building, ChevronDown, X, Fuel, Settings2, Users, Banknote } from 'lucide-react';
 import { Vehicle } from '@/types/vehicle';
@@ -437,23 +438,20 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   // États pour la localisation — la ville affichée dépend de la province choisie.
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [provincesWithCommunes, setProvincesWithCommunes] = useState<(Province & { communes: Commune[] })[]>([]);
-  const [communes, setCommunes] = useState<Commune[]>([]);
   const [selectedProvince, setSelectedProvince] = useState('');
   const [loadingProvinces, setLoadingProvinces] = useState(false);
   const loadingCommunes = loadingProvinces;
 
-  // ✅ Guard monté : empêche tout appel API avant que le composant soit
-  // hydraté côté client — élimine les erreurs "Failed to fetch" en console
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   // ✅ Date du jour calculée côté client uniquement
-  const [today, setToday] = useState('');
-  useEffect(() => {
-    setToday(new Date().toISOString().split('T')[0]);
-  }, []);
+  const isClient = useIsClient();
+  const today = isClient ? new Date().toISOString().split('T')[0] : '';
+
+  // Villes de la province sélectionnée (aucune sélection = vide : on ne montre les villes qu'une
+  // fois la province choisie).
+  const communes = useMemo(
+    () => provincesWithCommunes.find(p => p.id.toString() === selectedProvince)?.communes ?? [],
+    [selectedProvince, provincesWithCommunes]
+  );
   
   const [filters, setFilters] = useState<FilterData>({
     pickupDate: '',
@@ -488,18 +486,15 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   // Extraire les marques uniques des véhicules
-  const [makes, setMakes] = useState<string[]>([]);
-  useEffect(() => {
-    const uniqueMakes = Array.from(new Set(vehicles.map(v => v.make).filter(Boolean))).sort();
-    setMakes(uniqueMakes);
-  }, [vehicles]);
+  const makes = useMemo(
+    () => Array.from(new Set(vehicles.map(v => v.make).filter(Boolean))).sort(),
+    [vehicles]
+  );
 
   // ✅ Charger les provinces (avec leurs villes imbriquées) — uniquement après montage
   // côté client, en un seul appel. La liste des villes affichées est ensuite filtrée
   // localement selon la province choisie (voir l'effet ci-dessous).
   useEffect(() => {
-    if (!mounted) return;
-
     const fetchProvinces = async () => {
       setLoadingProvinces(true);
       try {
@@ -515,23 +510,10 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       }
     };
     fetchProvinces();
-  }, [mounted]);
-
-  // Filtre les villes affichées selon la province sélectionnée (aucune sélection = vide,
-  // comme avant : on ne montre les villes qu'une fois la province choisie).
-  useEffect(() => {
-    if (!selectedProvince) {
-      setCommunes([]);
-      return;
-    }
-    const province = provincesWithCommunes.find(p => p.id.toString() === selectedProvince);
-    setCommunes(province?.communes ?? []);
-  }, [selectedProvince, provincesWithCommunes]);
+  }, []);
 
   // ✅ Charger les entreprises — uniquement après montage côté client
   useEffect(() => {
-    if (!mounted) return;
-
     const fetchCompanies = async () => {
       setLoadingCompanies(true);
       try {
@@ -545,7 +527,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
       }
     };
     fetchCompanies();
-  }, [mounted]);
+  }, []);
 
   const handleInputChange = useCallback((field: keyof FilterData, value: string | boolean) => {
     setFilters(prevFilters => {

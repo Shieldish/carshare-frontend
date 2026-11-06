@@ -5,7 +5,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
-import { apiClient, ApiError } from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 import IncidentReportForm from '@/app/components/incident/IncidentReportForm';
 import { Loader2, ArrowLeft, AlertTriangle, CheckCircle, X } from 'lucide-react';
 import { Button } from '@/app/components/ui';

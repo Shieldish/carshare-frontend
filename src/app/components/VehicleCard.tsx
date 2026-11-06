@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -34,9 +35,9 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
   const [isFavorited, setIsFavorited] = useState(() => favoritedIds?.has(vehicle.id) ?? false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
 
-  useEffect(() => {
-    setIsFavorited(favoritedIds?.has(vehicle.id) ?? false);
-  }, [favoritedIds, vehicle.id]);
+  const syncFavorite = () => setIsFavorited(favoritedIds?.has(vehicle.id) ?? false);
+  useOnChange(favoritedIds, syncFavorite);
+  useOnChange(vehicle.id, syncFavorite);
 
   const handleToggleFavorite = async (e: React.MouseEvent<HTMLButtonElement>) => {
     // La carte entière est un <Link> vers la fiche véhicule : on empêche la navigation

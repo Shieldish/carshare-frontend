@@ -2,9 +2,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { apiClient } from '@/lib/apiClient';
 import type { CreateExpenseData, UpdateExpenseData, Expense, ExpenseCategory } from '@/types/financial';
-import { DollarSign, Calendar, Tag, FileText, Paperclip, Loader2, Send, X, Car, AlertCircle } from 'lucide-react';
+import { DollarSign, Calendar, Tag, FileText, Paperclip, Loader2, Send, Car, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button, Input, Label } from '@/app/components/ui';
 
@@ -25,10 +26,22 @@ const categories: ExpenseCategory[] = [
   'FUEL', 'MAINTENANCE', 'CLEANING', 'INSURANCE', 'TAXES', 'PARKING', 'OTHER'
 ];
 
+const toFormData = (expense?: Expense | null): Partial<CreateExpenseData | UpdateExpenseData> =>
+  expense
+    ? {
+        vehicleId: expense.vehicleId,
+        amount: expense.amount,
+        expenseDate: expense.expenseDate,
+        category: expense.category,
+        description: expense.description,
+        receiptUrl: expense.receiptUrl,
+      }
+    : { expenseDate: new Date().toISOString().split('T')[0] };
+
 const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onCancel }) => {
   const t = useTranslations('financial');
   const tForm = useTranslations('financial.form');
-  const [formData, setFormData] = useState<Partial<CreateExpenseData | UpdateExpenseData>>({});
+  const [formData, setFormData] = useState(() => toFormData(expenseToEdit));
   const [userVehicles, setUserVehicles] = useState<Vehicle[]>([]);
   const [isLoadingVehicles, setIsLoadingVehicles] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,20 +66,7 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({ expenseToEdit, onSuccess, onC
     fetchVehicles();
   }, []);
 
-  useEffect(() => {
-    if (isEditMode && expenseToEdit) {
-      setFormData({
-        vehicleId: expenseToEdit.vehicleId,
-        amount: expenseToEdit.amount,
-        expenseDate: expenseToEdit.expenseDate,
-        category: expenseToEdit.category,
-        description: expenseToEdit.description,
-        receiptUrl: expenseToEdit.receiptUrl,
-      });
-    } else {
-      setFormData({ expenseDate: new Date().toISOString().split('T')[0] });
-    }
-  }, [expenseToEdit, isEditMode]);
+  useOnChange(expenseToEdit, (expense) => setFormData(toFormData(expense)));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

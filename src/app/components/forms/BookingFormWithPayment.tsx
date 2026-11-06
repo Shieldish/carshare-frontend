@@ -196,7 +196,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
   };
 
   // Indicateur d'étapes simplifié (Seulement 2 étapes)
-  const StepIndicator = () => (
+  const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-8">
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
@@ -247,7 +247,7 @@ const BookingFormWithPayment: React.FC<BookingFormWithPaymentProps> = ({
       </div>
 
       <div className="p-4 sm:p-6 md:p-8">
-        <StepIndicator />
+        {renderStepIndicator()}
 
         {/* Étape 1: Dates et Bouton d'action direct */}
         {currentStep === 'dates' && (

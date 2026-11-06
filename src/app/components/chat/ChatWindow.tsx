@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useChat, ChatMessage } from '@/context/ChatContext';
+import { useChat } from '@/context/ChatContext';
 import { useAuth } from '@/context/AuthContext';
 import { useNotifications } from '@/context/NotificationContext';
 import { Send, X, Loader2, AlertCircle } from 'lucide-react';

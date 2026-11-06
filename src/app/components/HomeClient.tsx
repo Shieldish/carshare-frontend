@@ -117,6 +117,10 @@ const toArray = (data: unknown): Vehicle[] => {
   return [];
 };
 
+// Niveau "ville" (= les 18 anciennes provinces, réutilisées comme communes pour rester
+// lisibles), réparties sous les 5 nouvelles provinces officielles (2025).
+const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Muyinga', 'Ruyigi', 'Kayanza', 'Bururi', 'Rumonge', 'Cankuzo'];
+
 const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, featuredPromotions }) => {
   const router = useRouter();
   const t = useTranslations('home');
@@ -136,10 +140,6 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 12;
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Niveau "ville" (= les 18 anciennes provinces, réutilisées comme communes pour rester
-  // lisibles), réparties sous les 5 nouvelles provinces officielles (2025).
-  const prioritizedCities = ['Bujumbura Mairie', 'Bujumbura Rural', 'Gitega', 'Ngozi', 'Makamba', 'Muyinga', 'Ruyigi', 'Kayanza', 'Bururi', 'Rumonge', 'Cankuzo'];
 
   // Ne montre que les 3 provinces les mieux fournies (seuil minimum pour éviter un carrousel ridicule),
   // et replie sur une seule carrousel générale si aucune province n'atteint ce seuil.
@@ -257,7 +257,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
     return pages;
   };
 
-  const PaginationControls = ({ className = "" }) => {
+  const renderPagination = (className = "") => {
     if (totalPages <= 1) return null;
     return (
       <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${className}`}>
@@ -391,11 +391,11 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
                   </div>
                 ) : (
                   <div className="animate-fade-in-up">
-                    <PaginationControls className="mb-8" />
+                    {renderPagination('mb-8')}
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
                       {currentVehicles.map((vehicle) => <VehicleCard key={vehicle.id} vehicle={vehicle} favoritedIds={favoritedIds} />)}
                     </div>
-                    <PaginationControls className="mt-12" />
+                    {renderPagination('mt-12')}
                   </div>
                 )
               ) : allVehicles.length === 0 ? (

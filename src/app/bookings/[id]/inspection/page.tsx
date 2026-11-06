@@ -107,8 +107,7 @@ function InspectionPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookingIdNum, isAuthLoading, user]);
 
-    const handleCheckInSuccess = (_record: unknown) => { fetchInspectionDetails(); };
-    const handleCheckOutSuccess = (_record: unknown) => { fetchInspectionDetails(); };
+    const handleCheckOutSuccess = () => { fetchInspectionDetails(); };
 
     // Conversion explicite en Number pour éviter "5" === 5 → false
     const isOwner = ownerId !== null && Number(user?.id) === Number(ownerId);
@@ -176,7 +175,7 @@ function InspectionPageContent() {
                             <h2 className="text-2xl font-semibold mb-6 text-foreground">{t('checkInTitle')}</h2>
                             <CheckInForm
                                 bookingId={bookingIdNum}
-                                onCheckInSuccess={(_record) => {
+                                onCheckInSuccess={() => {
                                     // 1. Afficher le toast immédiatement
                                     setShowSuccessToast(true);
                                     // 2. Attendre 3.5s AVANT de re-fetcher — sinon la page change

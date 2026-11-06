@@ -160,11 +160,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const checkPendingOnboarding = async (authToken: string): Promise<boolean> => {
-    if (pathname && pathname.startsWith('/payment')) {
-      setIsRedirecting(false);
-      return false;
-    }
+  // Renvoie l'identifiant du paiement d'inscription à régler, ou null s'il n'y en a pas.
+  const fetchPendingOnboardingPayment = async (authToken: string): Promise<string | null> => {
+    if (pathname && pathname.startsWith('/payment')) return null;
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/payments/check-pending-onboarding`, {
@@ -173,16 +171,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const data = await response.json();
 
-        if (data.requiresPayment) {
-          setIsRedirecting(true);
-          window.location.href = `/payment?paymentId=${data.paymentId}`;
-          return true;
-        }
+        if (data.requiresPayment) return data.paymentId;
       }
     } catch {
       console.warn('⚠️ Erreur vérification onboarding');
     }
 
+    return null;
+  };
+
+  const applyOnboardingCheck = (paymentId: string | null): boolean => {
+    if (paymentId) {
+      setIsRedirecting(true);
+      window.location.href = `/payment?paymentId=${paymentId}`;
+      return true;
+    }
     setIsRedirecting(false);
     return false;
   };
@@ -193,7 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (currentToken) {
         if (isTokenValid(currentToken)) {
           setToken(currentToken);
-          // ⚡ checkPendingOnboarding et fetchUserProfile ne dépendent tous les deux que de
+          // ⚡ fetchPendingOnboardingPayment et fetchUserProfile ne dépendent tous les deux que de
           // currentToken (déjà connu ici) : on les lance en parallèle au lieu de les enchaîner
           // en séquence, ce qui évite un aller-retour réseau supplémentaire à chaque chargement
           // de page pour un utilisateur connecté. Les deux fonctions catchent déjà leurs erreurs
@@ -201,11 +204,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // échec de l'une à cause de l'autre. Si une redirection paiement est requise,
           // fetchUserProfile se sera quand même exécuté (son résultat, un setUser bénin, est sans
           // conséquence puisqu'on navigue immédiatement vers /payment juste après).
-          const [mustRedirect] = await Promise.all([
-            checkPendingOnboarding(currentToken),
+          const [pendingPaymentId] = await Promise.all([
+            fetchPendingOnboardingPayment(currentToken),
             fetchUserProfile(currentToken),
           ]);
-          if (mustRedirect) return;
+          if (applyOnboardingCheck(pendingPaymentId)) return;
         } else {
           logout();
         }
@@ -229,11 +232,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else if (storedToken) {
       logout();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchUserProfile, logout]);
 
   // 1️⃣ Premier chargement de l'application
   useEffect(() => {
+    // Exception assumée à set-state-in-effect : le token vit dans localStorage, donc il ne peut
+    // être lu qu'après l'hydratation, et isLoading doit passer à false même sans token. Cet effet
+    // de démarrage, exécuté une seule fois, est le bon endroit pour le faire.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     initializeAuth();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -241,7 +247,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // 2️⃣ Bouclier dynamique : s'active à chaque changement de page
   useEffect(() => {
     if (token && !isLoading) {
-      checkPendingOnboarding(token);
+      fetchPendingOnboardingPayment(token).then(applyOnboardingCheck);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, token]);

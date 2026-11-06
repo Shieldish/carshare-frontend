@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useGeolocationSupported } from '@/hooks/useIsClient';
 import { useTranslations } from 'next-intl';
 import { Fuel, Gauge, Image as ImageIcon, FileText, Send, Loader2, AlertCircle, MapPin } from 'lucide-react';
 import ImageUploader from './ImageUploader';
@@ -30,7 +31,9 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
   // ✅ NOUVEAU : États pour la géolocalisation GPS
   const [latitudeEnd, setLatitudeEnd] = useState<number | null>(null);
   const [longitudeEnd, setLongitudeEnd] = useState<number | null>(null);
-  const [locationStatus, setLocationStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const geolocationSupported = useGeolocationSupported();
+  const [gpsStatus, setLocationStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const locationStatus = geolocationSupported ? gpsStatus : 'error';
 
   // ✅ Récupération automatique de la position GPS au chargement du composant
   useEffect(() => {
@@ -52,8 +55,6 @@ const CheckOutForm: React.FC<CheckOutFormProps> = ({ bookingId, onCheckOutSucces
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
-    } else {
-      setLocationStatus('error');
     }
   }, []);
 

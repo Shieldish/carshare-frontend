@@ -77,8 +77,9 @@ export default function AddVehicleForm() {
   const uploadedImagesRef = useRef(new Set<File>());
 
   const [provinces, setProvinces] = useState<Province[]>([]);
-  const [communes, setCommunes] = useState<Commune[]>([]);
+  const [loadedCommunes, setCommunes] = useState<Commune[]>([]);
   const [selectedProvince, setSelectedProvince] = useState('');
+  const communes = selectedProvince ? loadedCommunes : [];
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
   const [isLoadingCommunes, setIsLoadingCommunes] = useState(false);
 
@@ -96,7 +97,7 @@ export default function AddVehicleForm() {
       }
     };
     fetchProvinces();
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (selectedProvince) {
@@ -113,10 +114,8 @@ export default function AddVehicleForm() {
         }
       };
       fetchCommunes();
-    } else { 
-      setCommunes([]); 
     }
-  }, [selectedProvince]);
+  }, [selectedProvince, t]);
 
   const handleSearchLocationOnMap = async () => {
     setIsSearchingMap(true);

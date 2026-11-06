@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useIsClient } from '@/hooks/useIsClient';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -179,7 +180,7 @@ const TopAppBar = () => {
   // ✅ CORRECTION : On a retiré "theme" car on utilise uniquement "resolvedTheme"
   const { setTheme, resolvedTheme } = useTheme();
 
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationMenuOpen, setIsNotificationMenuOpen] = useState(false);
@@ -197,10 +198,6 @@ const TopAppBar = () => {
   const profileButtonRef = useRef<HTMLButtonElement>(null);
   const notificationMenuRef = useRef<HTMLDivElement>(null);
   const notificationButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -298,7 +295,7 @@ const TopAppBar = () => {
     // On intercepte ce pattern pour rediriger le propriétaire vers son tableau de bord
     // Les nouvelles notifications ont déjà /dashboard/owner?highlight=<id> directement en base
     if (/^\/vehicles\/\d+$/.test(notif.link)) {
-      window.location.href = '/dashboard/owner';
+      window.location.assign('/dashboard/owner');
       return;
     }
 
@@ -317,11 +314,11 @@ const TopAppBar = () => {
         // Next.js en douceur ne redéclenche pas le chargement des données — la page resterait
         // affichée avec les anciennes infos. Un rechargement complet garantit des données
         // fraîches à chaque clic, quelle que soit la page où se trouve l'utilisateur.
-        window.location.href = notif.link;
+        window.location.assign(notif.link);
       }
     } catch (error) {
       console.log("Lien de notification standard, navigation...", error);
-      window.location.href = notif.link;
+      window.location.assign(notif.link);
     }
   };
 
