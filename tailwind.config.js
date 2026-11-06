@@ -9,7 +9,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        display: ['var(--font-display)'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         display: ['clamp(1.75rem, 1.35rem + 2vw, 2.75rem)', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],

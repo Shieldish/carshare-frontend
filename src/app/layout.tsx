@@ -30,7 +30,7 @@ const geistMono = Geist_Mono({
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  display: "swap",
 });
 
 export async function generateMetadata(): Promise<Metadata> {
