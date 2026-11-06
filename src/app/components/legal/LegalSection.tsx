@@ -18,11 +18,11 @@ interface LegalSectionProps {
 export function LegalSection({ icon: Icon, iconClassName, title, children }: LegalSectionProps) {
   return (
     <section className="mb-12">
-      <h2 className="text-3xl font-bold mb-6 text-foreground flex items-center">
-        <Icon className={cn('w-8 h-8 mr-3', iconClassName)} />
-        {title}
+      <h2 className="text-xl sm:text-3xl font-bold mb-6 text-foreground flex items-center">
+        <Icon className={cn('w-8 h-8 mr-3 shrink-0', iconClassName)} />
+        <span className="min-w-0">{title}</span>
       </h2>
-      <div className="bg-card rounded-2xl p-8 shadow-lg border border-border">
+      <div className="bg-card rounded-2xl p-5 sm:p-8 shadow-lg border border-border">
         {children}
       </div>
     </section>
@@ -33,7 +33,7 @@ export function LegalSection({ icon: Icon, iconClassName, title, children }: Leg
 export function LegalSectionPlain({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <section className="mb-12">
-      {title && <h2 className="text-3xl font-bold mb-6 text-foreground">{title}</h2>}
+      {title && <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-foreground">{title}</h2>}
       {children}
     </section>
   );

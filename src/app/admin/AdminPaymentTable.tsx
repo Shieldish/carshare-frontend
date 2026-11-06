@@ -71,8 +71,8 @@ export default function AdminPaymentTable() {
 
   return (
     <div className="space-y-4">
-      <div className="p-6 rounded-lg border border-border flex justify-between items-center bg-muted/50">
-        <div>
+      <div className="p-4 sm:p-6 rounded-lg border border-border flex flex-wrap justify-between items-center gap-3 bg-muted/50">
+        <div className="min-w-0">
           <h2 className="text-xl font-bold text-foreground">{t('title')}</h2>
           <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
         </div>

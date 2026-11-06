@@ -13,8 +13,10 @@ module.exports = {
       },
       fontSize: {
         display: ['clamp(1.75rem, 1.35rem + 2vw, 2.75rem)', { lineHeight: '1.1', letterSpacing: '-0.02em', fontWeight: '700' }],
-        h1: ['1.875rem', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '700' }],
-        h2: ['1.5rem', { lineHeight: '1.25', fontWeight: '700' }],
+        // Fluides comme `display` : une taille fixe de 30px laissait les mots longs de certaines
+        // langues (ex. "yanayopendekezwa") plus larges que l'écran sur les petits téléphones.
+        h1: ['clamp(1.5rem, 1.25rem + 1.25vw, 1.875rem)', { lineHeight: '1.2', letterSpacing: '-0.01em', fontWeight: '700' }],
+        h2: ['clamp(1.25rem, 1.125rem + 0.625vw, 1.5rem)', { lineHeight: '1.25', fontWeight: '700' }],
         h3: ['1.125rem', { lineHeight: '1.35', fontWeight: '600' }],
         body: ['0.9375rem', { lineHeight: '1.6' }],
         small: ['0.8125rem', { lineHeight: '1.5' }],

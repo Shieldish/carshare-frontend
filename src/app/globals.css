@@ -91,6 +91,9 @@ input[type="radio"] {
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+    /* Un mot très long (nom de véhicule, adresse, e-mail saisis par un utilisateur, traduction)
+       passe à la ligne au lieu d'élargir la page. */
+    overflow-wrap: break-word;
   }
 }
 
@@ -188,6 +191,18 @@ input[type="radio"] {
   @apply text-foreground rounded;
 }
 
+/* Sur téléphone, les 4 boutons de 44px ne laissaient qu'une soixantaine de pixels au mois en
+   cours, qui se coupait en plein mot ("novemb/re"). */
+@media (max-width: 480px) {
+  .react-calendar__navigation button {
+    min-width: 2rem;
+  }
+  .react-calendar__navigation__label {
+    padding: 0 0.125rem;
+    font-size: 0.875rem;
+  }
+}
+
 .react-calendar__navigation button:disabled {
   background-color: rgb(var(--muted) / 0.4);
 }
@@ -202,6 +217,9 @@ input[type="radio"] {
 .react-calendar__month-view__weekdays__weekday {
   @apply text-muted-foreground font-semibold;
   text-decoration: none;
+  /* Les 7 colonnes sont étroites sur mobile : le padding horizontal par défaut coupait "MAR", "MER"... */
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .react-calendar__tile {

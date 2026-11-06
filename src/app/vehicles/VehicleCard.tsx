@@ -177,9 +177,9 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
         </div>
         
         <div className="p-4">
-          <div className="flex justify-between items-start">
-            <div 
-              className="cursor-pointer"
+          <div className="flex flex-wrap justify-between items-start gap-2">
+            <div
+              className="min-w-0 cursor-pointer"
               onClick={handleViewDetails}
             >
               <h3 className="text-lg font-bold text-foreground hover:text-primary transition-colors">
@@ -212,7 +212,7 @@ export default function VehicleCard({ vehicle, onDelete, onBoostClick, onActiveC
 
           <div className="mt-2">
             <p className="text-sm text-foreground/60 flex items-center">
-              <MapPin className="w-4 h-4 mr-1" />
+              <MapPin className="w-4 h-4 mr-1 shrink-0" />
               {displayLocation}
             </p>
           </div>

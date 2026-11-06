@@ -99,7 +99,10 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
       // voir ce statut (filtré côté backend), mais on garde un affichage neutre et sans
       // bouton d'action au cas où, plutôt que de l'inviter à "confirmer" quelque chose
       // qui n'a jamais été payé.
+      // ✅ CONTACT_INITIATED = le locataire a ouvert la discussion, sans avoir encore payé : côté
+      // propriétaire c'est le même message d'attente (sans ce cas, le statut brut s'affichait).
       case 'PENDING':
+      case 'CONTACT_INITIATED':
         return { Icon: Clock, tone: 'neutral' as StatusTone, text: t('status.pendingText'), description: t('status.pendingDescription') };
       case 'CONFIRMED':
         return { Icon: CheckCircle, tone: 'success' as StatusTone, text: t('status.confirmedText'), description: t('status.confirmedDescription') };
@@ -155,35 +158,35 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
               }}
             />
             {/* Badge de statut */}
-            <div className={cn('absolute top-4 right-4 flex items-center rounded-full border px-3 py-1 text-small font-medium', statusTone.panel)}>
-              <statusInfo.Icon className={cn('w-4 h-4 mr-2', statusTone.icon)} />
+            <div className={cn('absolute top-4 right-4 flex max-w-[calc(100%-2rem)] items-center rounded-full border px-3 py-1 text-small font-medium', statusTone.panel)}>
+              <statusInfo.Icon className={cn('w-4 h-4 mr-2 shrink-0', statusTone.icon)} />
               {statusInfo.text}
             </div>
           </div>
         </div>
 
         {/* Contenu principal */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 min-w-0 p-4 sm:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Informations du véhicule et de la réservation */}
             <div>
               <div className="flex items-center mb-3">
-                <Car className="w-5 h-5 text-primary mr-2" />
-                <h3 className="text-xl font-bold text-foreground">
+                <Car className="w-5 h-5 text-primary mr-2 shrink-0" />
+                <h3 className="min-w-0 text-xl font-bold text-foreground">
                   {booking.vehicle?.make} {booking.vehicle?.model}
                 </h3>
               </div>
               
               <div className="space-y-3">
                 <div className="flex items-center">
-                  <User className="w-4 h-4 text-muted-foreground mr-2" />
+                  <User className="w-4 h-4 text-muted-foreground mr-2 shrink-0" />
                   <span className="text-muted-foreground">
                     <strong>{t('bookingRequest')}</strong>
                   </span>
                 </div>
 
                 <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
+                  <Calendar className="w-4 h-4 text-muted-foreground mr-2 shrink-0" />
                   <span className="text-muted-foreground">
                     <strong>{t('fromLabel')}</strong> {new Date(booking.startDate).toLocaleDateString(locale, {
                       weekday: 'long',
@@ -195,7 +198,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                 </div>
 
                 <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
+                  <Calendar className="w-4 h-4 text-muted-foreground mr-2 shrink-0" />
                   <span className="text-muted-foreground">
                     <strong>{t('toLabel')}</strong> {new Date(booking.endDate).toLocaleDateString(locale, {
                       weekday: 'long',
@@ -207,7 +210,7 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                 </div>
 
                 <div className="flex items-center">
-                  <DollarSign className="w-4 h-4 text-green-600 mr-2" />
+                  <DollarSign className="w-4 h-4 text-green-600 mr-2 shrink-0" />
                   <span className="text-lg font-bold text-green-600">
                     {t('yourShare', { amount: ownerShare.toLocaleString() })}
                   </span>
@@ -233,7 +236,9 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
                     {t('actionRequiredText', { amount: ownerShare.toLocaleString() })}
                   </p>
 
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  {/* flex-wrap plutôt qu'un point de rupture fixe : la colonne fait à peine 300px en
+                      lg, où les deux boutons côte à côte dépassaient de la carte. */}
+                  <div className="flex flex-wrap gap-3">
                     <Button onClick={() => handleStatusUpdate('CONFIRMED')} disabled={isLoading} className="flex-1">
                       {isLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Check size={16} className="mr-2" />}
                       {t('confirmAvailability')}
@@ -255,10 +260,10 @@ export default function OwnerBookingCard({ booking, onUpdate }: OwnerBookingCard
 
               {!needsAction && (
                 <>
-                  <div className={cn('p-4 rounded-lg border mb-4', statusTone.panel)}>
+                  <div className={cn('p-3 sm:p-4 rounded-lg border mb-4', statusTone.panel)}>
                     <div className="flex items-center">
                       <statusInfo.Icon className={cn('w-5 h-5 shrink-0', statusTone.icon)} />
-                      <div className="ml-3">
+                      <div className="ml-3 min-w-0">
                         <h4 className="font-semibold">{statusInfo.text}</h4>
                         <p className="text-sm opacity-80">{statusInfo.description}</p>
                       </div>

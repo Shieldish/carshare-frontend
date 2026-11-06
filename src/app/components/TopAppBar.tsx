@@ -385,17 +385,18 @@ const TopAppBar = () => {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            
-            {/* Logo à gauche */}
-            <div className="flex-shrink-0">
+          <div className="flex items-center justify-between gap-2 h-16">
+
+            {/* Logo à gauche : seul élément autorisé à rétrécir quand la place manque, pour que
+                les icônes et le menu restent toujours visibles (connecté : 3 boutons de 40px+). */}
+            <div className="min-w-0 flex-1 lg:flex-none">
               <Link href="/" className="flex items-center space-x-2 group">
                 <Image
                   src="/assets/icons/logo.svg"
                   alt="BudaxDrive Logo"
                   width={150}
                   height={45}
-                  className="group-hover:scale-105 transition-transform md:w-[192px] md:h-[58px]"
+                  className="group-hover:scale-105 transition-transform h-auto w-full max-w-[150px] md:max-w-[192px]"
                 />
               </Link>
             </div>
@@ -411,7 +412,7 @@ const TopAppBar = () => {
             </div>
 
             {/* Droite: Notifications + Menus */}
-            <div className="flex-shrink-0 flex items-center space-x-2 md:space-x-4">
+            <div className="flex-shrink-0 flex items-center space-x-0.5 sm:space-x-2 md:space-x-4">
 
               {/* Favoris (Visible partout, uniquement si connecté) */}
               {user && (
@@ -629,7 +630,7 @@ const TopAppBar = () => {
 
         {/* --- MENU DÉROULANT COMPLET POUR MOBILE --- */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-16 left-0 w-full bg-card shadow-2xl border-t border-border max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="lg:hidden absolute top-16 left-0 w-full bg-card shadow-2xl border-t border-border max-h-[calc(100vh-4rem)] supports-[height:100dvh]:max-h-[calc(100dvh-4rem)] overflow-y-auto">
             <div className="px-4 py-4 space-y-1">
               
               <Link

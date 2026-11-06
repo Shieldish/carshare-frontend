@@ -936,7 +936,9 @@
         "CONFIRMED": "Imethibitishwa",
         "IN_PROGRESS": "Inaendelea",
         "COMPLETED": "Imekamilika",
-        "CANCELLED": "Imeghairiwa"
+        "CANCELLED": "Imeghairiwa",
+        "CONTACT_INITIATED": "Kamilisha malipo",
+        "PENDING_CONFIRMATION": "Inasubiri uthibitisho"
       },
       "filterTabs": {
         "all": "Zote",

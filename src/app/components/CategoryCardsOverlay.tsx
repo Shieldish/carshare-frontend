@@ -26,7 +26,10 @@ const CategoryCardsOverlay: React.FC = () => {
   ];
 
   return (
-    <section className="relative z-10 mt-6 md:-mt-60 lg:-mt-72 px-4 md:px-8 pb-12">
+    // Chevauchement limité à 4rem à partir de md, et réservé dans HeroSection (pb-28, points et
+    // flèches remontés) : les anciens -mt-60/-mt-72 recouvraient le titre et la description du
+    // hero à toutes les largeurs de bureau.
+    <section className="relative z-10 mt-6 md:-mt-16 px-4 md:px-8 pb-4 md:pb-12">
       {/* Ajustement de la largeur maximale pour 2 cartes */}
       <div className="max-w-5xl mx-auto">
         {/* Changement de la grille pour afficher 2 colonnes au lieu de 3 */}
@@ -37,10 +40,10 @@ const CategoryCardsOverlay: React.FC = () => {
               className="p-6 md:p-8 rounded-xl shadow-2xl transition-all duration-300 hover:shadow-primary/10 dark:hover:shadow-primary/20 hover:-translate-y-2"
             >
               <div className="flex items-center gap-4 mb-5">
-                <div className="p-3.5 rounded-full bg-primary/10 dark:bg-primary/25 text-primary">
+                <div className="shrink-0 p-3.5 rounded-full bg-primary/10 dark:bg-primary/25 text-primary">
                   <card.icon className="w-8 h-8" strokeWidth={1.5} />
                 </div>
-                <h3 className="font-display text-h2 text-foreground">
+                <h3 className="min-w-0 font-display text-h2 text-foreground">
                   {card.title}
                 </h3>
               </div>

@@ -110,22 +110,23 @@ export default function RevenuePage() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2 flex-grow md:flex-grow-0">
+          {/* Sur petit écran, chaque date passe sur sa propre ligne au lieu de sortir de la carte. */}
+          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto">
             <Input
               type="date"
               value={formatDateForInput(startDate)}
               onChange={handleStartDateChange}
               max={formatDateForInput(endDate || new Date())}
-              className="w-auto py-1.5 text-small"
+              className="min-w-0 flex-1 basis-36 py-1.5 text-small md:w-auto md:flex-none md:basis-auto"
             />
-            <span className="text-muted-foreground">-</span>
+            <span className="hidden text-muted-foreground md:inline">-</span>
             <Input
               type="date"
               value={formatDateForInput(endDate)}
               onChange={handleEndDateChange}
               min={formatDateForInput(startDate)}
               max={formatDateForInput(new Date())}
-              className="w-auto py-1.5 text-small"
+              className="min-w-0 flex-1 basis-36 py-1.5 text-small md:w-auto md:flex-none md:basis-auto"
             />
           </div>
 

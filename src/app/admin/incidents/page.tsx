@@ -320,22 +320,22 @@ export default function AdminIncidentsPage() {
               key={incident.id}
               className="bg-card rounded-lg shadow-sm border border-border p-6 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start space-x-4">
-                  <div className="p-3 bg-destructive/10 rounded-lg">
+              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                <div className="flex min-w-0 items-start space-x-4">
+                  <div className="shrink-0 p-3 bg-destructive/10 rounded-lg">
                     <AlertTriangle className="w-6 h-6 text-destructive" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-semibold text-foreground">
                       {t('incidentLabel', { id: incident.id, bookingId: incident.bookingId })}
                     </h3>
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
                       <span className="flex items-center">
-                        <Car className="w-4 h-4 mr-1" />
+                        <Car className="w-4 h-4 mr-1 shrink-0" />
                         {incident.vehicleMake} {incident.vehicleModel}
                       </span>
                       <span className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
+                        <User className="w-4 h-4 mr-1 shrink-0" />
                         {incident.reporterName}
                       </span>
                     </div>

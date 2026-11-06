@@ -382,7 +382,8 @@ function BookingCreateContent() {
               <h2 className="text-2xl font-bold text-foreground mb-1">{vehicle.make} {vehicle.model}</h2>
               <p className="text-muted-foreground mb-4">{vehicle.manufacturingYear}</p>
 
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              {/* Une seule colonne sous 320px : à deux, "Automatique" se coupait en plein mot. */}
+              <div className="grid grid-cols-1 gap-3 min-[320px]:grid-cols-2 sm:gap-4 mb-6">
                 {vehicle.fuelType && (
                   <div className="bg-muted rounded-lg p-3 text-center">
                     <div className="text-sm font-semibold text-foreground">{vehicle.fuelType}</div>

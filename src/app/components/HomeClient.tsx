@@ -260,11 +260,11 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
   const PaginationControls = ({ className = "" }) => {
     if (totalPages <= 1) return null;
     return (
-      <div className={`flex items-center justify-center space-x-2 ${className}`}>
+      <div className={`flex flex-wrap items-center justify-center gap-1 sm:gap-2 ${className}`}>
         <Button variant="ghost" size="sm" onClick={goToPreviousPage} disabled={currentPage === 1}>
-          <ChevronLeft className="h-4 w-4" /> {t('previous')}
+          <ChevronLeft className="h-4 w-4" /> <span className="sr-only sm:not-sr-only">{t('previous')}</span>
         </Button>
-        <div className="flex items-center space-x-1">
+        <div className="flex flex-wrap items-center justify-center gap-1">
           {getPageNumbers().map((page, index) => (
             <React.Fragment key={index}>
               {page === '...' ? <span className="px-3 py-2 text-muted-foreground">...</span> : (
@@ -280,7 +280,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
           ))}
         </div>
         <Button variant="ghost" size="sm" onClick={goToNextPage} disabled={currentPage === totalPages}>
-          {t('next')} <ChevronRight className="h-4 w-4" />
+          <span className="sr-only sm:not-sr-only">{t('next')}</span> <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     );
@@ -320,7 +320,7 @@ const HomeClient: React.FC<HomeClientProps> = ({ vehicles: initialVehicles, feat
             
             {/* CARROUSELS PAR VILLE (ou carrousel générale de repli) */}
             {!hasActiveFilters && !isSearching && viewMode === 'list' && cityCarousels.length > 0 && (
-              <div className="mb-16">
+              <div className="mb-6 sm:mb-16">
                 {cityCarousels.map(({ city, vehicles }) => (
                   <VehicleCarousel
                     key={city ?? 'all'} title={t('recommendedVehicles')} city={city ?? undefined} vehicles={vehicles}

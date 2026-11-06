@@ -149,7 +149,7 @@ export default function AdminReviewsPage() {
       </Table>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-6">
           <Button
             variant="outline"
             size="sm"

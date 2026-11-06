@@ -40,7 +40,7 @@ const FAQPage = () => {
       <div className="bg-primary">
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
               {t('headerTitle')}
             </h1>
             <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">

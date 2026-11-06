@@ -47,6 +47,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
   const bookingId = resolvedParams.id;
 
   const t = useTranslations('bookings.contact');
+  const tStatus = useTranslations('bookings.myBookings.status');
   const router = useRouter();
   const [booking, setBooking] = useState<BookingWithDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -211,7 +212,9 @@ export default function BookingContactPage({ params }: ContactPageProps) {
       default:
         return {
           icon: <Clock className="w-6 h-6 text-gray-600" />,
-          text: status,
+          // Statuts du flux "contact local" (CONTACT_INITIATED, PENDING_CONFIRMATION) : sans ça, le
+          // nom technique brut s'affichait en titre et sortait de l'écran sur mobile.
+          text: tStatus.has(status) ? tStatus(status) : status,
           description: "",
           color: "text-gray-700 bg-gray-100 border-gray-300 dark:bg-gray-950 dark:border-gray-700 dark:text-gray-300"
         };
@@ -360,7 +363,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
         <div className={`mb-8 p-6 rounded-xl border-2 shadow-md hover:shadow-lg transition-shadow ${statusInfo.color}`}>
           <div className="flex items-center">
             {statusInfo.icon}
-            <div className="ml-4">
+            <div className="ml-4 min-w-0">
               <h3 className="text-xl font-bold tracking-tight">{statusInfo.text}</h3>
               {statusInfo.description && (
                 <p className="text-base font-medium opacity-90 mt-1">{statusInfo.description}</p>
@@ -408,7 +411,7 @@ export default function BookingContactPage({ params }: ContactPageProps) {
                   <strong className="text-foreground">{new Date(booking.endDate).toLocaleDateString('fr-FR')}</strong>
                 </div>
                 <hr className="my-4 border-border" />
-                <div className="flex justify-between text-xl font-bold text-primary">
+                <div className="flex flex-wrap justify-between gap-x-2 text-xl font-bold text-primary">
                   <span>{t('totalToPay')}</span>
                   <span>{booking.totalPrice.toLocaleString()} FBu</span>
                 </div>

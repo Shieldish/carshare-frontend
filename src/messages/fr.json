@@ -934,7 +934,9 @@
         "CONFIRMED": "Confirmé",
         "IN_PROGRESS": "En cours",
         "COMPLETED": "Terminé",
-        "CANCELLED": "Annulé"
+        "CANCELLED": "Annulé",
+        "CONTACT_INITIATED": "Paiement à finaliser",
+        "PENDING_CONFIRMATION": "En attente de confirmation"
       },
       "filterTabs": {
         "all": "Toutes",

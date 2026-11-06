@@ -63,7 +63,10 @@ export default async function RootLayout({
                   disableTransitionOnChange={false}
                 >
                   <Header />
-                  <main className="flex-grow">{children}</main>
+                  {/* overflow-x-clip : filet de sécurité. Si un contenu imprévu dépasse malgré tout,
+                      seul ce contenu est coupé : la page ne s'élargit pas, donc le header et son menu
+                      restent à l'écran. Contrairement à overflow-hidden, n'empêche pas position: sticky. */}
+                  <main className="flex-grow overflow-x-clip">{children}</main>
                   <Footer />
                   <ChatWindow />
                   <OfflineBanner />

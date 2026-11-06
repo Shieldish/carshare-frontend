@@ -132,7 +132,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
 
   return (
     <section
-      className="relative w-full h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-gray-900"
+      className="relative w-full h-[400px] md:h-[440px] lg:h-[480px] overflow-hidden bg-gray-900"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
@@ -163,7 +163,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
         <>
           <button
             onClick={goToPrevious}
-            className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30
+            className={`absolute left-3 bottom-2 md:left-8 md:bottom-auto md:top-[calc(50%-2rem)] md:-translate-y-1/2 z-30
                        p-2.5 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
                        hover:bg-white/40 transition-all duration-300
                        focus:outline-none focus:ring-2 focus:ring-white/50
@@ -177,7 +177,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
 
           <button
             onClick={goToNext}
-            className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30
+            className={`absolute right-3 bottom-2 md:right-8 md:bottom-auto md:top-[calc(50%-2rem)] md:-translate-y-1/2 z-30
                        p-2.5 md:p-3 bg-white/20 backdrop-blur-md text-white rounded-full
                        hover:bg-white/40 transition-all duration-300
                        focus:outline-none focus:ring-2 focus:ring-white/50
@@ -189,7 +189,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ featuredPromotions }) => {
             <ChevronRight className="w-5 h-5 md:w-7 md:h-7 group-hover:scale-110 transition-transform" />
           </button>
 
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center">
+          {/* À partir de md, les cartes recouvrent les 4rem du bas du hero (voir CategoryCardsOverlay) :
+              les points restent juste au-dessus. Sur mobile, ils sont alignés avec les flèches. */}
+          <div className="absolute bottom-4 md:bottom-20 left-1/2 -translate-x-1/2 z-30 flex items-center">
             {originalSlides.map((_, idx) => {
               let activeIdx = currentIndex - 1;
               if (currentIndex === 0) activeIdx = originalSlides.length - 1;
@@ -251,8 +253,10 @@ const HeroSlide: React.FC<{
               carrousel (translateX animé), un flou plein cadre provoquait un
               artefact de compositing au redimensionnement en direct. */}
           <div className="absolute inset-0 bg-black/85" />
-          <div className="absolute inset-0 flex flex-col justify-start items-end p-8 md:p-16 pt-24 md:pt-32">
-            {/* pt-24 md:pt-32 assure que le texte n'est pas caché sous la TopAppBar */}
+          {/* Le texte est centré dans la zone réellement libre, quelle que soit sa longueur selon la
+              langue : pb-16 réserve la rangée flèches + points sur mobile ; à partir de md, pb-28
+              réserve les cartes qui chevauchent le hero + les points, et px-24 évite les flèches. */}
+          <div className="absolute inset-0 flex flex-col justify-center items-end px-6 pt-6 pb-16 md:px-24 md:pt-8 md:pb-28">
             <div className="max-w-xl text-right">
               {/* Séquence d'entrée orchestrée (badge → titre → description), un seul
                   endroit dans toute l'app où cette animation "hero" est utilisée. */}

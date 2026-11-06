@@ -66,8 +66,8 @@ export default function UnifiedPaymentModal({
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-between items-center border-b dark:border-gray-600">
-          <div>
+        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-between items-center gap-3 border-b dark:border-gray-600">
+          <div className="min-w-0">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t('title')}</h2>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               {t('amountLabel')}{' '}
@@ -79,7 +79,7 @@ export default function UnifiedPaymentModal({
           <button
             onClick={onClose}
             aria-label="Close"
-            className="p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-colors"
+            className="shrink-0 p-2 -m-2 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-200 transition-colors"
           >
             <X size={24} />
           </button>
@@ -101,18 +101,20 @@ export default function UnifiedPaymentModal({
               <Smartphone size={16} className="mr-2" />
               {t('localPayments')}
             </h3>
-            <div className="grid grid-cols-3 gap-3">
+            {/* Sur téléphone, 3 colonnes ne laissent qu'environ 60px par moyen de paiement : texte et
+                marges réduits, sinon "Lumicash" sort de sa case. Une seule colonne sous 320px. */}
+            <div className="grid grid-cols-1 gap-2 min-[320px]:grid-cols-3 sm:gap-3">
 
               {/* iHela */}
               <button
                 onClick={() => handleProviderSelect('IHELA')}
-                className={`border-2 rounded-lg p-2 flex flex-col items-center justify-center transition-all ${
+                className={`border-2 rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center transition-all ${
                   selectedProvider === 'IHELA'
                     ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-blue-400'
                 }`}
               >
-                <div className="h-12 w-full bg-gray-100 dark:bg-gray-700 rounded mb-2 flex items-center justify-center font-bold text-gray-800 dark:text-white">
+                <div className="h-12 w-full bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-xs sm:text-base font-bold text-gray-800 dark:text-white">
                   iHela
                 </div>
               </button>
@@ -120,13 +122,13 @@ export default function UnifiedPaymentModal({
               {/* Lumicash */}
               <button
                 onClick={() => handleProviderSelect('LUMICASH')}
-                className={`border-2 rounded-lg p-2 flex flex-col items-center justify-center transition-all ${
+                className={`border-2 rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center transition-all ${
                   selectedProvider === 'LUMICASH'
                     ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-yellow-400'
                 }`}
               >
-                <div className="h-12 w-full bg-yellow-400 rounded mb-2 flex items-center justify-center font-bold text-black">
+                <div className="h-12 w-full bg-yellow-400 rounded flex items-center justify-center text-xs sm:text-base font-bold text-black">
                   Lumicash
                 </div>
               </button>
@@ -134,13 +136,13 @@ export default function UnifiedPaymentModal({
               {/* Bancobu Enoti */}
               <button
                 onClick={() => handleProviderSelect('ENOTI')}
-                className={`border-2 rounded-lg p-2 flex flex-col items-center justify-center transition-all ${
+                className={`border-2 rounded-lg p-1 sm:p-2 flex flex-col items-center justify-center transition-all ${
                   selectedProvider === 'ENOTI'
                     ? 'border-green-600 bg-green-50 dark:bg-green-900/20'
                     : 'border-gray-200 dark:border-gray-600 hover:border-green-400'
                 }`}
               >
-                <div className="h-12 w-full bg-green-600 rounded mb-2 flex items-center justify-center font-bold text-white text-xs text-center leading-tight">
+                <div className="h-12 w-full bg-green-600 rounded flex items-center justify-center font-bold text-white text-xs text-center leading-tight">
                   Bancobu<br />Enoti
                 </div>
               </button>

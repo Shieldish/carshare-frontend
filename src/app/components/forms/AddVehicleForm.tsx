@@ -354,7 +354,7 @@ export default function AddVehicleForm() {
 
         <div className="border-t pt-6">
           <h3 className="text-lg font-medium mb-4">{t('imagesTitle')}</h3>
-          <input type="file" multiple accept={ACCEPTED_IMAGE_TYPES.join(',')} onChange={handleImageChange} disabled={imageFiles.length >= MAX_IMAGES} className="mb-4" />
+          <input type="file" multiple accept={ACCEPTED_IMAGE_TYPES.join(',')} onChange={handleImageChange} disabled={imageFiles.length >= MAX_IMAGES} className="mb-4 w-full max-w-full text-sm" />
           {imagePreviews.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {imagePreviews.map((p, i) => (

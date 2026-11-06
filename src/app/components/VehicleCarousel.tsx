@@ -57,18 +57,21 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll, favo
   const displayVehicles = vehicles.slice(0, 6);
 
   return (
-    <div className="mb-12 relative w-full">
+    <div className="mb-8 sm:mb-12 relative w-full">
       {/* En-tête de la section (Titre à gauche, Flèches à droite) */}
-      <div className="flex items-center justify-between mb-6 px-2 sm:px-0">
-        <h2 className="font-display text-h1 text-foreground flex items-center gap-2 group cursor-pointer" onClick={onViewAll}>
+      <div className="flex items-center justify-between gap-4 mb-6 px-2 sm:px-0">
+        {/* Surtout pas de `flex` sur ce titre : chaque morceau de texte y devient une colonne qui ne
+            peut pas rétrécir sous son mot le plus long, et la page entière déborde sur mobile.
+            En flux normal, le texte et la flèche passent simplement à la ligne. */}
+        <h2 className="min-w-0 font-display text-h1 text-foreground group cursor-pointer" onClick={onViewAll}>
           {city ? <>{title} · <span className="text-primary">{city}</span></> : title}
           {onViewAll && (
-            <ArrowRight className="w-5 h-5 ml-1 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="inline-block align-middle w-5 h-5 ml-2 text-muted-foreground group-hover:text-foreground transition-transform group-hover:translate-x-1" />
           )}
         </h2>
-        
+
         {/* Contrôles à droite (Bouton Voir tout + Flèches de navigation) */}
-        <div className="flex items-center gap-4">
+        <div className="hidden sm:flex shrink-0 items-center gap-4">
           {onViewAll && (
             <button onClick={onViewAll} className="hidden sm:block text-sm font-medium text-muted-foreground hover:text-foreground hover:underline transition-colors">
               {t('showAll')}
@@ -110,11 +113,14 @@ export default function VehicleCarousel({ title, city, vehicles, onViewAll, favo
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 px-2 sm:px-0"
+          className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-px-2 sm:scroll-px-0 pb-6 pt-2 px-2 sm:px-0"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} // Cache la scrollbar
         >
           {displayVehicles.map((vehicle) => (
-            <div key={vehicle.id} className="min-w-[280px] max-w-[320px] snap-start flex-shrink-0">
+            // Largeur relative à la zone visible sur mobile : la carte tient toujours entière et la
+            // suivante dépasse un peu pour inviter à faire défiler. Avant : 280-320px selon le
+            // contenu, soit plus large que l'écran sur les petits téléphones.
+            <div key={vehicle.id} className="w-[85%] sm:w-80 snap-start flex-shrink-0">
               <VehicleCard vehicle={vehicle} favoritedIds={favoritedIds} />
             </div>
           ))}

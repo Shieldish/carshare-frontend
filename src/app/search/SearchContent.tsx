@@ -268,8 +268,9 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
   }, []);
 
   return (
-    // On remplace h-screen par une hauteur qui soustrait la taille du Header (ici environ 80px)
-    <div className="flex flex-col h-[calc(100vh-80px)] bg-background relative">
+    // Hauteur de l'écran moins le header (4rem). 100dvh : sur mobile, 100vh inclut la barre d'adresse
+    // et le bas de la page se retrouverait inaccessible, puisque le défilement global est bloqué ici.
+    <div className="flex flex-col h-[calc(100vh-4rem)] supports-[height:100dvh]:h-[calc(100dvh-4rem)] bg-background relative">
       <div className="flex-1 flex overflow-hidden">
 
         {/* CÔTÉ GAUCHE : La liste */}

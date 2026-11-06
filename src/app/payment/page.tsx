@@ -149,9 +149,9 @@ function PaymentPageContent() {
             <CreditCard className="h-10 w-10 text-primary" />
           </div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">{t('title')}</h2>
-          <div className="mt-10 p-6 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-600">
+          <div className="mt-10 p-4 sm:p-6 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-dashed border-gray-200 dark:border-gray-600">
             <span className="text-sm text-gray-500 uppercase font-bold tracking-widest">{t('amountDue')}</span>
-            <div className="text-4xl font-black text-primary mt-1">
+            <div className="text-2xl sm:text-4xl font-black text-primary mt-1">
               {amount.toLocaleString()} <span className="text-xl">{currency}</span>
             </div>
           </div>

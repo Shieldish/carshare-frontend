@@ -689,12 +689,12 @@ function AdminUsersContent() {
 
       <div className="bg-card border-b border-border shadow-sm">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 py-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+          <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="shrink-0 p-2 bg-primary/10 rounded-lg">
                 <UserCog className="w-7 h-7 text-primary" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
                 <p className="text-sm text-muted-foreground mt-1">{t('subtitle')}</p>
               </div>
@@ -704,7 +704,8 @@ function AdminUsersContent() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          {/* 5 colonnes seulement en xl : plus tôt, les libellés longs (sw, rn) se coupaient en plein mot. */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-4">
             <StatCard icon={UserCog} label={t('stats.total')} value={stats.total} tone="info" />
             <StatCard icon={CheckCircle2} label={t('stats.fullyVerified')} value={stats.fullyVerified} tone="success" />
             <StatCard icon={XCircle} label={t('stats.unverified')} value={stats.unverified} tone="warning" />

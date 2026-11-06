@@ -65,10 +65,12 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 sm:bottom-8 sm:left-auto sm:right-8 w-full max-w-sm h-[60vh] sm:h-[70vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-transform duration-300 ease-out z-50">
+    // Sur mobile, left-4 + right-4 suffisent à donner la largeur : un w-full en plus poussait la
+    // fenêtre (et le bouton d'envoi) hors de l'écran. La largeur fixe ne vaut qu'à partir de sm.
+    <div className="fixed bottom-4 left-4 right-4 sm:bottom-8 sm:left-auto sm:right-8 sm:w-full sm:max-w-sm h-[60vh] sm:h-[70vh] bg-white dark:bg-gray-800 rounded-xl shadow-2xl flex flex-col border border-gray-200 dark:border-gray-700 overflow-hidden transform transition-transform duration-300 ease-out z-50">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground border-b border-gray-200 dark:border-gray-700">
-        <h3 className="font-semibold">
+      <div className="flex items-center justify-between gap-3 p-4 bg-primary text-primary-foreground border-b border-gray-200 dark:border-gray-700">
+        <h3 className="min-w-0 font-semibold">
           {vehicleBrand
             ? t('reservationTitleWithVehicle', { vehicle: vehicleBrand, id: currentBookingId ?? '' })
             : t('reservationTitle', { id: currentBookingId ?? '' })}
@@ -145,13 +147,15 @@ export default function ChatWindow() {
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder={t('messagePlaceholder')}
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
+            // min-w-0 : sans ça, le champ refuse de rétrécir et pousse le bouton d'envoi hors de la
+            // fenêtre sur les petits téléphones.
+            className="min-w-0 flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-gray-100 placeholder:text-gray-400"
             autoComplete="off"
           />
           <button
             type="submit"
             disabled={!newMessage.trim()}
-            className="p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="shrink-0 p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:text-gray-500 dark:disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
             title={t('send')}
           >
             <Send className="w-5 h-5" />

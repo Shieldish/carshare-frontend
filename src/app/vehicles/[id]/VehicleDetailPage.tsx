@@ -491,13 +491,14 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
         {/* Spécifications détaillées */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Spécifications techniques */}
-          <div className="bg-card rounded-xl p-6 shadow-lg border border-border">
+          <div className="bg-card rounded-xl p-4 sm:p-6 shadow-lg border border-border">
             <h3 className="text-xl font-semibold text-foreground mb-6 flex items-center">
-              <Car className="w-6 h-6 mr-3 text-primary" />
+              <Car className="w-6 h-6 mr-3 shrink-0 text-primary" />
               {t('specsTitle')}
             </h3>
 
-            <div className="grid grid-cols-2 gap-6">
+            {/* Une seule colonne sous 360px : à deux, "Automatique" se coupait en plein mot. */}
+            <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:gap-6">
               {[
                 {
                   icon: <Car className="w-5 h-5" />,
@@ -530,12 +531,12 @@ export default function VehicleDetailPage({ initialVehicle = null, vehicleId: ve
                   condition: true
                 }
               ].map((spec, index) => (
-                <div key={index} className="bg-muted rounded-lg p-4">
+                <div key={index} className="bg-muted rounded-lg p-3 sm:p-4">
                   <div className="flex items-center text-muted-foreground mb-2">
-                    {spec.icon}
-                    <span className="ml-2 text-sm font-medium">{spec.label}</span>
+                    <span className="shrink-0">{spec.icon}</span>
+                    <span className="ml-2 min-w-0 text-sm font-medium">{spec.label}</span>
                   </div>
-                  <div className="text-lg font-semibold text-foreground">
+                  <div className="text-base sm:text-lg font-semibold text-foreground">
                     {spec.value}
                   </div>
                 </div>

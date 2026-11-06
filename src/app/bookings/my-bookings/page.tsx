@@ -42,7 +42,7 @@ type Booking = {
   startDate: string;
   endDate: string;
   totalPrice: number;
-  status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+  status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'CONTACT_INITIATED' | 'PENDING_CONFIRMATION';
   vehicle: VehicleInfo;
   payment: PaymentInfo | null;
   // ✅ Code secret pour le handshake Check-in
@@ -134,6 +134,8 @@ function BookingCard({
     IN_PROGRESS: 'primary',
     COMPLETED: 'neutral',
     CANCELLED: 'destructive',
+    CONTACT_INITIATED: 'warning',
+    PENDING_CONFIRMATION: 'warning',
   };
 
   const handleOpenChat = () => {
@@ -226,7 +228,7 @@ function BookingCard({
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 
             {vehicle.images && Array.isArray(vehicle.images) && vehicle.images.length > 1 && (
-              <div className="absolute bottom-4 left-4 bg-black/60 text-card-foreground px-3 py-1 rounded-lg text-sm flex items-center backdrop-blur-sm">
+              <div className="absolute bottom-4 left-4 bg-black/60 text-white px-3 py-1 rounded-lg text-sm flex items-center backdrop-blur-sm">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -240,16 +242,17 @@ function BookingCard({
             )}
           </div>
 
-          <div className="flex-1 p-6">
+          <div className="flex-1 min-w-0 p-4 sm:p-6">
             <div className="flex flex-col h-full">
               <div className="mb-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
+                {/* Empilé sur mobile : côte à côte, le prix laissait un mot par ligne au titre. */}
+                <div className="flex flex-col gap-2 mb-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
                     <h2 className="text-xl font-bold text-foreground mb-1">
                       {vehicle.make} {vehicle.model}
                     </h2>
                     <div className="flex items-center text-muted-foreground text-sm mb-2">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
@@ -308,7 +311,7 @@ function BookingCard({
                       </div>
                     )}
                   </div>
-                  <div className="text-right">
+                  <div className="sm:shrink-0 sm:text-right">
                     <div className="text-2xl font-bold text-foreground">{totalPrice.toLocaleString()} FBu</div>
                     <Badge variant={statusBadgeVariant[status]}>{tStatus(status)}</Badge>
                   </div>
@@ -348,7 +351,7 @@ function BookingCard({
                     <p className="mt-1 text-xs text-muted-foreground">
                       {t('checkInCodeDesc')}
                     </p>
-                    <div className="mt-3 flex items-center gap-3">
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
                       <span className="text-2xl font-black tracking-widest text-primary bg-card px-4 py-2 rounded-lg shadow-sm border border-primary/20">
                         {booking.checkInCode}
                       </span>
@@ -727,8 +730,8 @@ function MyBookingsContent() {
     <div className="min-h-screen bg-background">
       <div className="bg-card shadow-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground">{t('pageTitle')}</h1>
               <p className="text-muted-foreground mt-1">
                 {filteredBookings.length} {filteredBookings.length === 1 ? t('countSingular') : t('countPlural')}{' '}

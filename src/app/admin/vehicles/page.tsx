@@ -347,7 +347,7 @@ export default function AdminVehiclesPage() {
                     <VehicleComplianceSection vehicle={vehicle} />
                   </div>
 
-                  <div className="flex gap-3 pt-4 border-t border-border">
+                  <div className="flex flex-wrap gap-3 pt-4 border-t border-border">
                     <Button
                       onClick={() => handleUpdateStatusClick(vehicle.id, 'APPROVED')}
                       disabled={actionLoading === vehicle.id || !vehicle.registrationDocumentUrl || !vehicle.insuranceDocumentUrl || !vehicle.technicalControlDocumentUrl}

@@ -936,7 +936,9 @@
         "CONFIRMED": "Byemejwe",
         "IN_PROGRESS": "Birimwo",
         "COMPLETED": "Byarangiye",
-        "CANCELLED": "Vyahagaritswe"
+        "CANCELLED": "Vyahagaritswe",
+        "CONTACT_INITIATED": "Rangiza kwishura",
+        "PENDING_CONFIRMATION": "Birategerezwa kwemezwa"
       },
       "filterTabs": {
         "all": "Vyose",

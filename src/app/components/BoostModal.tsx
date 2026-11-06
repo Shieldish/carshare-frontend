@@ -212,7 +212,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
             </button>
             <button
               onClick={() => setDuration(12)}
-              className={`flex flex-1 items-center justify-center gap-1 rounded-lg py-2 text-small font-bold transition-all ${
+              className={`flex flex-1 flex-wrap items-center justify-center gap-1 rounded-lg py-2 text-small font-bold transition-all ${
                 duration === 12 ? 'bg-primary text-primary-foreground shadow' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -230,14 +230,16 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
               </div>
             )}
 
+            {/* Sur petit écran, le prix passe sous le titre : côte à côte, ils n'avaient plus la
+                place de tenir (prix sur deux lignes, ruban "Populaire" par-dessus). */}
             {/* STANDARD */}
             <button
               onClick={() => handleInitiateBoost('STANDARD')}
               disabled={isLoading}
-              className="group flex w-full items-center justify-between rounded-xl border border-border p-4 text-left transition-all hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+              className="group flex w-full flex-col gap-2 rounded-xl border border-border p-4 text-left transition-all hover:border-primary hover:bg-primary/5 disabled:opacity-50 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex items-center">
-                <div className="mr-3 rounded-lg bg-muted p-2 transition-colors group-hover:bg-primary/20">
+              <div className="flex min-w-0 items-center">
+                <div className="mr-3 shrink-0 rounded-lg bg-muted p-2 transition-colors group-hover:bg-primary/20">
                   <Zap size={20} className="text-muted-foreground" />
                 </div>
                 <div>
@@ -245,7 +247,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                   <p className="text-small text-muted-foreground">{t('standardDesc')}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="whitespace-nowrap text-right sm:shrink-0">
                 <span className="text-lg font-bold text-foreground">{getPrice(5000).toLocaleString()} FBu</span>
                 {isPremiumUser && (
                   <p className="text-small text-muted-foreground line-through">{getOriginalPrice(5000).toLocaleString()} FBu</p>
@@ -257,13 +259,13 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
             <button
               onClick={() => handleInitiateBoost('PREMIUM')}
               disabled={isLoading}
-              className="group relative flex w-full items-center justify-between overflow-hidden rounded-xl border-2 border-primary bg-primary/5 p-4 text-left transition-all hover:bg-primary/10 disabled:opacity-50 dark:bg-primary/10 dark:hover:bg-primary/20"
+              className="group relative flex w-full flex-col gap-2 overflow-hidden rounded-xl border-2 border-primary bg-primary/5 p-4 text-left transition-all hover:bg-primary/10 disabled:opacity-50 dark:bg-primary/10 dark:hover:bg-primary/20 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="absolute right-0 top-0 rounded-bl-lg bg-primary px-2 py-1 text-micro font-bold text-primary-foreground">
                 {t('popularBadge')}
               </div>
-              <div className="flex items-center">
-                <div className="mr-3 rounded-lg bg-primary p-2">
+              <div className="flex min-w-0 items-center">
+                <div className="mr-3 shrink-0 rounded-lg bg-primary p-2">
                   <Crown size={20} className="text-primary-foreground" />
                 </div>
                 <div>
@@ -271,7 +273,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                   <p className="text-small text-muted-foreground">{t('premiumDesc')}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="whitespace-nowrap text-right sm:shrink-0">
                 <span className="text-lg font-bold text-primary">{getPrice(15000).toLocaleString()} FBu</span>
                 {isPremiumUser && (
                   <p className="text-small text-primary/60 line-through">{getOriginalPrice(15000).toLocaleString()} FBu</p>
@@ -283,10 +285,10 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
             <button
               onClick={() => handleInitiateBoost('ULTRA')}
               disabled={isLoading}
-              className="group flex w-full items-center justify-between rounded-xl border border-border p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 disabled:opacity-50 dark:hover:bg-purple-900/20"
+              className="group flex w-full flex-col gap-2 rounded-xl border border-border p-4 text-left transition-all hover:border-purple-500 hover:bg-purple-50 disabled:opacity-50 dark:hover:bg-purple-900/20 sm:flex-row sm:items-center sm:justify-between"
             >
-              <div className="flex items-center">
-                <div className="mr-3 rounded-lg bg-purple-100 p-2 transition-colors group-hover:bg-purple-200 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
+              <div className="flex min-w-0 items-center">
+                <div className="mr-3 shrink-0 rounded-lg bg-purple-100 p-2 transition-colors group-hover:bg-purple-200 dark:bg-purple-900/30 dark:group-hover:bg-purple-900/50">
                   <Zap size={20} className="text-purple-600 dark:text-purple-400" />
                 </div>
                 <div>
@@ -294,7 +296,7 @@ export default function BoostModal({ vehicle, onClose, onBoostSuccess }: BoostMo
                   <p className="text-small text-muted-foreground">{t('ultraDesc')}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="whitespace-nowrap text-right sm:shrink-0">
                 <span className="text-lg font-bold text-purple-600 dark:text-purple-400">{getPrice(30000).toLocaleString()} FBu</span>
                 {isPremiumUser && (
                   <p className="text-small text-muted-foreground line-through">{getOriginalPrice(30000).toLocaleString()} FBu</p>

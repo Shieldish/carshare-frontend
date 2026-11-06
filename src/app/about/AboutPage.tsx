@@ -52,23 +52,23 @@ const AboutPage = () => {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-primary rounded-3xl p-8 text-white shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
-                <div className="grid grid-cols-2 gap-6 text-center">
+              <div className="bg-primary rounded-3xl p-4 sm:p-8 text-white shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300">
+                <div className="grid grid-cols-2 gap-3 sm:gap-6 text-center">
                   <div>
-                    <div className="text-3xl font-bold">15,000+</div>
-                    <div className="text-sm opacity-90">{t('hero.statVehiclesLabel')}</div>
+                    <div className="text-xl sm:text-3xl font-bold">15,000+</div>
+                    <div className="text-xs sm:text-sm opacity-90">{t('hero.statVehiclesLabel')}</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold">300k+</div>
-                    <div className="text-sm opacity-90">{t('hero.statVisitorsLabel')}</div>
+                    <div className="text-xl sm:text-3xl font-bold">300k+</div>
+                    <div className="text-xs sm:text-sm opacity-90">{t('hero.statVisitorsLabel')}</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold">-40%</div>
-                    <div className="text-sm opacity-90">{t('hero.statSavingsLabel')}</div>
+                    <div className="text-xl sm:text-3xl font-bold">-40%</div>
+                    <div className="text-xs sm:text-sm opacity-90">{t('hero.statSavingsLabel')}</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold">7h-22h</div>
-                    <div className="text-sm opacity-90">{t('hero.statSupportLabel')}</div>
+                    <div className="text-xl sm:text-3xl font-bold">7h-22h</div>
+                    <div className="text-xs sm:text-sm opacity-90">{t('hero.statSupportLabel')}</div>
                   </div>
                 </div>
               </div>
@@ -94,7 +94,7 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('mission.communityTitle')}
               </h3>
               <p className="text-muted-foreground">
@@ -106,7 +106,7 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <TrendingUp className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('mission.accessibilityTitle')}
               </h3>
               <p className="text-muted-foreground">
@@ -118,7 +118,7 @@ const AboutPage = () => {
               <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Globe className="w-8 h-8 text-white" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('mission.innovationTitle')}
               </h3>
               <p className="text-muted-foreground">
@@ -134,7 +134,7 @@ const AboutPage = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-4xl font-bold mb-8 text-foreground">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-foreground">
                 {t('challenge.title')}
               </h2>
               <div className="space-y-6">
@@ -175,7 +175,7 @@ const AboutPage = () => {
             </div>
 
             <div>
-              <h2 className="text-4xl font-bold mb-8 text-foreground">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-8 text-foreground">
                 {t('solution.title')}
               </h2>
               <div className="space-y-6">
@@ -240,7 +240,7 @@ const AboutPage = () => {
                   1
                 </div>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('process.step1Title')}
               </h3>
               <p className="text-muted-foreground">
@@ -257,7 +257,7 @@ const AboutPage = () => {
                   2
                 </div>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('process.step2Title')}
               </h3>
               <p className="text-muted-foreground">
@@ -274,7 +274,7 @@ const AboutPage = () => {
                   3
                 </div>
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-foreground">
+              <h3 className="text-xl lg:text-2xl font-bold mb-4 text-foreground">
                 {t('process.step3Title')}
               </h3>
               <p className="text-muted-foreground">
@@ -349,22 +349,22 @@ const AboutPage = () => {
             <p className="text-xl opacity-90">{t('stats.subtitle')}</p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
             <div className="text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">15k+</div>
-              <div className="text-lg opacity-90">{t('stats.vehiclesLabel')}</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">15k+</div>
+              <div className="text-sm sm:text-lg opacity-90">{t('stats.vehiclesLabel')}</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">300k+</div>
-              <div className="text-lg opacity-90">{t('stats.visitorsLabel')}</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">300k+</div>
+              <div className="text-sm sm:text-lg opacity-90">{t('stats.visitorsLabel')}</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">40%</div>
-              <div className="text-lg opacity-90">{t('stats.savingsLabel')}</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">40%</div>
+              <div className="text-sm sm:text-lg opacity-90">{t('stats.savingsLabel')}</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl lg:text-5xl font-bold mb-2">800$</div>
-              <div className="text-lg opacity-90">{t('stats.revenueLabel')}</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2">800$</div>
+              <div className="text-sm sm:text-lg opacity-90">{t('stats.revenueLabel')}</div>
             </div>
           </div>
         </div>

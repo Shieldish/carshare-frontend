@@ -231,9 +231,11 @@ function AvailabilityPageContent() {
                     {t('title', { id: vehicleId })}
                 </h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* 3 colonnes seulement à partir de lg : en md, la colonne latérale faisait à peine
+                    200px et coupait le texte de la période sélectionnée. */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Calendar View */}
-                    <div className="md:col-span-2 bg-card p-4 sm:p-6 rounded-lg shadow-md border border-border">
+                    <div className="lg:col-span-2 bg-card p-4 sm:p-6 rounded-lg shadow-md border border-border">
                         <h2 className="text-xl font-semibold mb-4 text-foreground">{t('calendarTitle')}</h2>
                         <Calendar
                             onChange={handleCalendarChange}
@@ -243,7 +245,7 @@ function AvailabilityPageContent() {
                             minDate={new Date()}
                             className="w-full border-none shadow-none p-0"
                         />
-                        <div className="mt-4 flex space-x-2 items-center text-xs">
+                        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                             <span className="w-3 h-3 bg-red-200 dark:bg-red-800/50 rounded-full inline-block"></span>
                             <span className="text-muted-foreground">{t('legendBooked')}</span>
                             <span className="w-3 h-3 bg-gray-300 dark:bg-gray-700/50 rounded-full inline-block ml-3"></span>
@@ -269,12 +271,11 @@ function AvailabilityPageContent() {
                                 <label className="block text-sm font-medium text-muted-foreground mb-1">
                                     {t('selectedPeriodLabel')}
                                 </label>
-                                <input
-                                    type="text"
-                                    readOnly
-                                    value={selectedRangeText}
-                                    className="w-full px-3 py-1.5 border border-border bg-muted rounded-md text-sm text-foreground"
-                                />
+                                {/* Un simple bloc plutôt qu'un champ en lecture seule : le texte d'un
+                                    input ne passe jamais à la ligne et se faisait couper sur mobile. */}
+                                <p className="w-full px-3 py-1.5 border border-border bg-muted rounded-md text-sm text-foreground">
+                                    {selectedRangeText}
+                                </p>
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="reason" className="block text-sm font-medium text-muted-foreground mb-1">

@@ -247,7 +247,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
 
           {/* Pagination */}
           {expensesPage.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
+            <div className="flex flex-wrap items-center justify-between gap-2 mt-6 pt-4 border-t border-border">
               <Button
                 variant="outline"
                 size="sm"

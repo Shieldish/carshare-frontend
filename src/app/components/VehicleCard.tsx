@@ -109,11 +109,13 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
   };
 
   return (
-    <Link href={`/vehicles/${vehicle.id}`} className="block group">
-      <article className="bg-card rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1 border border-border">
-        
+    <Link href={`/vehicles/${vehicle.id}`} className="block h-full group">
+      {/* h-full + flex-col : toutes les cartes d'une même rangée ont la même hauteur, même si
+          certaines ont un badge de plus, et le bas de carte reste aligné. */}
+      <article className="flex h-full flex-col bg-card rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform group-hover:-translate-y-1 border border-border">
+
         {/* Container d'image avec aspect ratio fixe */}
-        <div className="relative overflow-hidden bg-muted" style={{ aspectRatio: '5/3' }}>
+        <div className="relative shrink-0 overflow-hidden bg-muted" style={{ aspectRatio: '5/3' }}>
           <Image 
             src={primaryImageUrl} 
             alt={`${vehicle.make} ${vehicle.model}`} 
@@ -126,40 +128,52 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
           {/* Overlay au hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
-          {/* ✅ HIÉRARCHIE DES BADGES (Simple et Pro : on n'en affiche qu'un seul) */}
-          {vehicle.isBoosted ? (
-            <Badge variant="boost" className="absolute top-2 left-2 z-10 shadow-lg animate-pulse">
-              <Flame className="w-3 h-3" />
-              {t('featured')}
-            </Badge>
-          ) : vehicle.isOwnerPremium ? (
-            <Badge variant="premium" className="absolute top-2 left-2 z-10">
-              <span className="text-[10px]">👑</span>
-              {t('premiumOwner')}
-            </Badge>
-          ) : null}
+          {/* Rangée du haut : badges à gauche, favoris + prix à droite. Elle passe sur deux lignes
+              quand la carte est étroite (carrousel mobile, 3 colonnes en xl) au lieu de se chevaucher. */}
+          <div className="absolute inset-x-3 top-3 z-10 flex flex-wrap items-start justify-between gap-2">
+            <div className="flex flex-col items-start gap-1.5">
+              {/* Badge de statut si disponible */}
+              {vehicle.isAvailable !== undefined && (
+                <Badge variant={vehicle.isAvailable ? 'success' : 'destructive'}>
+                  {vehicle.isAvailable ? t('available') : t('notAvailable')}
+                </Badge>
+              )}
 
-          {/* Bouton favoris + Badge prix, groupés dans une même rangée en haut à droite */}
-          <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleToggleFavorite}
-              disabled={isTogglingFavorite}
-              aria-pressed={isFavorited}
-              aria-label={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
-              title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
-              className="flex items-center justify-center h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm shadow-lg hover:bg-black/60 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              <Heart
-                className={`w-5 h-5 transition-colors ${
-                  isFavorited ? 'fill-red-500 text-red-500' : 'text-white'
-                }`}
-              />
-            </button>
+              {/* ✅ HIÉRARCHIE DES BADGES (Simple et Pro : on n'en affiche qu'un seul) */}
+              {vehicle.isBoosted ? (
+                <Badge variant="boost" className="shadow-lg animate-pulse">
+                  <Flame className="w-3 h-3" />
+                  {t('featured')}
+                </Badge>
+              ) : vehicle.isOwnerPremium ? (
+                <Badge variant="premium">
+                  <span className="text-[10px]">👑</span>
+                  {t('premiumOwner')}
+                </Badge>
+              ) : null}
+            </div>
 
-            <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm">
-              <div className="text-sm font-bold">{formatPrice(vehicle.ratePerDay)} FBu</div>
-              <div className="text-xs opacity-90">{t('perDay')}</div>
+            <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleToggleFavorite}
+                disabled={isTogglingFavorite}
+                aria-pressed={isFavorited}
+                aria-label={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                title={isFavorited ? t('removeFromFavorites') : t('addToFavorites')}
+                className="flex items-center justify-center h-9 w-9 rounded-full bg-black/40 backdrop-blur-sm shadow-lg hover:bg-black/60 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                <Heart
+                  className={`w-5 h-5 transition-colors ${
+                    isFavorited ? 'fill-red-500 text-red-500' : 'text-white'
+                  }`}
+                />
+              </button>
+
+              <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm">
+                <div className="text-sm font-bold whitespace-nowrap">{formatPrice(vehicle.ratePerDay)} FBu</div>
+                <div className="text-xs opacity-90">{t('perDay')}</div>
+              </div>
             </div>
           </div>
 
@@ -170,20 +184,10 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
               <span>{vehicle.images.length}</span>
             </div>
           )}
-
-          {/* Badge de statut si disponible */}
-          {vehicle.isAvailable !== undefined && (
-            <Badge
-              variant={vehicle.isAvailable ? 'success' : 'destructive'}
-              className="absolute top-3 left-3 z-10"
-            >
-              {vehicle.isAvailable ? t('available') : t('notAvailable')}
-            </Badge>
-          )}
         </div>
 
         {/* Contenu de la carte */}
-        <div className="p-5">
+        <div className="flex flex-1 flex-col p-5">
           
           {/* Titre du véhicule */}
           <h3 className="text-lg font-bold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-1">
@@ -224,14 +228,14 @@ export default function VehicleCard({ vehicle, favoritedIds, onFavoriteChange }:
           </div>
 
           {/* Call to action */}
-          <div className="flex items-center justify-between pt-3 border-t border-border">
-            <div className="text-sm text-muted-foreground">
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1 pt-3 border-t border-border">
+            <div className="min-w-0 text-sm text-muted-foreground">
               {t('clickForMore')}
             </div>
-            <div className="text-sm font-medium text-primary group-hover:text-primary/80 transition-colors flex items-center">
+            <div className="ml-auto text-sm font-medium text-primary group-hover:text-primary/80 transition-colors flex items-center">
               <span>{t('seeDetails')}</span>
               <svg 
-                className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" 
+                className="w-4 h-4 ml-1 shrink-0 transform group-hover:translate-x-1 transition-transform"
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"

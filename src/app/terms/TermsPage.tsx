@@ -181,7 +181,7 @@ const TermsPage = () => {
       <div className="bg-primary">
         <div className="container mx-auto px-6 py-16">
           <div className="text-center text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
               {tPage('metaTitle')}
             </h1>
           </div>

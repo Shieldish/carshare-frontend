@@ -145,7 +145,8 @@ function OwnerDashboardContent() {
         </div>
 
         {/* Cartes de statistiques */}
-        <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4">
+        {/* 4 colonnes seulement à partir de lg : en md, le montant se coupait en plein nombre. */}
+        <div className="grid grid-cols-1 gap-4 sm:gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard icon={Calendar} label={t('statTotal')} value={stats.total} tone="primary" />
           <StatCard icon={Car} label={t('statPending')} value={stats.pending} tone="warning" />
           <StatCard icon={Car} label={t('statConfirmed')} value={stats.confirmed} tone="success" />
@@ -163,7 +164,7 @@ function OwnerDashboardContent() {
         )}
 
         {/* Liste des réservations */}
-        <div className="bg-card rounded-2xl shadow-xl p-6 border border-border">
+        <div className="bg-card rounded-2xl shadow-xl p-3 sm:p-6 border border-border">
           <h2 className="text-2xl font-bold text-foreground mb-6">{t('bookingsListTitle')}</h2>
 
           {bookings.length > 0 ? (

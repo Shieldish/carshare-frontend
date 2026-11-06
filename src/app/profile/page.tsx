@@ -926,8 +926,8 @@ export default function ProfilePage() {
                     <h3 className="text-lg font-semibold text-foreground mb-2">{t('subscription.title')}</h3>
 
                     {user?.isPremium ? (
-                      <div className="bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded-lg flex items-center justify-between gap-4">
-                        <div>
+                      <div className="bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-400 dark:border-yellow-600 text-yellow-800 dark:text-yellow-300 px-4 py-3 rounded-lg flex flex-wrap items-center justify-between gap-4">
+                        <div className="min-w-0">
                           <span className="font-bold">{t('subscription.premiumActiveLabel')}</span>
                           {user.premiumEndDate && (
                             <p className="text-sm mt-1">
