@@ -26,6 +26,7 @@ export default function OfflinePage() {
           Next.js (fetch RSC) échouerait silencieusement. Un <a href> déclenche une
           vraie requête de navigation, que le service worker sait intercepter.
         */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/"
           className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg font-medium transition-colors"
