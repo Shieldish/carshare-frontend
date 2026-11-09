@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -48,23 +48,25 @@ export default function AdminReviewsPage() {
     }
   }, [user, authLoading, router]);
 
-  const loadReviews = useCallback(async (page: number) => {
-    setIsLoading(true);
-    try {
-      const data = await apiClient.get(`/api/admin/reviews?page=${page}&size=${PAGE_SIZE}`);
-      setReviewPage(data);
-    } catch {
-      setError(t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
-    if (user && user.role === 'ADMIN') {
-      loadReviews(0);
-    }
-  }, [user, loadReviews]);
+    if (!user || user.role !== 'ADMIN') return;
+
+    const loadReviews = async () => {
+      setIsLoading(true);
+      try {
+        const data = await apiClient.get(`/api/admin/reviews?page=${page}&size=${PAGE_SIZE}`);
+        setReviewPage(data);
+      } catch {
+        setError(t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadReviews();
+  }, [user, page, t]);
 
   const handleDelete = async (review: AdminReview) => {
     if (!confirm(t('confirmDelete'))) return;
@@ -153,7 +155,7 @@ export default function AdminReviewsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => loadReviews(currentPage - 1)}
+            onClick={() => setPage(currentPage - 1)}
             disabled={currentPage === 0 || isLoading}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -165,7 +167,7 @@ export default function AdminReviewsPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => loadReviews(currentPage + 1)}
+            onClick={() => setPage(currentPage + 1)}
             disabled={currentPage >= totalPages - 1 || isLoading}
           >
             {t('pageNext')}

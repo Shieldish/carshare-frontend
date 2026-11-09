@@ -71,7 +71,7 @@ function BookingCreateContent() {
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCheckingAvailability, setIsCheckingAvailability] = useState(false);
-  const [availabilityStatus, setAvailabilityStatus] = useState<'idle' | 'available' | 'unavailable' | 'error'>('idle');
+  const [checkedAvailability, setAvailabilityStatus] = useState<'idle' | 'available' | 'unavailable' | 'error'>('idle');
 
   const [useFallbackImage, setUseFallbackImage] = useState(false);
 
@@ -98,7 +98,6 @@ function BookingCreateContent() {
   useEffect(() => {
     if (!vehicleId) {
       toast.error(t('notifications.missingVehicleId'));
-      setIsLoading(false);
       return;
     }
 
@@ -123,17 +122,14 @@ function BookingCreateContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vehicleId, router]);
 
+  const hasDates = Boolean(debouncedStartDate && debouncedEndDate && vehicleId);
+  const datesReversed = hasDates && new Date(debouncedStartDate) >= new Date(debouncedEndDate);
+  const availabilityStatus = !hasDates ? 'idle' : datesReversed ? 'error' : checkedAvailability;
+
   useEffect(() => {
-    if (!debouncedStartDate || !debouncedEndDate || !vehicleId) {
-      setAvailabilityStatus('idle');
-      return;
-    }
+    if (!hasDates) return;
 
-    const start = new Date(debouncedStartDate);
-    const end = new Date(debouncedEndDate);
-
-    if (start >= end) {
-      setAvailabilityStatus('error');
+    if (datesReversed) {
       toast.error(t('notifications.invalidDatesMessage'), { id: 'availability-check' });
       return;
     }
@@ -310,7 +306,7 @@ function BookingCreateContent() {
     }
   };
   
-  if (isLoading) {
+  if (isLoading && vehicleId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center space-x-3">

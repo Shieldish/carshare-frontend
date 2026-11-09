@@ -1,7 +1,8 @@
 // src/app/admin/users/page.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo, useReducer } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
@@ -490,9 +491,10 @@ function AdminUsersContent() {
   const highlightId = searchParams.get('highlight');
   const { user: adminUser, isLoading: isAuthLoading } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setError] = useState<string | null>(null);
+  const accessDenied = !isAuthLoading && (!adminUser || adminUser.role !== 'ADMIN');
+  const error = accessDenied ? t('accessDeniedMessage') : loadError;
   const [highlightedUserId, setHighlightedUserId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -504,43 +506,38 @@ function AdminUsersContent() {
   // L'état qui contrôle quelle image est actuellement ouverte dans la Lightbox
   const [viewingDoc, setViewingDoc] = useState<{ userId: number; type: 'identity' | 'license' | 'selfie'; title: string } | null>(null);
 
-  useEffect(() => {
-    if (!isAuthLoading && (!adminUser || adminUser.role !== 'ADMIN')) {
-      setError(t('accessDeniedMessage'));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminUser, isAuthLoading]);
-
-  const fetchUsers = useCallback(async () => {
-    if (!adminUser || adminUser.role !== 'ADMIN') return;
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await apiClient.getAllUsersAdmin();
-      const formattedUsers = (data as User[]).map((u) => ({
-        ...u,
-        isIdentityVerified: u.isIdentityVerified ?? false,
-        isDrivingLicenseVerified: u.isDrivingLicenseVerified ?? false,
-        isSelfieVerified: u.isSelfieVerified ?? false,
-        isActive: u.isActive !== undefined ? u.isActive : true,
-        isPremium: u.isPremium ?? false,
-        premiumEndDate: u.premiumEndDate,
-      }));
-      setUsers(formattedUsers || []);
-      setFilteredUsers(formattedUsers || []);
-    } catch (err: unknown) {
-      console.error('Error fetching users:', err);
-      setError(err instanceof Error ? err.message : t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [adminUser]);
+  const [reloadKey, reloadUsers] = useReducer((key: number) => key + 1, 0);
 
   useEffect(() => {
-    if (!isAuthLoading) fetchUsers();
-  }, [isAuthLoading, fetchUsers]);
+    if (isAuthLoading || !adminUser || adminUser.role !== 'ADMIN') return;
 
-  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await apiClient.getAllUsersAdmin();
+        const formattedUsers = (data as User[]).map((u) => ({
+          ...u,
+          isIdentityVerified: u.isIdentityVerified ?? false,
+          isDrivingLicenseVerified: u.isDrivingLicenseVerified ?? false,
+          isSelfieVerified: u.isSelfieVerified ?? false,
+          isActive: u.isActive !== undefined ? u.isActive : true,
+          isPremium: u.isPremium ?? false,
+          premiumEndDate: u.premiumEndDate,
+        }));
+        setUsers(formattedUsers || []);
+      } catch (err: unknown) {
+        console.error('Error fetching users:', err);
+        setError(err instanceof Error ? err.message : t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, [isAuthLoading, adminUser, reloadKey, t]);
+
+  const filteredUsers = useMemo(() => {
     let result = [...users];
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -563,24 +560,26 @@ function AdminUsersContent() {
     } else if (filterVerification === 'UNVERIFIED') {
       result = result.filter(u => !u.isIdentityVerified && !u.isDrivingLicenseVerified && !u.isSelfieVerified);
     }
-    setFilteredUsers(result);
+    return result;
   }, [searchTerm, filterRole, filterVerification, filterAccountStatus, users]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filterRole, filterVerification, filterAccountStatus]);
+  useOnChange(`${searchTerm}|${filterRole}|${filterVerification}|${filterAccountStatus}`, () => setCurrentPage(1));
 
   // Arrivée depuis une notification admin "documents de vérification soumis" (?highlight=<userId>) :
   // on saute sur la page où se trouve la ligne concernée, on y scrolle et on la met en évidence.
+  const applyHighlight = () => {
+    if (!highlightId || filteredUsers.length === 0) return;
+    setHighlightedUserId(highlightId);
+    const targetIndex = filteredUsers.findIndex(u => u.id.toString() === highlightId);
+    if (targetIndex !== -1) {
+      setCurrentPage(Math.floor(targetIndex / ITEMS_PER_PAGE) + 1);
+    }
+  };
+  useOnChange(highlightId, applyHighlight);
+  useOnChange(filteredUsers, applyHighlight);
+
   useEffect(() => {
     if (highlightId && filteredUsers.length > 0) {
-      setHighlightedUserId(highlightId);
-
-      const targetIndex = filteredUsers.findIndex(u => u.id.toString() === highlightId);
-      if (targetIndex !== -1) {
-        setCurrentPage(Math.floor(targetIndex / ITEMS_PER_PAGE) + 1);
-      }
-
       const scrollTimer = setTimeout(() => {
         const element = document.getElementById(`user-${highlightId}`);
         if (element) {
@@ -634,11 +633,10 @@ function AdminUsersContent() {
     try {
       const updated = await apiClient.get(`/api/users/${userId}`);
       setUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updated } : u)));
-      setFilteredUsers(prev => prev.map(u => (u.id === userId ? { ...u, ...updated } : u)));
     } catch {
       // Repli sûr : si le refetch ciblé échoue, on recharge tout le tableau plutôt
       // que de laisser l'affichage désynchronisé du vrai statut premium.
-      await fetchUsers();
+      reloadUsers();
     }
   };
 

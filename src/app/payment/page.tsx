@@ -30,10 +30,7 @@ function PaymentPageContent() {
   const [realPaymentType, setRealPaymentType] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!paymentId) {
-      setIsLoadingPayment(false);
-      return;
-    }
+    if (!paymentId) return;
 
     const fetchPaymentDetails = async () => {
       try {
@@ -118,7 +115,7 @@ function PaymentPageContent() {
     );
   }
 
-  if (isLoadingPayment) {
+  if (isLoadingPayment && paymentId) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center">
         <Loader2 className="animate-spin w-12 h-12 text-primary mb-4" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useEffect, useState, Suspense, useReducer } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Vehicle } from '@/types/vehicle';
 import MyVehicleCard from './VehicleCard';
@@ -28,34 +28,36 @@ function MyVehiclesContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 9; // 3x3 grid
 
-  const fetchVehicles = useCallback(async () => {
-    const token = localStorage.getItem('jwt_token');
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/users/me/vehicles`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-
-      if (response.status === 403) throw new Error(t('unauthorized'));
-      if (!response.ok) throw new Error(t('loadError'));
-
-      const data: Vehicle[] = await response.json();
-      console.log('Données des véhicules reçues:', data);
-      setAllVehicles(data);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [router, t]);
+  const [reloadKey, reloadVehicles] = useReducer((key: number) => key + 1, 0);
 
   useEffect(() => {
+    const fetchVehicles = async () => {
+      const token = localStorage.getItem('jwt_token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/users/me/vehicles`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        if (response.status === 403) throw new Error(t('unauthorized'));
+        if (!response.ok) throw new Error(t('loadError'));
+
+        const data: Vehicle[] = await response.json();
+        console.log('Données des véhicules reçues:', data);
+        setAllVehicles(data);
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchVehicles();
-  }, [fetchVehicles]);
+  }, [router, t, reloadKey]);
 
   const handleDeleteVehicle = (vehicleId: number) => {
     setAllVehicles(prev => {
@@ -99,7 +101,7 @@ function MyVehiclesContent() {
     } catch {
       // Repli sûr : si le refetch ciblé échoue, on recharge toute la liste plutôt
       // que de laisser l'affichage désynchronisé du vrai statut de boost.
-      fetchVehicles();
+      reloadVehicles();
     }
   };
 

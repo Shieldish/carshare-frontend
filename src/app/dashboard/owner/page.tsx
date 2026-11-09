@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
@@ -23,7 +23,7 @@ function OwnerDashboardContent() {
 
   const highlightId = searchParams.get('highlight');
 
-  const fetchOwnerBookings = async () => {
+  const fetchOwnerBookings = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
@@ -35,7 +35,7 @@ function OwnerDashboardContent() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     if (isAuthLoading) return; // On attend de savoir
@@ -67,7 +67,7 @@ function OwnerDashboardContent() {
     };
 
     enforceOnboardingPayment();
-  }, [user, isAuthLoading, router]);
+  }, [user, isAuthLoading, router, fetchOwnerBookings]);
 
   useEffect(() => {
     if (highlightId && bookings.length > 0) {

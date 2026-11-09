@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useMemo, useReducer } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
@@ -542,7 +542,6 @@ function MyBookingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [filteredBookings, setFilteredBookings] = useState<Booking[]>([]);
   const [activeFilter, setActiveFilter] = useState<
     'all' | 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
   >('all');
@@ -550,12 +549,9 @@ function MyBookingsContent() {
   const [error, setError] = useState<string | null>(null);
 
   const highlightId = searchParams.get('highlight');
-  const [highlightedBookingId, setHighlightedBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (highlightId && bookings.length > 0) {
-      setHighlightedBookingId(highlightId);
-
       const timer = setTimeout(() => {
         const element = document.getElementById(`booking-${highlightId}`);
         if (element) {
@@ -567,7 +563,6 @@ function MyBookingsContent() {
       }, 500);
 
       const removeHighlightTimer = setTimeout(() => {
-        setHighlightedBookingId(null);
         const url = new URL(window.location.href);
         url.searchParams.delete('highlight');
         window.history.replaceState({}, '', url.toString());
@@ -616,63 +611,48 @@ function MyBookingsContent() {
     return counts;
   };
 
-  const fetchBookings = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await apiClient.get('/api/bookings/my-bookings');
-      setBookings(data);
-      applyFilter(data, activeFilter);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('loadError');
-      toast.error(message);
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const applyFilter = (bookingsData: Booking[], filter: typeof activeFilter) => {
-    let filtered = [...bookingsData];
-
-    if (filter === 'all') {
-      filtered = bookingsData;
-    } else if (filter === 'pending') {
-      filtered = bookingsData.filter((booking) => booking.status === 'PENDING');
-    } else if (filter === 'confirmed') {
-      filtered = bookingsData.filter((booking) => booking.status === 'CONFIRMED');
-    } else if (filter === 'in_progress') {
-      filtered = bookingsData.filter((booking) => booking.status === 'IN_PROGRESS');
-    } else if (filter === 'completed') {
-      filtered = bookingsData.filter((booking) => booking.status === 'COMPLETED');
-    } else if (filter === 'cancelled') {
-      filtered = bookingsData.filter((booking) => booking.status === 'CANCELLED');
-    }
-
-    setFilteredBookings(filtered);
-  };
+  const filteredBookings = useMemo(
+    () => (activeFilter === 'all' ? bookings : bookings.filter((booking) => booking.status === activeFilter.toUpperCase())),
+    [bookings, activeFilter]
+  );
 
   const handleFilterChange = (newFilter: typeof activeFilter) => {
     setActiveFilter(newFilter);
-    applyFilter(bookings, newFilter);
   };
 
   const handleDeleteBooking = (bookingId: number) => {
     setBookings((prev) => prev.filter((booking) => booking.id !== bookingId));
-    applyFilter(bookings.filter((booking) => booking.id !== bookingId), activeFilter);
   };
+
+  const [reloadKey, reloadBookings] = useReducer((key: number) => key + 1, 0);
 
   useEffect(() => {
     // 1. On attend que l'authentification soit vérifiée
     if (isAuthLoading) return;
 
     // 2. Ensuite on prend une décision
-    if (user) {
-      fetchBookings();
-    } else {
+    if (!user) {
       router.push('/login');
+      return;
     }
-  }, [user, isAuthLoading, router]);
+
+    const fetchBookings = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await apiClient.get('/api/bookings/my-bookings');
+        setBookings(data);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : t('loadError');
+        toast.error(message);
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [user, isAuthLoading, router, reloadKey, t]);
 
   if (isAuthLoading || isLoading) {
     return (
@@ -707,7 +687,7 @@ function MyBookingsContent() {
             </div>
             <h3 className="text-lg font-medium text-foreground mb-2">{t('errorTitle')}</h3>
             <p className="text-muted-foreground">{error}</p>
-            <Button variant="destructive" onClick={fetchBookings} className="mt-4">
+            <Button variant="destructive" onClick={reloadBookings} className="mt-4">
               {t('retry')}
             </Button>
           </div>

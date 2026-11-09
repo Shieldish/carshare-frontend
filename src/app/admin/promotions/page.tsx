@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useReducer } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -43,22 +43,26 @@ export default function AdminPromotionsPage() {
     }
   }, [user, authLoading, router]);
 
-  const fetchBoosts = async () => {
-    try {
-      const data = await apiClient.get('/api/promotions/admin/boosts');
-      setBoosts(data || []);
-    } catch {
-      setError(t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+
   
+  const [reloadKey, reloadBoosts] = useReducer((key: number) => key + 1, 0);
+
   useEffect(() => {
-    if (user && user.role === 'ADMIN') {
-      fetchBoosts();
-    }
-  }, [user]);
+    if (!user || user.role !== 'ADMIN') return;
+
+    const fetchBoosts = async () => {
+      try {
+        const data = await apiClient.get('/api/promotions/admin/boosts');
+        setBoosts(data || []);
+      } catch {
+        setError(t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBoosts();
+  }, [user, reloadKey, t]);
 
   const handleImageUploadSuccess = (boostId: string, newImageUrl: string) => {
     // Mettre à jour la liste sans recharger toute la page
@@ -68,7 +72,7 @@ export default function AdminPromotionsPage() {
       )
     );
     // Rafraîchir après 2s pour s'assurer que tout est synchronisé
-    setTimeout(() => fetchBoosts(), 2000);
+    setTimeout(() => reloadBoosts(), 2000);
   };
 
   // ✅ NOUVELLE FONCTION : Gérer la suppression de l'image dans l'état local

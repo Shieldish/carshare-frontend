@@ -1,7 +1,8 @@
 // src/app/components/financial/ExpenseList.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import type { Expense } from '@/types/financial';
 import type { Page } from '@/types/page';
 import { apiClient } from '@/lib/apiClient';
@@ -51,35 +52,41 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
     fetchVehicles();
   }, []);
 
-  const loadExpenses = useCallback(async (page: number = 0) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.getMyExpenses(
-        filterVehicleId,
-        filterStartDate ?? undefined,
-        filterEndDate ?? undefined,
-        page,
-        pageSize
-      );
-      setExpensesPage(response);
-    } catch (err: unknown) {
-      console.error("Error fetching expenses:", err);
-      setError(err instanceof Error ? err.message : t('loadError'));
-      setExpensesPage(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [filterVehicleId, filterStartDate, filterEndDate]);
+  const [page, setPage] = useState(0);
+  const [reloadKey, reloadExpenses] = useReducer((key: number) => key + 1, 0);
+
+  // Changer un filtre ramène à la première page.
+  useOnChange(`${filterVehicleId}|${filterStartDate?.getTime()}|${filterEndDate?.getTime()}`, () => setPage(0));
 
   useEffect(() => {
-    loadExpenses(0);
-  }, [loadExpenses]);
+    const loadExpenses = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await apiClient.getMyExpenses(
+          filterVehicleId,
+          filterStartDate ?? undefined,
+          filterEndDate ?? undefined,
+          page,
+          pageSize
+        );
+        setExpensesPage(response);
+      } catch (err: unknown) {
+        console.error("Error fetching expenses:", err);
+        setError(err instanceof Error ? err.message : t('loadError'));
+        setExpensesPage(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadExpenses();
+  }, [filterVehicleId, filterStartDate, filterEndDate, page, reloadKey, t]);
 
   const handleFormSuccess = () => {
     setShowForm(false);
     setExpenseToEdit(null);
-    loadExpenses(expensesPage?.number ?? 0);
+    reloadExpenses();
   };
 
   const handleDeleteExpense = async (expenseId: number) => {
@@ -87,7 +94,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
 
     try {
       await apiClient.deleteExpense(expenseId);
-      loadExpenses(expensesPage?.number ?? 0);
+      reloadExpenses();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t('deleteError'));
     }
@@ -252,7 +259,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => loadExpenses(expensesPage.number - 1)}
+                onClick={() => setPage(expensesPage.number - 1)}
                 disabled={expensesPage.first || isLoading}
               >
                 <ChevronLeft className="w-4 h-4" /> {t('prevShort')}
@@ -263,7 +270,7 @@ const ExpenseList: React.FC<ExpenseListProps> = ({ initialVehicleId }) => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => loadExpenses(expensesPage.number + 1)}
+                onClick={() => setPage(expensesPage.number + 1)}
                 disabled={expensesPage.last || isLoading}
               >
                 {t('nextShort')} <ChevronRight className="w-4 h-4" />

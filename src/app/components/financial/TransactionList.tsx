@@ -1,7 +1,8 @@
 // src/app/components/financial/TransactionList.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import type { TransactionDetail } from '@/types/financial';
 import type { PaginatedResponse } from '@/lib/apiClient';
 import { ArrowDownLeft, ArrowUpRight, Clock, CheckCircle, XCircle, RefreshCcw, ChevronLeft, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
@@ -25,37 +26,42 @@ const TransactionList: React.FC<Props> = ({ startDate, endDate }) => {
   const [error, setError] = useState<string | null>(null);
   const pageSize = 10;
 
-  const loadTransactions = useCallback(async (page: number) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await apiClient.getMyTransactions(startDate, endDate, page, pageSize);
-      setTransactionPage(response);
-    } catch (err) {
-      console.error("Error fetching transactions:", err);
-      
-      // ✅ Gestion des erreurs avec type safety
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(t('transactionsLoadError'));
-      }
-      
-      setTransactionPage(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [startDate, endDate]);
+  const [page, setPage] = useState(0);
+
+  // Changer la période ramène à la première page.
+  useOnChange(`${startDate?.getTime()}|${endDate?.getTime()}`, () => setPage(0));
 
   useEffect(() => {
-    loadTransactions(0);
-  }, [loadTransactions]);
+    const loadTransactions = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await apiClient.getMyTransactions(startDate, endDate, page, pageSize);
+        setTransactionPage(response);
+      } catch (err) {
+        console.error("Error fetching transactions:", err);
+      
+        // ✅ Gestion des erreurs avec type safety
+        if (err instanceof ApiError) {
+          setError(err.message);
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(t('transactionsLoadError'));
+        }
+      
+        setTransactionPage(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadTransactions();
+  }, [startDate, endDate, page, t]);
 
   const handlePageChange = (newPage: number) => {
     if (transactionPage && newPage >= 0 && newPage < transactionPage.totalPages) {
-      loadTransactions(newPage);
+      setPage(newPage);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };

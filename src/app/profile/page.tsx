@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { apiClient } from '@/lib/apiClient';
@@ -215,35 +216,25 @@ export default function ProfilePage() {
   const [isPremiumLoading, setIsPremiumLoading] = useState(false);
 
   // ✅ MÉMOIRE FRONTEND : Pour l'abandon de panier
-  const [savedPendingPayment, setSavedPendingPayment] = useState<{paymentId: string; amount: number; currency: string} | null>(null);
-
-  useEffect(() => {
+  const [savedPendingPayment, setSavedPendingPayment] = useState<{paymentId: string; amount: number; currency: string} | null>(() => {
     // Au chargement de la page, on vérifie si l'utilisateur avait commencé un paiement
-    const saved = localStorage.getItem('pendingPremiumPayment');
-    if (saved) {
-      setSavedPendingPayment(JSON.parse(saved));
-    }
-  }, []);
-
-  const [editFormData, setEditFormData] = useState<UserFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phoneNumber: '',
-    bio: '',
+    const saved = typeof window !== 'undefined' ? localStorage.getItem('pendingPremiumPayment') : null;
+    return saved ? JSON.parse(saved) : null;
   });
 
-  useEffect(() => {
-    if (user) {
-      setEditFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || user.sub || '',
-        phoneNumber: user.phoneNumber || '',
-        bio: user.bio || '',
-      });
-    }
-  }, [user]);
+  const toEditFormData = (): UserFormData => ({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || user?.sub || '',
+    phoneNumber: user?.phoneNumber || '',
+    bio: user?.bio || '',
+  });
+
+  const [editFormData, setEditFormData] = useState<UserFormData>(toEditFormData);
+
+  useOnChange(user, (current) => {
+    if (current) setEditFormData(toEditFormData());
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

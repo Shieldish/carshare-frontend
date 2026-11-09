@@ -1,7 +1,8 @@
 // src/app/admin/incidents/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
@@ -67,7 +68,6 @@ export default function AdminIncidentsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
-  const [filteredIncidents, setFilteredIncidents] = useState<IncidentReport[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -94,32 +94,31 @@ export default function AdminIncidentsPage() {
     }
   }, [user, authLoading, router]);
 
-  const fetchIncidents = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const data = await apiClient.get('/api/admin/incidents/all');
-      setIncidents(data || []);
-      setFilteredIncidents(data || []);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError(t('loadError'));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    if (user && user.role === 'ADMIN') {
-      fetchIncidents();
-    }
-  }, [user]);
+    if (!user || user.role !== 'ADMIN') return;
+
+    const fetchIncidents = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const data = await apiClient.get('/api/admin/incidents/all');
+        setIncidents(data || []);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(t('loadError'));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchIncidents();
+  }, [user, t]);
 
   // Filtrage
-  useEffect(() => {
+  const filteredIncidents = useMemo(() => {
     let result = [...incidents];
     
     if (filterStatus !== 'ALL') {
@@ -136,12 +135,10 @@ export default function AdminIncidentsPage() {
       );
     }
     
-    setFilteredIncidents(result);
+    return result;
   }, [filterStatus, searchTerm, incidents]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [filterStatus, searchTerm]);
+  useOnChange(`${filterStatus}|${searchTerm}`, () => setCurrentPage(1));
 
   // ✅ Patch local ciblé : ne remplace que status/resolutionNotes/resolvedAt (les seuls
   // champs que ces deux actions changent) sans re-fetcher tout le tableau des incidents.
@@ -151,7 +148,6 @@ export default function AdminIncidentsPage() {
   const patchIncident = (id: number, changes: Partial<Pick<IncidentReport, 'status' | 'resolutionNotes' | 'resolvedAt'>>) => {
     const apply = (incident: IncidentReport) => (incident.id === id ? { ...incident, ...changes } : incident);
     setIncidents(prev => prev.map(apply));
-    setFilteredIncidents(prev => prev.map(apply));
   };
 
   // Fonction classique de mise à jour du statut

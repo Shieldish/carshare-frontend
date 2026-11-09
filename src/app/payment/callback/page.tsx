@@ -15,7 +15,9 @@ function CallbackContent() {
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
-  const [source, setSource] = useState<string | null>(null);
+  const [source] = useState<string | null>(() =>
+    searchParams.get('source') || (typeof window !== 'undefined' ? sessionStorage.getItem('paymentSource') : null)
+  );
   // ✅ Garde-fou anti-double-soumission : refreshUser est maintenant stable (voir AuthContext),
   // ce qui règle la cause du bug de notifications en double. Ce ref est une deuxième protection
   // indépendante : même si une dépendance de cet effet redevenait instable un jour, ou à cause du
@@ -24,11 +26,6 @@ function CallbackContent() {
   const hasProcessedRef = useRef(false);
 
   useEffect(() => {
-    const urlSource = searchParams.get('source');
-    const storageSource = typeof window !== 'undefined' ? sessionStorage.getItem('paymentSource') : null;
-    const finalSource = urlSource || storageSource;
-    setSource(finalSource);
-
     const processPayment = async () => {
       if (hasProcessedRef.current) return;
       hasProcessedRef.current = true;

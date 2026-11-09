@@ -23,12 +23,10 @@ function IncidentReportPageContent() {
     const [submittedReportId, setSubmittedReportId] = useState<number | null>(null);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
-    const [isCheckingRole, setIsCheckingRole] = useState(true);
 
     // Vérifier le rôle de l'utilisateur au chargement
     useEffect(() => {
         const checkUserRole = async () => {
-            setIsCheckingRole(true);
             try {
                 const bookingData = await apiClient.get(`/api/bookings/${bookingIdNum}/access`);
                 const foundOwnerId = bookingData?.vehicle?.owner?.id ?? null;
@@ -38,15 +36,11 @@ function IncidentReportPageContent() {
                 }
             } catch (err: unknown) {
                 console.error("Error checking user role:", err);
-            } finally {
-                setIsCheckingRole(false);
             }
         };
 
         if (user && !isNaN(bookingIdNum)) {
             checkUserRole();
-        } else {
-            setIsCheckingRole(false);
         }
     }, [bookingIdNum, user]);
 

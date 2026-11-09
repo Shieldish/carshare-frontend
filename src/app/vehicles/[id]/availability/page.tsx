@@ -1,7 +1,7 @@
 // src/app/vehicles/[id]/availability/page.tsx
 'use client';
 
-import React, { useState, useEffect, Suspense, useCallback } from 'react';
+import React, { useState, useEffect, Suspense, useReducer } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Calendar from 'react-calendar';
 import { apiClient, ApiError } from '@/lib/apiClient';
@@ -10,12 +10,6 @@ import { Booking } from '@/types/booking';
 import { Loader2, AlertCircle, ArrowLeft, CalendarPlus, Trash2, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useTranslations } from 'next-intl';
-
-// Helper type for calendar tile content
-type TileContentData = {
-    isBooked: boolean;
-    isBlocked: boolean;
-};
 
 // Internal component using client hooks
 function AvailabilityPageContent() {
@@ -71,42 +65,44 @@ function AvailabilityPageContent() {
         return { start: startISO, end: endISO };
     };
 
-    const fetchData = useCallback(async () => {
-        if (isNaN(vehicleIdNum) || !user) return;
-
-        setIsLoading(true);
-        setError(null);
-        try {
-            // ✅ Fetch blocks AND bookings using the CORRECT endpoint
-            const [blocksData, bookingsData] = await Promise.all([
-                apiClient.getBlockedPeriods(vehicleIdNum),
-                apiClient.getBookingsForVehicle(vehicleIdNum) // ✅ Utilise la nouvelle méthode
-            ]);
-            setBlockedPeriods(blocksData || []);
-            setBookings(bookingsData || []);
-            console.log("Fetched blocks:", blocksData);
-            console.log("Fetched bookings:", bookingsData);
-        } catch (err: unknown) {
-            console.error("Error fetching availability data:", err);
-            if (err instanceof ApiError && err.status === 403) {
-                setError(t('errors.accessDenied'));
-            } else {
-                setError(err instanceof Error ? err.message : t('errors.loadError'));
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [vehicleIdNum, user, t]);
-
     // Fetch data on mount and when user loads
+    const [reloadKey, reloadData] = useReducer((key: number) => key + 1, 0);
+
     useEffect(() => {
+        const fetchData = async () => {
+            if (isNaN(vehicleIdNum) || !user) return;
+
+            setIsLoading(true);
+            setError(null);
+            try {
+                // ✅ Fetch blocks AND bookings using the CORRECT endpoint
+                const [blocksData, bookingsData] = await Promise.all([
+                    apiClient.getBlockedPeriods(vehicleIdNum),
+                    apiClient.getBookingsForVehicle(vehicleIdNum) // ✅ Utilise la nouvelle méthode
+                ]);
+                setBlockedPeriods(blocksData || []);
+                setBookings(bookingsData || []);
+                console.log("Fetched blocks:", blocksData);
+                console.log("Fetched bookings:", bookingsData);
+            } catch (err: unknown) {
+                console.error("Error fetching availability data:", err);
+                if (err instanceof ApiError && err.status === 403) {
+                    setError(t('errors.accessDenied'));
+                } else {
+                    setError(err instanceof Error ? err.message : t('errors.loadError'));
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         if (!isAuthLoading && user) {
             fetchData();
         } else if (!isAuthLoading && !user) {
             // Redirect if not logged in after auth check
             router.push(`/login?redirect=/vehicles/${vehicleId}/availability`);
         }
-    }, [vehicleIdNum, isAuthLoading, user, fetchData, router, vehicleId]);
+    }, [vehicleIdNum, isAuthLoading, user, reloadKey, router, vehicleId, t]);
 
     const handleAddBlockedPeriod = async () => {
         if (!selectedDates || !Array.isArray(selectedDates)) {
@@ -131,7 +127,7 @@ function AvailabilityPageContent() {
 
         try {
             await apiClient.addBlockedPeriod(vehicleIdNum, blockData);
-            fetchData();
+            reloadData();
             setSelectedDates(null);
             setReason('');
         } catch (err: unknown) {
@@ -147,7 +143,7 @@ function AvailabilityPageContent() {
 
         try {
             await apiClient.deleteBlockedPeriod(vehicleIdNum, periodId);
-            fetchData();
+            reloadData();
         } catch (err: unknown) {
             console.error("Error deleting blocked period:", err);
             setError(t('errors.deleteError'));

@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useTranslations, useLocale } from 'next-intl';
 import { apiClient } from '@/lib/apiClient';
 import { CheckCircle, XCircle, FileText, Car, ShieldAlert, ExternalLink, Loader2, Ban, PlayCircle, CheckCircle2, Flame, Images, ImageOff } from 'lucide-react';
@@ -156,30 +157,28 @@ export default function AdminVehiclesPage() {
   const [activeTab, setActiveTab] = useState<'pending' | 'active' | 'suspended'>('pending');
   const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeTab]);
+  useOnChange(activeTab, () => setCurrentPage(1));
 
   const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   const [alertDialog, setAlertDialog] = useState({ isOpen: false, title: '', message: '', type: 'success' as 'success' | 'error' });
 
-  const fetchVehicles = async () => {
-    setIsLoading(true);
-    try {
-      const data = await apiClient.get('/api/vehicles/admin/full');
-      setVehicles(data);
-      setError(null);
-    } catch (err) {
-      console.error('Erreur lors du chargement des véhicules:', err);
-      setError(t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchVehicles = async () => {
+      setIsLoading(true);
+      try {
+        const data = await apiClient.get('/api/vehicles/admin/full');
+        setVehicles(data);
+        setError(null);
+      } catch (err) {
+        console.error('Erreur lors du chargement des véhicules:', err);
+        setError(t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchVehicles();
-  }, []);
+  }, [t]);
 
   const handleUpdateStatusClick = (vehicleId: number, newStatus: string) => {
     let title = t('confirmDialog.defaultTitle');

@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useTranslations } from 'next-intl';
 import { Star, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { apiClient } from '@/lib/apiClient';
@@ -29,20 +30,28 @@ export default function VehicleReviews({ vehicleId }: { vehicleId: number }) {
   const [summary, setSummary] = useState<VehicleRatingSummary>({ averageRating: 0, reviewCount: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadReviews = useCallback((page: number) => {
-    setIsLoading(true);
-    apiClient.get(`/api/vehicles/${vehicleId}/reviews?page=${page}&size=${PAGE_SIZE}`)
-      .then(setReviewPage)
-      .catch(() => {})
-      .finally(() => setIsLoading(false));
-  }, [vehicleId]);
+  const [page, setPage] = useState(0);
+
+  // Autre véhicule : retour à la première page.
+  useOnChange(vehicleId, () => setPage(0));
 
   useEffect(() => {
-    loadReviews(0);
+    const loadReviews = () => {
+      setIsLoading(true);
+      apiClient.get(`/api/vehicles/${vehicleId}/reviews?page=${page}&size=${PAGE_SIZE}`)
+        .then(setReviewPage)
+        .catch(() => {})
+        .finally(() => setIsLoading(false));
+    };
+
+    loadReviews();
+  }, [vehicleId, page]);
+
+  useEffect(() => {
     apiClient.get(`/api/vehicles/${vehicleId}/reviews/summary`)
       .then((data) => setSummary(data || { averageRating: 0, reviewCount: 0 }))
       .catch(() => {});
-  }, [vehicleId, loadReviews]);
+  }, [vehicleId]);
 
   if (isLoading && !reviewPage) return null;
 
@@ -93,7 +102,7 @@ export default function VehicleReviews({ vehicleId }: { vehicleId: number }) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
           <button
-            onClick={() => loadReviews(currentPage - 1)}
+            onClick={() => setPage(currentPage - 1)}
             disabled={currentPage === 0 || isLoading}
             className="flex items-center px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
@@ -104,7 +113,7 @@ export default function VehicleReviews({ vehicleId }: { vehicleId: number }) {
             {t('pageOf', { current: currentPage + 1, total: totalPages })}
           </span>
           <button
-            onClick={() => loadReviews(currentPage + 1)}
+            onClick={() => setPage(currentPage + 1)}
             disabled={currentPage >= totalPages - 1 || isLoading}
             className="flex items-center px-3 py-1.5 text-sm font-medium border border-border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >

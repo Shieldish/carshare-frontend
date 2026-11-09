@@ -28,13 +28,13 @@ export default function FavoritesPage() {
     }
 
     let cancelled = false;
-    setIsLoading(true);
-    setLoadError(false);
 
     apiClient
       .get('/api/favorites')
       .then((data: unknown) => {
-        if (!cancelled) setVehicles(Array.isArray(data) ? data : []);
+        if (cancelled) return;
+        setLoadError(false);
+        setVehicles(Array.isArray(data) ? data : []);
       })
       .catch((error) => {
         console.error('Impossible de charger les favoris:', error);

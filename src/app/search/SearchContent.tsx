@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, Suspense, useMemo } from 'react';
+import { useOnChange } from '@/hooks/useOnChange';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { Map as MapIcon, List, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -74,6 +75,17 @@ interface SearchContentInnerProps {
   initialVehicles?: Vehicle[];
 }
 
+const filterVehiclesByCity = (vehicles: Vehicle[], city: string): Vehicle[] => {
+  if (!city) return vehicles;
+  const searchTerm = city.toLowerCase();
+  return vehicles.filter((v) =>
+    v.province?.name?.toLowerCase().includes(searchTerm) ||
+    v.commune?.name?.toLowerCase().includes(searchTerm) ||
+    v.address?.toLowerCase().includes(searchTerm) ||
+    v.locationGps?.toLowerCase().includes(searchTerm)
+  );
+};
+
 function SearchContent({ initialVehicles }: SearchContentInnerProps) {
   const t = useTranslations('search');
   const searchParams = useSearchParams();
@@ -82,7 +94,13 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
 
   const hasInitialData = initialVehicles !== undefined;
 
-  const [allVehicles, setAllVehicles] = useState<Vehicle[]>(initialVehicles ?? []);
+  const [fetchedVehicles, setAllVehicles] = useState<Vehicle[]>([]);
+  // Données déjà fournies par le serveur (voir page.tsx) : on filtre juste par ville sur ces
+  // données, sans refaire l'appel réseau.
+  const allVehicles = useMemo(
+    () => (initialVehicles !== undefined ? filterVehiclesByCity(initialVehicles, city) : fetchedVehicles),
+    [initialVehicles, city, fetchedVehicles]
+  );
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
   const [isLoading, setIsLoading] = useState(!hasInitialData);
   const [loadError, setLoadError] = useState(false);
@@ -93,22 +111,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    // Données déjà fournies par le serveur (voir page.tsx) : on filtre juste par ville
-    // sur ces données, sans refaire l'appel réseau.
-    if (hasInitialData) {
-      const cityVehicles = city ? initialVehicles!.filter((v: Vehicle) => {
-        const searchTerm = city.toLowerCase();
-        return (
-          v.province?.name?.toLowerCase().includes(searchTerm) ||
-          v.commune?.name?.toLowerCase().includes(searchTerm) ||
-          v.address?.toLowerCase().includes(searchTerm) ||
-          v.locationGps?.toLowerCase().includes(searchTerm)
-        );
-      }) : initialVehicles!;
-      setAllVehicles(cityVehicles);
-      setIsLoading(false);
-      return;
-    }
+    if (hasInitialData) return;
 
     const fetchVehicles = async () => {
       setLoadError(false);
@@ -116,16 +119,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8081'}/api/vehicles`);
         if (response.ok) {
           const data = await response.json();
-          const cityVehicles = city ? data.filter((v: Vehicle) => {
-            const searchTerm = city.toLowerCase();
-            return (
-              v.province?.name?.toLowerCase().includes(searchTerm) ||
-              v.commune?.name?.toLowerCase().includes(searchTerm) ||
-              v.address?.toLowerCase().includes(searchTerm) ||
-              v.locationGps?.toLowerCase().includes(searchTerm)
-            );
-          }) : data;
-          setAllVehicles(cityVehicles);
+          setAllVehicles(filterVehiclesByCity(data, city));
         } else {
           setLoadError(true);
           toast.error(t('loadError'));
@@ -143,9 +137,7 @@ function SearchContent({ initialVehicles }: SearchContentInnerProps) {
   }, [city, hasInitialData]);
 
   // Réinitialiser la page à 1 si on bouge la carte
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [mapBounds]);
+  useOnChange(mapBounds, () => setCurrentPage(1));
 
   const visibleVehicles = useMemo(() => {
     if (!mapBounds) return allVehicles;

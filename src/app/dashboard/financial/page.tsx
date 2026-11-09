@@ -1,7 +1,7 @@
 // src/app/dashboard/financial/page.tsx
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/context/AuthContext';
@@ -25,33 +25,33 @@ export default function FinancialDashboardPage() {
 
   const isOwner = user?.role === 'OWNER' || user?.role === 'ADMIN';
 
-  const loadSummary = useCallback(async (start?: Date, end?: Date) => {
-    if (!isOwner) {
-      setSummary(null);
-      setIsLoadingSummary(false);
-      return;
-    }
-    setIsLoadingSummary(true);
-    setSummaryError(null);
-    try {
-      const data = await apiClient.getOwnerFinancialSummary(start, end);
-      setSummary(data);
-    } catch (err: unknown) {
-      console.error("Error fetching summary:", err);
-      setSummaryError(err instanceof Error ? err.message : t('loadSummaryError'));
-    } finally {
-      setIsLoadingSummary(false);
-    }
-  }, [isOwner]);
-
   useEffect(() => {
     if (isAuthLoading) return;
     if (!user) {
       router.push('/login?redirect=/dashboard/financial');
       return;
     }
-    loadSummary(startDate ?? undefined, endDate ?? undefined);
-  }, [user, isAuthLoading, router, startDate, endDate, loadSummary]);
+    const loadSummary = async () => {
+      if (!isOwner) {
+        setSummary(null);
+        setIsLoadingSummary(false);
+        return;
+      }
+      setIsLoadingSummary(true);
+      setSummaryError(null);
+      try {
+        const data = await apiClient.getOwnerFinancialSummary(startDate ?? undefined, endDate ?? undefined);
+        setSummary(data);
+      } catch (err: unknown) {
+        console.error("Error fetching summary:", err);
+        setSummaryError(err instanceof Error ? err.message : t('loadSummaryError'));
+      } finally {
+        setIsLoadingSummary(false);
+      }
+    };
+
+    loadSummary();
+  }, [user, isAuthLoading, router, startDate, endDate, isOwner, t]);
 
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStartDate(e.target.value ? new Date(e.target.value) : null);

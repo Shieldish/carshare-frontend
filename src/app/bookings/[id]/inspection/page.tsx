@@ -1,7 +1,7 @@
 // src/app/bookings/[id]/inspection/page.tsx
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useReducer } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { apiClient, ApiError } from '@/lib/apiClient';
@@ -33,81 +33,83 @@ function InspectionPageContent() {
     // ✅ Toast de succès géré dans le parent — survit au démontage du formulaire
     const [showSuccessToast, setShowSuccessToast] = useState(false);
 
-    const fetchInspectionDetails = async () => {
-        if (isNaN(bookingIdNum)) {
-            setError(t('invalidBookingId'));
-            setIsLoading(false);
-            return;
-        }
-        if (!user) return;
-
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            // ✅ On utilise le nouvel endpoint /access qui retourne renter + vehicle.owner + checkInCode
-            // L'ancien endpoint GET /api/bookings/{id} est inchangé et continue de fonctionner pour les autres pages
-            const bookingData = await apiClient.get(`/api/bookings/${bookingIdNum}/access`);
-
-            setCurrentBookingStatus(bookingData.status);
-
-            // Les IDs sont maintenant garantis dans la réponse
-            const foundOwnerId = bookingData?.vehicle?.owner?.id ?? null;
-            const foundRenterId = bookingData?.renter?.id ?? null;
-
-            setOwnerId(foundOwnerId !== null ? Number(foundOwnerId) : null);
-            setRenterId(foundRenterId !== null ? Number(foundRenterId) : null);
-            setCheckInPin(bookingData.checkInCode ?? null);
-
-            console.log("🔍 Accès inspection :", {
-                utilisateur: user.id,
-                proprietaire: foundOwnerId,
-                locataire: foundRenterId,
-                isOwner: Number(user.id) === Number(foundOwnerId),
-                isRenter: Number(user.id) === Number(foundRenterId),
-                status: bookingData.status,
-                checkInCode: bookingData.checkInCode,
-            });
-
-            // Récupérer les détails de l'inspection si la réservation le permet
-            if (['CONFIRMED', 'IN_PROGRESS', 'COMPLETED'].includes(bookingData.status)) {
-                try {
-                    const data = await apiClient.getInspectionDetails(bookingIdNum);
-                    setInspectionDetails(data);
-                } catch (inspErr: unknown) {
-                    if (inspErr instanceof ApiError && inspErr.status === 404) {
-                        setInspectionDetails(null); // Pas encore d'inspection — normal
-                    } else {
-                        throw inspErr;
-                    }
-                }
-            } else {
-                setInspectionDetails(null);
-            }
-
-        } catch (err: unknown) {
-            if (err instanceof ApiError && err.status === 403) {
-                setError(t('accessDenied'));
-            } else if (err instanceof Error) {
-                setError(err.message || t('loadError'));
-            } else {
-                setError(t('loadError'));
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const [reloadKey, reloadDetails] = useReducer((key: number) => key + 1, 0);
 
     useEffect(() => {
+        const fetchInspectionDetails = async () => {
+            if (isNaN(bookingIdNum)) {
+                setError(t('invalidBookingId'));
+                setIsLoading(false);
+                return;
+            }
+            if (!user) return;
+
+            setIsLoading(true);
+            setError(null);
+
+            try {
+                // ✅ On utilise le nouvel endpoint /access qui retourne renter + vehicle.owner + checkInCode
+                // L'ancien endpoint GET /api/bookings/{id} est inchangé et continue de fonctionner pour les autres pages
+                const bookingData = await apiClient.get(`/api/bookings/${bookingIdNum}/access`);
+
+                setCurrentBookingStatus(bookingData.status);
+
+                // Les IDs sont maintenant garantis dans la réponse
+                const foundOwnerId = bookingData?.vehicle?.owner?.id ?? null;
+                const foundRenterId = bookingData?.renter?.id ?? null;
+
+                setOwnerId(foundOwnerId !== null ? Number(foundOwnerId) : null);
+                setRenterId(foundRenterId !== null ? Number(foundRenterId) : null);
+                setCheckInPin(bookingData.checkInCode ?? null);
+
+                console.log("🔍 Accès inspection :", {
+                    utilisateur: user.id,
+                    proprietaire: foundOwnerId,
+                    locataire: foundRenterId,
+                    isOwner: Number(user.id) === Number(foundOwnerId),
+                    isRenter: Number(user.id) === Number(foundRenterId),
+                    status: bookingData.status,
+                    checkInCode: bookingData.checkInCode,
+                });
+
+                // Récupérer les détails de l'inspection si la réservation le permet
+                if (['CONFIRMED', 'IN_PROGRESS', 'COMPLETED'].includes(bookingData.status)) {
+                    try {
+                        const data = await apiClient.getInspectionDetails(bookingIdNum);
+                        setInspectionDetails(data);
+                    } catch (inspErr: unknown) {
+                        if (inspErr instanceof ApiError && inspErr.status === 404) {
+                            setInspectionDetails(null); // Pas encore d'inspection — normal
+                        } else {
+                            throw inspErr;
+                        }
+                    }
+                } else {
+                    setInspectionDetails(null);
+                }
+
+            } catch (err: unknown) {
+                if (err instanceof ApiError && err.status === 403) {
+                    setError(t('accessDenied'));
+                } else if (err instanceof Error) {
+                    setError(err.message || t('loadError'));
+                } else {
+                    setError(t('loadError'));
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
         if (!isAuthLoading && user) {
             fetchInspectionDetails();
         } else if (!isAuthLoading && !user) {
             router.push(`/login?redirect=/bookings/${bookingId}/inspection`);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [bookingIdNum, isAuthLoading, user]);
+    }, [bookingIdNum, isAuthLoading, user, reloadKey]);
 
-    const handleCheckOutSuccess = () => { fetchInspectionDetails(); };
+    const handleCheckOutSuccess = () => { reloadDetails(); };
 
     // Conversion explicite en Number pour éviter "5" === 5 → false
     const isOwner = ownerId !== null && Number(user?.id) === Number(ownerId);

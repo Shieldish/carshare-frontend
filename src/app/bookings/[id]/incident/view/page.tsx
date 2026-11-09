@@ -22,19 +22,18 @@ function IncidentViewPageContent() {
     const bookingIdNum = parseInt(bookingId, 10);
 
     const [reports, setReports] = useState<IncidentReportDetails[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isFetching, setIsLoading] = useState(true);
+    const [loadError, setError] = useState<string | null>(null);
+    const isInvalidId = isNaN(bookingIdNum);
+    const isLoading = isFetching && !isInvalidId;
+    const error = isInvalidId ? t('invalidBookingId') : loadError;
     const [isOwner, setIsOwner] = useState(false);
 
     const highlightId = searchParams.get('highlight');
     const highlightedReportRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (isNaN(bookingIdNum)) {
-            setError(t('invalidBookingId'));
-            setIsLoading(false);
-            return;
-        }
+        if (isNaN(bookingIdNum)) return;
 
         const fetchReportsAndAccess = async () => {
             setIsLoading(true);
@@ -84,7 +83,7 @@ function IncidentViewPageContent() {
         if (user) {
             fetchReportsAndAccess();
         }
-    }, [bookingIdNum, highlightId, user]);
+    }, [bookingIdNum, highlightId, user, t]);
 
      const renderContent = () => {
         if (isLoading) {

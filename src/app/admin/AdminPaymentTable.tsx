@@ -33,27 +33,26 @@ export default function AdminPaymentTable() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Charger l'historique des paiements depuis le nouvel endpoint
-  const fetchPaymentHistory = async () => {
-    setIsLoading(true);
-    try {
-      const data = await apiClient.get('/api/payments/admin/history');
-      // Trier pour avoir les plus récents en premier
-      const sortedData = data.sort((a: CompletedPayment, b: CompletedPayment) =>
-        new Date(b.capturedAt || b.createdAt).getTime() - new Date(a.capturedAt || a.createdAt).getTime()
-      );
-      setPayments(sortedData);
-    } catch (error) {
-      console.error("Erreur lors du chargement de l'historique", error);
-      toast.error(t('loadError'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchPaymentHistory = async () => {
+      setIsLoading(true);
+      try {
+        const data = await apiClient.get('/api/payments/admin/history');
+        // Trier pour avoir les plus récents en premier
+        const sortedData = data.sort((a: CompletedPayment, b: CompletedPayment) =>
+          new Date(b.capturedAt || b.createdAt).getTime() - new Date(a.capturedAt || a.createdAt).getTime()
+        );
+        setPayments(sortedData);
+      } catch (error) {
+        console.error("Erreur lors du chargement de l'historique", error);
+        toast.error(t('loadError'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchPaymentHistory();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [t]);
 
   const extractPhone = (gatewayId: string) => {
     if (gatewayId && gatewayId.startsWith('MOBILE_MONEY:')) {
