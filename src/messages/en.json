@@ -674,6 +674,7 @@
       "provinceNotSpecified": "-- Not specified --",
       "loadingOption": "Loading...",
       "addressLabel": "Neighborhood / Area",
+      "addressPlaceholder": "E.g.: Kinindo, Rohero, Nyakabiga...",
       "addressOptionalLabel": "Neighborhood / Area (Optional but recommended)",
       "centerButton": "Center",
       "centering": "Searching...",

@@ -10,12 +10,20 @@ import { cn } from '@/lib/cn';
  * cartes (incidents, véhicules) restent des `Card` — leur contenu ne tient
  * pas en colonnes.
  */
-export function Table({ className, children, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
+interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> {
+  /** Affiche un voile de chargement pendant un refetch, sans masquer les lignes déjà chargées. */
+  loading?: boolean;
+}
+
+export function Table({ className, children, loading = false, ...props }: TableProps) {
   return (
     <div className="relative w-full overflow-x-auto rounded-lg border border-border">
       <table className={cn('w-full border-collapse text-left text-body', className)} {...props}>
         {children}
       </table>
+      {/* Le voile est un frère de <table>, jamais un enfant : un <div> dans <table>
+          est du HTML invalide (erreur d'hydratation React). */}
+      {loading && <TableLoadingOverlay />}
     </div>
   );
 }
@@ -51,9 +59,8 @@ export function TableEmpty({ colSpan, children }: { colSpan: number; children: R
   );
 }
 
-/** Voile de chargement pendant un refetch (pattern de reviews/page.tsx) — le
- * conteneur de `Table` est déjà `relative`, il suffit de la placer en enfant. */
-export function TableLoadingOverlay() {
+/** Voile de chargement pendant un refetch — rendu par `Table` via sa prop `loading`. */
+function TableLoadingOverlay() {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-card/60 backdrop-blur-[1px]">
       <Loader2 className="h-6 w-6 animate-spin text-primary" />

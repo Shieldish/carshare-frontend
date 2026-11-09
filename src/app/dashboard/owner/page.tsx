@@ -53,7 +53,8 @@ function OwnerDashboardContent() {
           if (response.requiresPayment) {
             console.warn('🔔 Paiement d\'inscription en attente détecté. Redirection vers la caisse...');
             // 🚨 REDIRECTION FORCÉE : L'utilisateur doit finir de payer son inscription
-            router.replace(`/payment/checkout/${response.paymentId}`);
+            // Même page de paiement que l'inscription entreprise (/payment/checkout n'existe pas).
+            router.replace(`/payment?paymentId=${response.paymentId}&type=registration`);
             return; // On arrête ici, pas besoin de charger le dashboard
           }
         } catch (error) {

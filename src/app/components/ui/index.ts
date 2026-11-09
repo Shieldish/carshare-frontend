@@ -13,5 +13,5 @@ export {
   type DialogSize,
   type ConfirmDialogTone,
 } from './Dialog';
-export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty, TableLoadingOverlay } from './Table';
+export { Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableEmpty } from './Table';
 export { StatCard, type StatCardTone } from './StatCard';

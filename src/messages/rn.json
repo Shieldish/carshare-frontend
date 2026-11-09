@@ -676,6 +676,7 @@
       "provinceNotSpecified": "-- Ntibyavuzwe --",
       "loadingOption": "Birimwo gupakira...",
       "addressLabel": "Agace",
+      "addressPlaceholder": "Nk'akarorero: Kinindo, Rohero, Nyakabiga...",
       "addressOptionalLabel": "Agace (Bidasabwa ariko birasabwa)",
       "centerButton": "Shira hagati",
       "centering": "Birarondwa...",

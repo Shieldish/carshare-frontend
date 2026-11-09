@@ -17,7 +17,6 @@ import {
   TableRow,
   TableHead,
   TableCell,
-  TableLoadingOverlay,
 } from '@/app/components/ui';
 
 interface AdminReview {
@@ -102,8 +101,7 @@ export default function AdminReviewsPage() {
         )}
       </div>
 
-      <Table>
-        {isLoading && <TableLoadingOverlay />}
+      <Table loading={isLoading}>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
             <TableHead>{t('columns.vehicle')}</TableHead>

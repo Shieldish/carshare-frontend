@@ -674,6 +674,7 @@
       "provinceNotSpecified": "-- Non spécifié --",
       "loadingOption": "Chargement...",
       "addressLabel": "Quartier / Zone",
+      "addressPlaceholder": "Ex: Kinindo, Rohero, Nyakabiga...",
       "addressOptionalLabel": "Quartier / Zone (Optionnel mais recommandé)",
       "centerButton": "Centrer",
       "centering": "Recherche...",
