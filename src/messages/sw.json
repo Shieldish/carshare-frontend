@@ -1454,7 +1454,13 @@
         "status": "Hali"
       },
       "automatic": "Kiotomatiki",
-      "notAvailable": "Haipatikani"
+      "notAvailable": "Haipatikani",
+      "purposes": {
+        "BOOKING": "Uhifadhi",
+        "COMPANY_REGISTRATION_FEE": "Ada ya usajili wa kampuni",
+        "BOOST": "Boost",
+        "PREMIUM_SUBSCRIPTION": "Usajili wa Premium"
+      }
     },
     "incidents": {
       "pageTitle": "Usimamizi wa Matukio na Upatanishi",

@@ -8,23 +8,29 @@ import toast from 'react-hot-toast';
 import { Badge, Table, TableHeader, TableBody, TableRow, TableHead, TableCell, type BadgeVariant } from '@/app/components/ui';
 import { formatNumber } from '@/lib/formatNumber';
 
+// Réponse de GET /api/payments/admin/history (AdminPaymentHistoryDto côté backend).
+// purpose, currency, capturedAt, gatewayTransactionId et manualTransactionRef n'étaient pas
+// envoyés avant novembre 2026 : ils restent optionnels pour un backend pas encore à jour.
 interface CompletedPayment {
   id: string;
   amountTotal: number;
-  currency: string;
+  currency?: string | null;
   method: string;
-  purpose: string;
+  purpose?: string | null;
   status: string;
-  manualTransactionRef: string;
-  gatewayTransactionId: string;
+  manualTransactionRef?: string | null;
+  gatewayTransactionId?: string | null;
   createdAt: string;
-  capturedAt: string;
+  capturedAt?: string | null;
 }
+
+const PURPOSES = ['BOOKING', 'COMPANY_REGISTRATION_FEE', 'BOOST', 'PREMIUM_SUBSCRIPTION'] as const;
 
 const PURPOSE_BADGE: Record<string, BadgeVariant> = {
   BOOST: 'boost',
   BOOKING: 'info',
   COMPANY_REGISTRATION_FEE: 'warning',
+  PREMIUM_SUBSCRIPTION: 'premium',
 };
 
 export default function AdminPaymentTable() {
@@ -54,7 +60,14 @@ export default function AdminPaymentTable() {
     fetchPaymentHistory();
   }, [t]);
 
-  const extractPhone = (gatewayId: string) => {
+  const purposeLabel = (purpose?: string | null) => {
+    if (!purpose) return t('notAvailable');
+    return (PURPOSES as readonly string[]).includes(purpose)
+      ? t(`purposes.${purpose as (typeof PURPOSES)[number]}`)
+      : purpose;
+  };
+
+  const extractPhone = (gatewayId?: string | null) => {
     if (gatewayId && gatewayId.startsWith('MOBILE_MONEY:')) {
       return gatewayId.replace('MOBILE_MONEY:', '');
     }
@@ -108,10 +121,12 @@ export default function AdminPaymentTable() {
                   })}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={PURPOSE_BADGE[payment.purpose] ?? 'neutral'}>{payment.purpose}</Badge>
+                  <Badge variant={(payment.purpose && PURPOSE_BADGE[payment.purpose]) || 'neutral'}>
+                    {purposeLabel(payment.purpose)}
+                  </Badge>
                 </TableCell>
-                <TableCell className="font-bold">
-                  {formatNumber(payment.amountTotal)} {payment.currency}
+                <TableCell className="font-bold whitespace-nowrap">
+                  {formatNumber(payment.amountTotal)} {payment.currency || 'BIF'}
                 </TableCell>
                 <TableCell className="font-medium">
                   {extractPhone(payment.gatewayTransactionId)}

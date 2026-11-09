@@ -1452,7 +1452,13 @@
         "status": "Statut"
       },
       "automatic": "Automatique",
-      "notAvailable": "N/A"
+      "notAvailable": "N/A",
+      "purposes": {
+        "BOOKING": "Réservation",
+        "COMPANY_REGISTRATION_FEE": "Frais d'inscription entreprise",
+        "BOOST": "Boost",
+        "PREMIUM_SUBSCRIPTION": "Abonnement Premium"
+      }
     },
     "incidents": {
       "pageTitle": "Gestion des Incidents & Arbitrage",

@@ -1452,7 +1452,13 @@
         "status": "Status"
       },
       "automatic": "Automatic",
-      "notAvailable": "N/A"
+      "notAvailable": "N/A",
+      "purposes": {
+        "BOOKING": "Booking",
+        "COMPANY_REGISTRATION_FEE": "Company registration fee",
+        "BOOST": "Boost",
+        "PREMIUM_SUBSCRIPTION": "Premium Subscription"
+      }
     },
     "incidents": {
       "pageTitle": "Incident Management & Arbitration",

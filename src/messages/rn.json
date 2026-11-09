@@ -1454,7 +1454,13 @@
         "status": "Uko bimeze"
       },
       "automatic": "Mu buryo bwikora",
-      "notAvailable": "Ntiraboneka"
+      "notAvailable": "Ntiraboneka",
+      "purposes": {
+        "BOOKING": "Ipangwa",
+        "COMPANY_REGISTRATION_FEE": "Amafaranga yo kwiyandikisha kw'isosiyete",
+        "BOOST": "Boost",
+        "PREMIUM_SUBSCRIPTION": "Iyandikisha rya Premium"
+      }
     },
     "incidents": {
       "pageTitle": "Ugucungera Ibibazo n'Ukwemeza",
