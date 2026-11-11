@@ -48,6 +48,12 @@ function CallbackContent() {
 
           await refreshUser();
           setStatus('success');
+
+          if (searchParams.get('platform') === 'mobile') {
+            setTimeout(() => {
+              window.location.href = `budaxdrive://payment/callback?status=success&ref=${referenceId || ''}`;
+            }, 800);
+          }
         } catch (err) {
           setErrorMessage(err instanceof Error ? err.message : t('confirmationFailed'));
           setStatus('error');
@@ -146,12 +152,21 @@ function CallbackContent() {
             <p className="text-gray-600 dark:text-gray-300 my-6">
               {successContent.message}
             </p>
-            <button 
-              onClick={successContent.buttonAction}
-              className="bg-primary text-primary-foreground py-2 px-8 rounded-lg hover:bg-primary/90 transition-colors font-medium"
-            >
-              {successContent.buttonText}
-            </button>
+            {searchParams.get('platform') === 'mobile' ? (
+              <a 
+                href={`budaxdrive://payment/callback?status=success&ref=${searchParams.get('ref') || ''}`}
+                className="inline-block bg-primary text-primary-foreground py-3 px-8 rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-md"
+              >
+                Retourner à l'application BudaxDrive
+              </a>
+            ) : (
+              <button 
+                onClick={successContent.buttonAction}
+                className="bg-primary text-primary-foreground py-2 px-8 rounded-lg hover:bg-primary/90 transition-colors font-medium"
+              >
+                {successContent.buttonText}
+              </button>
+            )}
           </>
         )}
 
@@ -160,12 +175,21 @@ function CallbackContent() {
             <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('errorTitle')}</h1>
             <p className="text-gray-600 dark:text-gray-300 my-6">{errorMessage}</p>
-            <button
-              onClick={() => router.push(getRedirectPath(source))}
-              className="bg-gray-600 text-white py-2 px-8 rounded-lg hover:bg-gray-700 transition-colors font-medium"
-            >
-              {t('backButton')}
-            </button>
+            {searchParams.get('platform') === 'mobile' ? (
+              <a
+                href="budaxdrive://payment/cancel"
+                className="inline-block bg-gray-600 text-white py-3 px-8 rounded-lg hover:bg-gray-700 transition-colors font-medium shadow-md"
+              >
+                Retourner à l'application BudaxDrive
+              </a>
+            ) : (
+              <button
+                onClick={() => router.push(getRedirectPath(source))}
+                className="bg-gray-600 text-white py-2 px-8 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              >
+                {t('backButton')}
+              </button>
+            )}
           </>
         )}
       </div>
